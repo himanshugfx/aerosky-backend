@@ -1,10 +1,10 @@
-// Help Center / Support Request API
+// Support Ticket API - List and Create
 import { authenticateRequest } from '@/lib/api-auth';
+import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Support message schema in database would be ideal, but for now we'll use a simple approach
-
-// GET - Get support messages (for admins/super_admin)
+// GET - Get support tickets
+// SUPER_ADMIN sees all tickets, ADMIN sees only their org's tickets
 export async function GET(request: NextRequest) {
     try {
         const auth = await authenticateRequest(request);
@@ -12,23 +12,82 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Only admins can view support requests
+        // Only admins can view support tickets
         if (auth.user.role !== 'ADMIN' && auth.user.role !== 'SUPER_ADMIN') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        // For now return a placeholder - in production, query from SupportMessage table
-        return NextResponse.json({
-            messages: [],
-            info: 'Help center messages will appear here'
+        let tickets;
+
+        if (auth.user.role === 'SUPER_ADMIN') {
+            // Super admin sees all tickets
+            tickets = await prisma.supportTicket.findMany({
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                            role: true
+                        }
+                    },
+                    organization: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    messages: {
+                        take: 1,
+                        orderBy: { createdAt: 'desc' }
+                    },
+                    _count: {
+                        select: { messages: true }
+                    }
+                },
+                orderBy: [
+                    { status: 'asc' },
+                    { priority: 'desc' },
+                    { updatedAt: 'desc' }
+                ]
+            });
+        } else {
+            // Admin sees only their tickets
+            tickets = await prisma.supportTicket.findMany({
+                where: {
+                    userId: auth.user.id
+                },
+                include: {
+                    messages: {
+                        take: 1,
+                        orderBy: { createdAt: 'desc' }
+                    },
+                    _count: {
+                        select: { messages: true }
+                    }
+                },
+                orderBy: [
+                    { status: 'asc' },
+                    { updatedAt: 'desc' }
+                ]
+            });
+        }
+
+        return NextResponse.json(tickets, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            }
         });
-    } catch (error) {
-        console.error('Get support messages error:', error);
-        return NextResponse.json({ error: 'Failed to get messages' }, { status: 500 });
+    } catch (error: any) {
+        console.error('Get support tickets error:', error);
+        return NextResponse.json(
+            { error: 'Failed to get tickets', details: error.message },
+            { status: 500 }
+        );
     }
 }
 
-// POST - Submit a support request
+// POST - Create a new support ticket
 export async function POST(request: NextRequest) {
     try {
         const auth = await authenticateRequest(request);
@@ -46,33 +105,58 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Determine recipient based on sender's role
-        let recipientType: string;
-        if (auth.user.role === 'ADMIN') {
-            recipientType = 'SUPER_ADMIN'; // Admin contacts developer (super admin)
-        } else {
-            recipientType = 'ADMIN'; // Staff contacts admin
-        }
+        // Create ticket with initial message in a transaction
+        const ticket = await prisma.$transaction(async (tx) => {
+            // Create the ticket
+            const newTicket = await tx.supportTicket.create({
+                data: {
+                    subject,
+                    priority: priority || 'NORMAL',
+                    userId: auth.user.id,
+                    organizationId: auth.user.organizationId
+                }
+            });
 
-        // For now, log the support request
-        // In production, save to SupportMessage table and send notification
-        console.log('Support request received:', {
-            from: auth.user.username,
-            fromRole: auth.user.role,
-            toRole: recipientType,
-            subject,
-            message,
-            priority: priority || 'normal',
-            createdAt: new Date()
+            // Create initial message
+            await tx.supportMessage.create({
+                data: {
+                    ticketId: newTicket.id,
+                    senderId: auth.user.id,
+                    message
+                }
+            });
+
+            return newTicket;
         });
+
+        console.log('Created support ticket:', ticket.id, 'by user:', auth.user.username);
 
         return NextResponse.json({
             success: true,
-            message: `Your message has been sent to ${recipientType === 'SUPER_ADMIN' ? 'Developer Support' : 'Admin'}`,
-            ticketId: `SUPPORT-${Date.now()}`
+            ticket,
+            message: 'Your support ticket has been created'
+        }, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            }
         });
-    } catch (error) {
-        console.error('Submit support request error:', error);
-        return NextResponse.json({ error: 'Failed to submit request' }, { status: 500 });
+    } catch (error: any) {
+        console.error('Create support ticket error:', error);
+        return NextResponse.json(
+            { error: 'Failed to create ticket', details: error.message },
+            { status: 500 }
+        );
     }
+}
+
+// OPTIONS for CORS preflight
+export async function OPTIONS() {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+    });
 }

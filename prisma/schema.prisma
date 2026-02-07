@@ -18,6 +18,22 @@ enum Role {
   VIEWER
 }
 
+// Support ticket status
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// Support ticket priority
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
 // Organization model for multi-tenant support
 model Organization {
   id          String   @id @default(uuid())
@@ -35,6 +51,7 @@ model Organization {
   batteries      Battery[]
   orders         Order[]
   auditLogs      AuditLog[]
+  supportTickets SupportTicket[]
 
   @@map("organizations")
 }
@@ -55,6 +72,7 @@ model User {
 
   organization   Organization? @relation(fields: [organizationId], references: [id])
   teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id])
+  supportTickets SupportTicket[]
 
   @@map("users")
 }
@@ -237,3 +255,39 @@ model Order {
 
   @@map("orders")
 }
+
+// Support Ticket model
+model SupportTicket {
+  id             String         @id @default(uuid())
+  subject        String
+  status         TicketStatus   @default(OPEN)
+  priority       TicketPriority @default(NORMAL)
+  userId         String         @map("user_id")
+  organizationId String?        @map("organization_id")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  user         User             @relation(fields: [userId], references: [id])
+  organization Organization?    @relation(fields: [organizationId], references: [id])
+  messages     SupportMessage[]
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("support_tickets")
+}
+
+// Support Message model (chat messages)
+model SupportMessage {
+  id        String   @id @default(uuid())
+  ticketId  String   @map("ticket_id")
+  senderId  String   @map("sender_id")
+  message   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("support_messages")
+}
+
