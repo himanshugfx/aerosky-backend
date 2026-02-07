@@ -1,0 +1,125 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+// GET all drones with uploads
+export async function GET() {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const drones = await prisma.drone.findMany({
+            include: {
+                uploads: true,
+                accountableManager: true,
+                manufacturedUnits: true,
+            },
+            orderBy: { createdAt: "desc" },
+        });
+
+        // Transform uploads to match frontend format
+        const transformedDrones = drones.map((drone: any) => {
+            const uploads = {
+                trainingManual: drone.uploads.find((u: any) => u.uploadType === "training_manual")?.fileData,
+                infrastructureManufacturing: drone.uploads
+                    .filter((u: any) => u.uploadType === "infrastructure_manufacturing")
+                    .map((u: any) => u.fileData),
+                infrastructureTesting: drone.uploads
+                    .filter((u: any) => u.uploadType === "infrastructure_testing")
+                    .map((u: any) => u.fileData),
+                infrastructureOffice: drone.uploads
+                    .filter((u: any) => u.uploadType === "infrastructure_office")
+                    .map((u: any) => u.fileData),
+                infrastructureOthers: drone.uploads
+                    .filter((u: any) => u.uploadType === "infrastructure_others")
+                    .map((u: any) => ({ label: u.label || "", image: u.fileData })),
+                regulatoryDisplay: drone.uploads
+                    .filter((u: any) => u.uploadType === "regulatory_display")
+                    .map((u: any) => u.fileData),
+                systemDesign: drone.uploads.find((u: any) => u.uploadType === "system_design")?.fileData,
+                hardwareSecurity: drone.uploads
+                    .filter((u: any) => u.uploadType === "hardware_security")
+                    .map((u: any) => u.fileData),
+                webPortalLink: drone.webPortalLink,
+            };
+
+            return {
+                id: drone.id,
+                modelName: drone.modelName,
+                // uin: drone.uin, // Removed
+                image: drone.image,
+                accountableManagerId: drone.accountableManagerId,
+                createdAt: drone.createdAt.toISOString(),
+                uploads,
+                manufacturedUnits: drone.manufacturedUnits.map((u: any) => ({
+                    serialNumber: u.serialNumber,
+                    uin: u.uin,
+                })),
+                recurringData: drone.recurringData,
+            };
+        });
+
+        return NextResponse.json(transformedDrones);
+    } catch (error) {
+        console.error("Error fetching drones:", error);
+        return NextResponse.json({ error: "Failed to fetch drones" }, { status: 500 });
+    }
+}
+
+// POST create drone
+export async function POST(request: NextRequest) {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const body = await request.json();
+        // Remove uin from top level
+        const { modelName, image, manufacturedUnits } = body;
+
+        const drone = await prisma.drone.create({
+            data: {
+                modelName,
+                // uin, // Removed
+                image,
+                manufacturedUnits: {
+                    create: (manufacturedUnits || []).map((unit: any) => ({
+                        serialNumber: unit.serialNumber,
+                        uin: unit.uin,
+                    })),
+                },
+            },
+            include: {
+                manufacturedUnits: true,
+            },
+        });
+
+        return NextResponse.json({
+            id: drone.id,
+            modelName: drone.modelName,
+            // uin: drone.uin,
+            image: drone.image,
+            accountableManagerId: drone.accountableManagerId,
+            createdAt: drone.createdAt.toISOString(),
+            manufacturedUnits: drone.manufacturedUnits.map((u: any) => ({
+                serialNumber: u.serialNumber,
+                uin: u.uin,
+            })),
+            uploads: {
+                infrastructureManufacturing: [],
+                infrastructureTesting: [],
+                infrastructureOffice: [],
+                infrastructureOthers: [],
+                regulatoryDisplay: [],
+                hardwareSecurity: [],
+            },
+        }, { status: 201 });
+    } catch (error) {
+        console.error("Error creating drone:", error);
+        return NextResponse.json({ error: "Failed to create drone" }, { status: 500 });
+    }
+}

@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Role enum for RBAC
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  OPERATIONS_MANAGER
+  QA_MANAGER
+  PILOT
+  TECHNICIAN
+  VIEWER
+}
+
+// Organization model for multi-tenant support
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  users          User[]
+  teamMembers    TeamMember[]
+  subcontractors Subcontractor[]
+  drones         Drone[]
+  batteries      Battery[]
+  orders         Order[]
+  auditLogs      AuditLog[]
+
+  @@map("organizations")
+}
+
+model User {
+  id             String        @id @default(uuid())
+  username       String        @unique
+  email          String?       @unique
+  fullName       String?       @map("full_name")
+  phone          String?
+  passwordHash   String        @map("password_hash")
+  role           Role          @default(VIEWER)
+  isActive       Boolean       @default(true) @map("is_active")
+  organizationId String?       @map("organization_id")
+  teamMemberId   String?       @unique @map("team_member_id")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id])
+
+  @@map("users")
+}
+
+// Permission model for granular control
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique  // e.g., "drone:create"
+  description String?
+  category    String   // e.g., "drones", "orders"
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+// Role-Permission mapping
+model RolePermission {
+  id           String   @id @default(uuid())
+  role         Role
+  permissionId String   @map("permission_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+  @@map("role_permissions")
+}
+
+// Audit log for compliance
+model AuditLog {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  organizationId String?  @map("organization_id")
+  action         String   // e.g., "drone:create"
+  resource       String   // e.g., "Drone"
+  resourceId     String?  @map("resource_id")
+  details        Json?
+  ipAddress      String?  @map("ip_address")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model TeamMember {
+  id             String   @id @default(uuid())
+  accessId       String   @unique @map("access_id")
+  name           String
+  phone          String?
+  email          String?
+  position       String?
+  organizationId String?  @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  drones       Drone[]       @relation("AccountableManager")
+  user         User?
+
+  @@map("team_members")
+}
+
+model Subcontractor {
+  id             String   @id @default(uuid())
+  companyName    String   @map("company_name")
+  type           String   // 'Design' or 'Manufacturing'
+  contactPerson  String?  @map("contact_person")
+  contactEmail   String?  @map("contact_email")
+  contactPhone   String?  @map("contact_phone")
+  agreementDate  String?  @map("agreement_date")
+  organizationId String?  @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("subcontractors")
+}
+
+model Drone {
+  id                   String   @id @default(uuid())
+  modelName            String   @map("model_name")
+  image                String?  @db.Text
+  accountableManagerId String?  @map("accountable_manager_id")
+  webPortalLink        String?  @map("web_portal_link")
+  organizationId       String?  @map("organization_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  organization       Organization?      @relation(fields: [organizationId], references: [id])
+  accountableManager TeamMember?        @relation("AccountableManager", fields: [accountableManagerId], references: [id])
+  uploads            DroneUpload[]
+  manufacturedUnits  ManufacturedUnit[]
+  recurringData      Json?              @map("recurring_data")
+
+  @@map("drones")
+}
+
+model ManufacturedUnit {
+  id           String   @id @default(uuid())
+  droneId      String   @map("drone_id")
+  serialNumber String   @map("serial_number")
+  uin          String   @map("uin")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  drone Drone @relation(fields: [droneId], references: [id], onDelete: Cascade)
+
+  @@map("manufactured_units")
+}
+
+model DroneUpload {
+  id         String   @id @default(uuid())
+  droneId    String   @map("drone_id")
+  uploadType String   @map("upload_type") // training_manual, infrastructure_manufacturing, etc.
+  fileData   String   @db.Text @map("file_data")
+  label      String?  // For 'others' category
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  drone Drone @relation(fields: [droneId], references: [id], onDelete: Cascade)
+
+  @@map("drone_uploads")
+}
+
+model Battery {
+  id             String   @id @default(uuid())
+  model          String
+  ratedCapacity  String   @map("rated_capacity")
+  batteryNumberA String   @map("battery_number_a")
+  batteryNumberB String   @map("battery_number_b")
+  organizationId String?  @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("batteries")
+}
+
+model Order {
+  id                          String   @id @default(uuid())
+  
+  // 1. Core Order & Financial Information
+  contractNumber              String   @unique @map("contract_number")
+  clientName                  String   @map("client_name")
+  clientSegment               String   @map("client_segment")
+  orderDate                   DateTime @map("order_date")
+  estimatedCompletionDate     DateTime? @map("estimated_completion_date")
+  contractValue               Float    @map("contract_value")
+  currency                    String   @default("INR")
+  revenueRecognitionStatus    String   @default("Pending") @map("revenue_recognition_status")
+  
+  // 2. Technical & Configuration Details
+  droneModel                  String   @map("drone_model")
+  droneType                   String   @map("drone_type")
+  weightClass                 String   @map("weight_class")
+  payloadConfiguration        String?  @map("payload_configuration")
+  flightEnduranceRequirements String?  @map("flight_endurance_requirements")
+  softwareAiTier              String?  @map("software_ai_tier")
+  
+  // 3. Regulatory & Compliance Tracking
+  dgcaFaaCertificationStatus  String   @default("Pending") @map("dgca_faa_certification_status")
+  uin                         String?
+  exportLicenseStatus         String?  @map("export_license_status")
+  geofencingRequirements      String?  @map("geofencing_requirements")
+  
+  // 4. Operational & Delivery Status
+  bomReadiness                String   @default("Not Ready") @map("bom_readiness")
+  manufacturingStage          String   @default("In Design") @map("manufacturing_stage")
+  calibrationTestLogs         String?  @db.Text @map("calibration_test_logs")
+  afterSalesAmc               String?  @map("after_sales_amc")
+  cocData                     String?  @db.Text @map("coc_data")
+  
+  organizationId              String?  @map("organization_id")
+  createdAt                   DateTime @default(now()) @map("created_at")
+  updatedAt                   DateTime @updatedAt @map("updated_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("orders")
+}
