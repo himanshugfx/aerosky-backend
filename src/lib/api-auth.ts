@@ -24,11 +24,33 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
         // 1. Try session first (web)
         const session = await getServerSession(authOptions);
         if (session?.user) {
-            // Fetch full user with role from database
-            const user = await prisma.user.findUnique({
-                where: { username: session.user.name || '' },
-                select: { id: true, username: true, email: true, role: true, organizationId: true }
-            });
+            // Try to find user by id (stored in token), then by email, then by name
+            let user = null;
+
+            // First try by id if available in session
+            if ((session.user as any).id) {
+                user = await prisma.user.findUnique({
+                    where: { id: (session.user as any).id },
+                    select: { id: true, username: true, email: true, role: true, organizationId: true }
+                });
+            }
+
+            // Fallback to email
+            if (!user && session.user.email) {
+                user = await prisma.user.findUnique({
+                    where: { email: session.user.email },
+                    select: { id: true, username: true, email: true, role: true, organizationId: true }
+                });
+            }
+
+            // Fallback to username (name field)
+            if (!user && session.user.name) {
+                user = await prisma.user.findUnique({
+                    where: { username: session.user.name },
+                    select: { id: true, username: true, email: true, role: true, organizationId: true }
+                });
+            }
+
             if (user) {
                 return {
                     user: {
