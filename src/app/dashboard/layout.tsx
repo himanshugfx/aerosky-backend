@@ -1,58 +1,69 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import {
-    Shield,
-    LayoutDashboard,
-    Plane,
-    Users,
-    Map,
-    Wrench,
-    FileText,
-    Settings,
-    LogOut,
+    Battery,
     Bell,
+    Building2,
+    HelpCircle,
+    LayoutDashboard,
+    LogOut,
     Menu,
+    Plane,
+    Settings,
+    Shield,
+    ShoppingCart,
+    Users,
     X,
 } from 'lucide-react'
-import { useAuthStore } from '@/lib/store'
-import { SessionTimeout } from '@/components/SessionTimeout'
+import { signOut, useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
-const navigation = [
+// Navigation for Super Admin
+const superAdminNavigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
+    { name: 'Support Tickets', href: '/dashboard/support', icon: HelpCircle },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+]
+
+// Navigation for Org Admin
+const orgAdminNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Drones', href: '/dashboard/drones', icon: Plane },
-    { name: 'Pilots', href: '/dashboard/pilots', icon: Users },
-    { name: 'Flight Plans', href: '/dashboard/flights', icon: Map },
-    { name: 'Maintenance', href: '/dashboard/maintenance', icon: Wrench },
-    { name: 'Compliance', href: '/dashboard/compliance', icon: FileText },
+    { name: 'Team', href: '/dashboard/team', icon: Users },
+    { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
+    { name: 'Batteries', href: '/dashboard/batteries', icon: Battery },
+    { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathname = usePathname()
-    const { user, isAuthenticated, _hydrated, logout } = useAuthStore()
+    const { data: session, status } = useSession()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+    const isSuperAdmin = session?.user?.role === 'SUPER_ADMIN'
+    const navigation = isSuperAdmin ? superAdminNavigation : orgAdminNavigation
 
     useEffect(() => {
         setIsMobileMenuOpen(false)
     }, [pathname])
 
     useEffect(() => {
-        if (_hydrated && !isAuthenticated) {
+        if (status === 'unauthenticated') {
             router.push('/login')
         }
-    }, [_hydrated, isAuthenticated, router])
+    }, [status, router])
 
-    const handleLogout = () => {
-        logout()
+    const handleLogout = async () => {
+        await signOut({ redirect: false })
         router.push('/login')
     }
 
-    if (!_hydrated || (!isAuthenticated && _hydrated)) {
+    if (status === 'loading') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -60,9 +71,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )
     }
 
+    if (status === 'unauthenticated') {
+        return null
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
-            <SessionTimeout />
             {/* Mobile Sidebar Overlay */}
             {isMobileMenuOpen && (
                 <div
@@ -89,7 +103,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </button>
                 </div>
 
-                <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-180px)]">
+                {/* Role Badge */}
+                <div className="px-4 py-2">
+                    <span className={`text-xs font-semibold px-2 py-1 rounded ${isSuperAdmin
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                        {isSuperAdmin ? 'SUPER ADMIN' : 'ORG ADMIN'}
+                    </span>
+                </div>
+
+                <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-220px)]">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href
                         return (
@@ -112,15 +136,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                             <span className="text-blue-700 font-medium">
-                                {user?.full_name?.charAt(0) || 'U'}
+                                {session?.user?.name?.charAt(0) || 'U'}
                             </span>
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">
-                                {user?.full_name}
+                                {session?.user?.name}
                             </p>
                             <p className="text-xs text-gray-500 truncate">
-                                {user?.role}
+                                {session?.user?.email}
                             </p>
                         </div>
                     </div>
@@ -152,7 +176,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="flex items-center gap-4">
                         <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg relative">
                             <Bell className="w-5 h-5" />
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>
                     </div>
                 </header>

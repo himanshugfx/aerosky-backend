@@ -1,7 +1,7 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions = {
     providers: [
@@ -16,9 +16,17 @@ export const authOptions = {
                     return null;
                 }
 
-                const user = await prisma.user.findUnique({
+                // Find user by username OR email (to support org admin login)
+                let user = await prisma.user.findUnique({
                     where: { username: credentials.username }
                 });
+
+                // If not found by username, try email
+                if (!user) {
+                    user = await prisma.user.findUnique({
+                        where: { email: credentials.username }
+                    });
+                }
 
                 if (!user) {
                     return null;
@@ -32,9 +40,10 @@ export const authOptions = {
 
                 return {
                     id: user.id,
-                    name: user.username,
-                    email: user.username + "@aerosysaviation.com", // Placeholder
-                    role: "admin", // Default role for now, can be expanded if User table has role
+                    name: user.fullName || user.username,
+                    email: user.email || user.username,
+                    role: user.role,
+                    organizationId: user.organizationId,
                 };
             }
         })
@@ -47,6 +56,7 @@ export const authOptions = {
             if (user) {
                 token.role = user.role;
                 token.id = user.id;
+                token.organizationId = user.organizationId;
             }
             return token;
         },
@@ -54,6 +64,7 @@ export const authOptions = {
             if (session.user) {
                 session.user.role = token.role;
                 session.user.id = token.id;
+                session.user.organizationId = token.organizationId;
             }
             return session;
         }

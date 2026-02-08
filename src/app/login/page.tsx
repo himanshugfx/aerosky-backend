@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { ArrowRight, Lock, Shield, User } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Shield, Lock, User, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -36,7 +36,7 @@ export default function LoginPage() {
             setUsername("");
             setPassword("");
         } else {
-            router.push("/admin");
+            router.push("/dashboard");
         }
     };
 
