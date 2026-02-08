@@ -55,24 +55,30 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        // If a role is provided, create a User record
-        if (role && email) {
-            const passwordHash = await require('bcryptjs').hash('AeroSky2026', 10);
+        // Create a User account for the team member if email and phone are provided
+        if (email && phone) {
+            const bcrypt = require('bcryptjs');
+            const passwordHash = await bcrypt.hash(phone, 12);
 
-            // Generate unique username from email or name
-            const username = email.split('@')[0].toLowerCase() + '_' + Math.floor(Math.random() * 1000);
-
-            await prisma.user.create({
-                data: {
-                    username,
-                    email,
-                    fullName: name,
-                    passwordHash,
-                    role: role,
-                    organizationId: targetOrgId,
-                    teamMemberId: teamMember.id,
-                }
+            // Check if user with this email already exists
+            const existingUser = await prisma.user.findFirst({
+                where: { OR: [{ email }, { username: email }] }
             });
+
+            if (!existingUser) {
+                await prisma.user.create({
+                    data: {
+                        username: email,
+                        email,
+                        fullName: name,
+                        passwordHash,
+                        role: role || 'VIEWER',
+                        organizationId: targetOrgId,
+                        teamMemberId: teamMember.id,
+                    }
+                });
+                console.log(`Created user account for staff: ${email} (password: phone number)`);
+            }
         }
 
         return NextResponse.json(teamMember, { status: 201 });
