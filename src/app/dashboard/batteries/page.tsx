@@ -6,12 +6,10 @@ import { useEffect, useState } from 'react'
 
 interface BatteryItem {
     id: string
-    name: string
-    serialNumber: string
-    capacity: number
-    cycleCount: number
-    healthPercentage: number
-    lastUsedAt?: string
+    model: string
+    ratedCapacity: string
+    batteryNumberA: string
+    batteryNumberB: string
     createdAt: string
 }
 
@@ -20,7 +18,12 @@ export default function BatteriesPage() {
     const [batteries, setBatteries] = useState<BatteryItem[]>([])
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
-    const [formData, setFormData] = useState({ name: '', serialNumber: '', capacity: 5000 })
+    const [formData, setFormData] = useState({
+        model: '',
+        ratedCapacity: '',
+        batteryNumberA: '',
+        batteryNumberB: ''
+    })
     const [submitting, setSubmitting] = useState(false)
 
     const fetchBatteries = async () => {
@@ -52,7 +55,12 @@ export default function BatteriesPage() {
             })
             if (res.ok) {
                 setShowModal(false)
-                setFormData({ name: '', serialNumber: '', capacity: 5000 })
+                setFormData({
+                    model: '',
+                    ratedCapacity: '',
+                    batteryNumberA: '',
+                    batteryNumberB: ''
+                })
                 fetchBatteries()
             }
         } catch (error) {
@@ -70,12 +78,6 @@ export default function BatteriesPage() {
         } catch (error) {
             console.error('Failed to delete battery:', error)
         }
-    }
-
-    const getHealthColor = (health: number) => {
-        if (health >= 80) return 'bg-green-500'
-        if (health >= 50) return 'bg-yellow-500'
-        return 'bg-red-500'
     }
 
     if (loading) {
@@ -116,29 +118,17 @@ export default function BatteriesPage() {
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{battery.name}</h3>
-                        <p className="text-sm text-gray-500 mb-4">S/N: {battery.serialNumber}</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{battery.model}</h3>
+                        <p className="text-sm text-gray-500 mb-4">{battery.ratedCapacity}</p>
 
-                        <div className="space-y-3">
-                            <div>
-                                <div className="flex justify-between text-sm mb-1">
-                                    <span className="text-gray-500">Health</span>
-                                    <span className="font-medium">{battery.healthPercentage}%</span>
-                                </div>
-                                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div
-                                        className={`h-full ${getHealthColor(battery.healthPercentage)} transition-all`}
-                                        style={{ width: `${battery.healthPercentage}%` }}
-                                    />
-                                </div>
+                        <div className="space-y-3 pt-2 border-t border-gray-100">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-500">Serial A</span>
+                                <span className="font-medium">{battery.batteryNumberA}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Capacity</span>
-                                <span className="font-medium">{battery.capacity} mAh</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Cycles</span>
-                                <span className="font-medium">{battery.cycleCount}</span>
+                                <span className="text-gray-500">Serial B</span>
+                                <span className="font-medium">{battery.batteryNumberB || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
@@ -158,35 +148,45 @@ export default function BatteriesPage() {
                         <h3 className="text-xl font-semibold mb-4">Add Battery</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Battery Model *</label>
                                 <input
                                     type="text"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    placeholder="e.g. Battery A1"
+                                    value={formData.model}
+                                    onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                                    placeholder="e.g. Tattu Plus 22000mAh"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Rated Capacity</label>
                                 <input
                                     type="text"
-                                    value={formData.serialNumber}
-                                    onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+                                    value={formData.ratedCapacity}
+                                    onChange={(e) => setFormData({ ...formData, ratedCapacity: e.target.value })}
+                                    placeholder="e.g. 22000 mAh 44.4V"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number A *</label>
+                                <input
+                                    type="text"
+                                    value={formData.batteryNumberA}
+                                    onChange={(e) => setFormData({ ...formData, batteryNumberA: e.target.value })}
+                                    placeholder="Enter serial A"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Capacity (mAh) *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number B (Optional)</label>
                                 <input
-                                    type="number"
-                                    min="1000"
-                                    value={formData.capacity}
-                                    onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) })}
+                                    type="text"
+                                    value={formData.batteryNumberB}
+                                    onChange={(e) => setFormData({ ...formData, batteryNumberB: e.target.value })}
+                                    placeholder="Enter serial B"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    required
                                 />
                             </div>
                             <div className="flex gap-3 pt-4">
