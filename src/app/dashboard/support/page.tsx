@@ -2,6 +2,7 @@
 
 import { AlertCircle, CheckCircle, Clock, HelpCircle, Loader2, MessageCircle, Plus } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 interface Ticket {
@@ -128,9 +129,9 @@ export default function SupportPage() {
                             return (
                                 <tr key={ticket.id} className="hover:bg-gray-50 cursor-pointer">
                                     <td className="px-6 py-4">
-                                        <a href={`/dashboard/support/${ticket.id}`} className="font-medium text-gray-900 hover:text-blue-600">
+                                        <Link href={`/dashboard/support/${ticket.id}`} className="font-medium text-gray-900 hover:text-blue-600">
                                             {ticket.subject}
-                                        </a>
+                                        </Link>
                                     </td>
                                     {isSuperAdmin && (
                                         <td className="px-6 py-4">
