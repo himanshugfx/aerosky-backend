@@ -61,7 +61,7 @@ export async function PUT(
         }
 
         const body = await request.json();
-        const { name, email, phone, address } = body;
+        const { name, email, phone, address, otpVerificationId } = body;
 
         // Get current organization to check for email changes
         const currentOrg = await prisma.organization.findUnique({
@@ -126,15 +126,30 @@ export async function PUT(
                 console.log('Updated admin user email from', currentOrg.email, 'to', email);
             }
 
-            // If phone changed and org has an admin user, update password
+            // If phone changed and org has an admin user, update password (requires OTP verification)
             if (phone && phone !== currentOrg.phone && currentOrg.users.length > 0) {
+                // Validate OTP verification
+                if (!otpVerificationId) {
+                    throw new Error('OTP verification required to change password');
+                }
+                const otpRecord = await tx.otpVerification.findUnique({
+                    where: { id: otpVerificationId },
+                });
+                if (!otpRecord || !otpRecord.verified || otpRecord.email !== currentOrg.email) {
+                    throw new Error('Invalid or expired OTP verification');
+                }
+
                 const adminUser = currentOrg.users[0];
                 const passwordHash = await bcrypt.hash(phone, 12);
                 await tx.user.update({
                     where: { id: adminUser.id },
                     data: { passwordHash }
                 });
-                console.log('Updated admin user password');
+                // Clean up OTP records
+                await tx.otpVerification.deleteMany({
+                    where: { email: currentOrg.email! },
+                });
+                console.log('Updated admin user password (OTP verified)');
             }
 
             return organization;

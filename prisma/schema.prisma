@@ -291,3 +291,17 @@ model SupportMessage {
   @@map("support_messages")
 }
 
+// OTP Verification for password change/forgot password
+model OtpVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  purpose   String   // "CHANGE_PASSWORD" or "FORGOT_PASSWORD"
+  expiresAt DateTime @map("expires_at")
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email, otp])
+  @@map("otp_verifications")
+}
+
