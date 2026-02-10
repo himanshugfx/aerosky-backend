@@ -95,6 +95,14 @@ export async function POST(
                 updateData.status = 'IN_PROGRESS';
             }
 
+            // Set hasNewReply flag
+            if (auth.user.role === 'SUPER_ADMIN') {
+                updateData.hasNewReply = true;
+            } else if (ticket.userId === auth.user.id) {
+                // User replying means they've read previous replies
+                updateData.hasNewReply = false;
+            }
+
             await tx.supportTicket.update({
                 where: { id: params.id },
                 data: updateData

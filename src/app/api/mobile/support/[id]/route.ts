@@ -46,6 +46,15 @@ export async function GET(
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
+        // Reset hasNewReply if the owner is viewing it
+        if (auth.user.role !== 'SUPER_ADMIN' && ticket.userId === auth.user.id && ticket.hasNewReply) {
+            await prisma.supportTicket.update({
+                where: { id: params.id },
+                data: { hasNewReply: false }
+            });
+            ticket.hasNewReply = false;
+        }
+
         return NextResponse.json(ticket, {
             headers: {
                 'Access-Control-Allow-Origin': '*',

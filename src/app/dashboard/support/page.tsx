@@ -14,6 +14,7 @@ interface Ticket {
     updatedAt: string
     user?: { fullName: string }
     organization?: { name: string }
+    hasNewReply?: boolean
     _count?: { messages: number }
 }
 
@@ -129,8 +130,11 @@ export default function SupportPage() {
                             return (
                                 <tr key={ticket.id} className="hover:bg-gray-50 cursor-pointer">
                                     <td className="px-6 py-4">
-                                        <Link href={`/dashboard/support/${ticket.id}`} className="font-medium text-gray-900 hover:text-blue-600">
+                                        <Link href={`/dashboard/support/${ticket.id}`} className="font-medium text-gray-900 hover:text-blue-600 flex items-center gap-2">
                                             {ticket.subject}
+                                            {!isSuperAdmin && ticket.hasNewReply && (
+                                                <span className="flex h-2 w-2 rounded-full bg-red-600" title="New reply from support"></span>
+                                            )}
                                         </Link>
                                     </td>
                                     {isSuperAdmin && (

@@ -264,6 +264,7 @@ model SupportTicket {
   priority       TicketPriority @default(NORMAL)
   userId         String         @map("user_id")
   organizationId String?        @map("organization_id")
+  hasNewReply    Boolean       @default(false) @map("has_new_reply")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
 
