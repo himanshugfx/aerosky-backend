@@ -115,11 +115,11 @@ export async function PATCH(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { currentPassword, newPassword } = body;
+        const { currentPassword, newPassword, otpVerificationId } = body;
 
-        if (!currentPassword || !newPassword) {
+        if (!currentPassword || !newPassword || !otpVerificationId) {
             return NextResponse.json(
-                { error: 'Current password and new password are required' },
+                { error: 'Current password, new password, and OTP verification are required' },
                 { status: 400 }
             );
         }
@@ -140,16 +140,35 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: 'Current password is incorrect' }, { status: 401 });
         }
 
-        // Hash new password and update
-        const newPasswordHash = await bcrypt.hash(newPassword, 10);
-        await prisma.user.update({
-            where: { id: auth.user.id },
-            data: { passwordHash: newPasswordHash }
+        // Hash new password and update in a transaction
+        await prisma.$transaction(async (tx) => {
+            // Validate OTP verification record
+            const otpRecord = await tx.otpVerification.findUnique({
+                where: { id: otpVerificationId },
+            });
+
+            if (!otpRecord || !otpRecord.verified || otpRecord.email !== auth.user.email) {
+                throw new Error('Invalid or expired OTP verification');
+            }
+
+            const newPasswordHash = await bcrypt.hash(newPassword, 10);
+            await tx.user.update({
+                where: { id: auth.user.id },
+                data: { passwordHash: newPasswordHash }
+            });
+
+            // Clean up all OTP records for this email
+            await tx.otpVerification.deleteMany({
+                where: { email: auth.user.email! },
+            });
         });
 
         return NextResponse.json({ success: true, message: 'Password changed successfully' });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Change password error:', error);
-        return NextResponse.json({ error: 'Failed to change password' }, { status: 500 });
+        return NextResponse.json(
+            { error: error.message || 'Failed to change password' },
+            { status: error.message === 'Invalid or expired OTP verification' ? 401 : 500 }
+        );
     }
 }
