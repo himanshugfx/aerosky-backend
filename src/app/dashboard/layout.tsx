@@ -9,6 +9,7 @@ import {
     LogOut,
     Menu,
     Plane,
+    Send,
     Settings,
     Shield,
     ShoppingCart,
@@ -35,6 +36,7 @@ const orgAdminNavigation = [
     { name: 'Team', href: '/dashboard/team', icon: Users },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
     { name: 'Batteries', href: '/dashboard/batteries', icon: Battery },
+    { name: 'Flights', href: '/dashboard/flights', icon: Send },
     { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
@@ -106,8 +108,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Role Badge */}
                 <div className="px-4 py-2">
                     <span className={`text-xs font-semibold px-2 py-1 rounded ${isSuperAdmin
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-blue-100 text-blue-700'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-blue-100 text-blue-700'
                         }`}>
                         {isSuperAdmin ? 'SUPER ADMIN' : 'ORG ADMIN'}
                     </span>

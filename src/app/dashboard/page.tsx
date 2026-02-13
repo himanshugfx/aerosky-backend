@@ -6,6 +6,7 @@ import {
     HelpCircle,
     Loader2,
     Plane,
+    Send,
     ShoppingCart,
     TrendingUp,
     Users
@@ -21,11 +22,12 @@ interface DashboardStats {
     batteries: number
     organizations: number
     tickets: number
+    flights: number
 }
 
 export default function DashboardPage() {
     const { data: session, status } = useSession()
-    const [stats, setStats] = useState<DashboardStats>({ drones: 0, team: 0, orders: 0, batteries: 0, organizations: 0, tickets: 0 })
+    const [stats, setStats] = useState<DashboardStats>({ drones: 0, team: 0, orders: 0, batteries: 0, organizations: 0, tickets: 0, flights: 0 })
     const [loading, setLoading] = useState(true)
 
     const isSuperAdmin = (session?.user as any)?.role === 'SUPER_ADMIN'
@@ -34,13 +36,14 @@ export default function DashboardPage() {
         const fetchStats = async () => {
             try {
                 // Fetch data in parallel
-                const [dronesRes, teamRes, ordersRes, batteriesRes, orgsRes, ticketsRes] = await Promise.all([
+                const [dronesRes, teamRes, ordersRes, batteriesRes, orgsRes, ticketsRes, flightsRes] = await Promise.all([
                     fetch('/api/mobile/drones').catch(() => null),
                     fetch('/api/mobile/team').catch(() => null),
                     fetch('/api/mobile/orders').catch(() => null),
                     fetch('/api/mobile/batteries').catch(() => null),
                     fetch('/api/mobile/organizations').catch(() => null),
                     fetch('/api/mobile/support').catch(() => null),
+                    fetch('/api/mobile/flights').catch(() => null),
                 ])
 
                 const drones = dronesRes?.ok ? await dronesRes.json() : []
@@ -49,6 +52,7 @@ export default function DashboardPage() {
                 const batteries = batteriesRes?.ok ? await batteriesRes.json() : []
                 const organizations = orgsRes?.ok ? await orgsRes.json() : []
                 const tickets = ticketsRes?.ok ? await ticketsRes.json() : []
+                const flights = flightsRes?.ok ? await flightsRes.json() : []
 
                 setStats({
                     drones: Array.isArray(drones) ? drones.length : 0,
@@ -57,6 +61,7 @@ export default function DashboardPage() {
                     batteries: Array.isArray(batteries) ? batteries.length : 0,
                     organizations: Array.isArray(organizations) ? organizations.length : 0,
                     tickets: Array.isArray(tickets) ? tickets.length : 0,
+                    flights: Array.isArray(flights) ? flights.length : 0,
                 })
             } catch (error) {
                 console.error('Failed to fetch stats:', error)
@@ -86,6 +91,7 @@ export default function DashboardPage() {
         { name: 'Team Members', value: stats.team, icon: Users, color: 'green', href: '/dashboard/team' },
         { name: 'Orders', value: stats.orders, icon: ShoppingCart, color: 'purple', href: '/dashboard/orders' },
         { name: 'Batteries', value: stats.batteries, icon: Battery, color: 'amber', href: '/dashboard/batteries' },
+        { name: 'Flights', value: stats.flights, icon: Send, color: 'indigo', href: '/dashboard/flights' },
     ]
 
     const statCards = isSuperAdmin ? superAdminCards : orgAdminCards
@@ -158,6 +164,10 @@ export default function DashboardPage() {
                             <Link href="/dashboard/orders" className="p-4 bg-purple-50 rounded-lg text-center hover:bg-purple-100 transition-colors">
                                 <ShoppingCart className="w-8 h-8 text-purple-600 mx-auto mb-2" />
                                 <span className="text-sm font-medium text-purple-700">New Order</span>
+                            </Link>
+                            <Link href="/dashboard/flights" className="p-4 bg-indigo-50 rounded-lg text-center hover:bg-indigo-100 transition-colors">
+                                <Send className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
+                                <span className="text-sm font-medium text-indigo-700">Flight Logs</span>
                             </Link>
                             <Link href="/dashboard/support" className="p-4 bg-amber-50 rounded-lg text-center hover:bg-amber-100 transition-colors">
                                 <HelpCircle className="w-8 h-8 text-amber-600 mx-auto mb-2" />
