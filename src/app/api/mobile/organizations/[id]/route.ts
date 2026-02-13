@@ -182,37 +182,13 @@ export async function DELETE(
 
         // Delete organization and related data in a transaction
         await prisma.$transaction(async (tx) => {
-            // First delete all users in the organization
-            await tx.user.deleteMany({
+            // With onDelete: Cascade in schema.prisma, most things delete automatically.
+            // Explicitly delete AuditLog as a precaution or if not fully covered.
+            await tx.auditLog.deleteMany({
                 where: { organizationId: params.id }
             });
 
-            // Delete all drones in the organization
-            await tx.drone.deleteMany({
-                where: { organizationId: params.id }
-            });
-
-            // Delete all team members
-            await tx.teamMember.deleteMany({
-                where: { organizationId: params.id }
-            });
-
-            // Delete all subcontractors
-            await tx.subcontractor.deleteMany({
-                where: { organizationId: params.id }
-            });
-
-            // Delete all batteries
-            await tx.battery.deleteMany({
-                where: { organizationId: params.id }
-            });
-
-            // Delete all orders
-            await tx.order.deleteMany({
-                where: { organizationId: params.id }
-            });
-
-            // Finally delete the organization
+            // Finally delete the organization (triggers cascade)
             await tx.organization.delete({
                 where: { id: params.id }
             });

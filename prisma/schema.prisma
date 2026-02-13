@@ -70,8 +70,8 @@ model User {
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
   supportTickets SupportTicket[]
 
   @@map("users")
@@ -115,7 +115,7 @@ model AuditLog {
   ipAddress      String?  @map("ip_address")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([organizationId])
@@ -133,7 +133,7 @@ model TeamMember {
   organizationId String?  @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   drones       Drone[]       @relation("AccountableManager")
   user         User?
 
@@ -151,7 +151,7 @@ model Subcontractor {
   organizationId String?  @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("subcontractors")
 }
@@ -165,7 +165,7 @@ model Drone {
   organizationId       String?  @map("organization_id")
   createdAt            DateTime @default(now()) @map("created_at")
 
-  organization       Organization?      @relation(fields: [organizationId], references: [id])
+  organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   accountableManager TeamMember?        @relation("AccountableManager", fields: [accountableManagerId], references: [id])
   uploads            DroneUpload[]
   manufacturedUnits  ManufacturedUnit[]
@@ -208,7 +208,7 @@ model Battery {
   organizationId String?  @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("batteries")
 }
@@ -251,7 +251,7 @@ model Order {
   createdAt                   DateTime @default(now()) @map("created_at")
   updatedAt                   DateTime @updatedAt @map("updated_at")
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("orders")
 }
@@ -268,8 +268,8 @@ model SupportTicket {
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
 
-  user         User             @relation(fields: [userId], references: [id])
-  organization Organization?    @relation(fields: [organizationId], references: [id])
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   messages     SupportMessage[]
 
   @@index([userId])
