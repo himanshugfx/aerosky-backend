@@ -1,23 +1,23 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { SessionTimeout } from "@/components/SessionTimeout";
 import {
+    BatteryCharging,
+    Bell,
+    ChevronRight,
+    ClipboardList,
     LayoutDashboard,
+    LogOut,
+    Menu,
+    ShieldCheck,
     Users,
     Wrench,
-    LogOut,
-    ShieldCheck,
-    ChevronRight,
-    Bell,
-    BatteryCharging,
-    ClipboardList,
-    Menu,
     X,
 } from "lucide-react";
-import { SessionTimeout } from "@/components/SessionTimeout";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const menuItems = [
     { href: "/admin", label: "Drone Registry", icon: LayoutDashboard },
@@ -67,7 +67,7 @@ export default function AdminLayout({
                                 <ShieldCheck className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h2 className="font-bold text-lg tracking-tight leading-none">Aerosys Aviation</h2>
+                                <h2 className="font-bold text-lg tracking-tight leading-none">AeroSky Aviation</h2>
                                 <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider">
                                     DGCA Compliance
                                 </span>

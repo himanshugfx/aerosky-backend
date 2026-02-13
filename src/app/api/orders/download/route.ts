@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { PDFDocument } from 'pdf-lib';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import { PDFDocument } from 'pdf-lib';
+import * as XLSX from 'xlsx';
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(18);
                 doc.setFont('helvetica', 'bold');
-                doc.text('Aerosys Aviaiton India Private Limited', 15, 22);
+                doc.text('AeroSky Aviaiton India Private Limited', 15, 22);
 
                 doc.setFontSize(9);
                 doc.setFont('helvetica', 'italic');
@@ -191,7 +191,7 @@ export async function GET(request: Request) {
                     doc.setFontSize(8);
                     doc.setTextColor(150, 150, 150);
                     doc.text(`Generated on ${new Date().toLocaleString()} | Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
-                    doc.text('Aerosys Aviation India - Official Technical Document', 105, 290, { align: 'center' });
+                    doc.text('AeroSky Aviation India - Official Technical Document', 105, 290, { align: 'center' });
                 }
 
                 const specSheetBuffer = doc.output('arraybuffer');

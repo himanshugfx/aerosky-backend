@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                     <Link href="/dashboard" className="flex items-center gap-2 text-blue-900">
                         <Shield className="w-8 h-8 text-amber-500" />
-                        <span className="text-xl font-bold tracking-tight">Aerosys</span>
+                        <span className="text-xl font-bold tracking-tight">AeroSky</span>
                     </Link>
                     <button
                         onClick={() => setIsMobileMenuOpen(false)}

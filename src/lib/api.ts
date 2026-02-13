@@ -1,11 +1,10 @@
 import axios from 'axios'
-import { useAuthStore } from './store'
 
 // Mock Data
 const MOCK_USER = {
     id: 'user-123',
-    email: 'admin@aerosys.com',
-    full_name: 'Aerosys Admin',
+    email: 'admin@aerosky.com',
+    full_name: 'AeroSky Admin',
     role: 'System_Admin',
     organization_id: 'org-123',
     is_active: true

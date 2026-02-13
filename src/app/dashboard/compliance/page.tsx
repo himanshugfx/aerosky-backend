@@ -1,8 +1,8 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import { dronesApi, pilotsApi } from '@/lib/api'
-import { FileText, CheckCircle, AlertTriangle, Shield } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { AlertTriangle, CheckCircle, FileText, Shield } from 'lucide-react'
 
 export default function CompliancePage() {
     const { data: dronesData } = useQuery({ queryKey: ['drones'], queryFn: () => dronesApi.list() })
@@ -68,7 +68,7 @@ export default function CompliancePage() {
                 </div>
                 <div className="p-6">
                     <p className="text-gray-500 text-center py-8">
-                        All compliance requirements for Aerosys Aviation are met.
+                        All compliance requirements for AeroSky Aviation are met.
                     </p>
                 </div>
             </div>

@@ -56,7 +56,7 @@ export default function LoginPage() {
                             <Shield className="text-white w-8 h-8" />
                         </div>
                         <h1 className="text-2xl font-bold text-white mb-2">Secure Gateway</h1>
-                        <p className="text-gray-400 text-sm text-center">Aerosys Aviation India - Restricted Access</p>
+                        <p className="text-gray-400 text-sm text-center">AeroSky Aviation India - Restricted Access</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">

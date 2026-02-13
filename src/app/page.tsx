@@ -1,13 +1,13 @@
-import Link from 'next/link'
 import {
+    ArrowRight,
+    BarChart3,
+    FileCheck,
+    MapPin,
     Plane,
     Shield,
-    FileCheck,
-    Users,
-    MapPin,
-    BarChart3,
-    ArrowRight
-} from 'lucide-react'
+    Users
+} from 'lucide-react';
+import Link from 'next/link';
 
 export default function HomePage() {
     return (
@@ -17,7 +17,7 @@ export default function HomePage() {
                 <nav className="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         <Shield className="w-8 h-8 text-amber-500" />
-                        <span className="text-lg md:text-xl font-bold tracking-tight">Aerosys Aviation</span>
+                        <span className="text-lg md:text-xl font-bold tracking-tight">AeroSky Aviation</span>
                     </div>
                     <div className="flex gap-2 md:gap-4">
                         <Link href="/login" className="px-3 md:px-4 py-2 hover:bg-white/10 rounded-lg transition-colors text-sm md:text-base">
@@ -34,7 +34,7 @@ export default function HomePage() {
                         Transforming Industries <br className="hidden md:block" />Through <span className="text-amber-500">Advanced Drone Solutions</span>
                     </h1>
                     <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed text-balance">
-                        Aerosys Aviation India Private Limited is an IIT Kanpur-incubated company
+                        AeroSky Aviation India Private Limited is an IIT Kanpur-incubated company
                         specializing in DGCA Type Certified UAV manufacturing and cutting-edge
                         aerial intelligence for the future.
                     </p>
@@ -173,7 +173,7 @@ export default function HomePage() {
                         <div className="flex flex-col items-center md:items-start gap-4">
                             <div className="flex items-center gap-2">
                                 <Shield className="w-6 h-6 text-amber-500" />
-                                <span className="text-white font-bold text-xl">Aerosys Aviation</span>
+                                <span className="text-white font-bold text-xl">AeroSky Aviation</span>
                             </div>
                             <p className="text-sm max-w-xs text-center md:text-left">
                                 Noida, Uttar Pradesh, India.<br />
@@ -195,7 +195,7 @@ export default function HomePage() {
                         </div>
                     </div>
                     <div className="mt-16 pt-8 border-t border-white/5 text-center text-sm">
-                        <p>© 2026 Aerosys Aviation India Private Limited. All rights reserved.</p>
+                        <p>© 2026 AeroSky Aviation India Private Limited. All rights reserved.</p>
                         <p className="mt-2 text-gray-600">Designed and Developed with ❤️ for Aerial Intelligence.</p>
                     </div>
                 </div>

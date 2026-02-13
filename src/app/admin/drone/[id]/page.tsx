@@ -1,33 +1,33 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { FileUploader } from "@/components/FileUploader";
+import { useComplianceStore } from "@/lib/complianceStore";
 import {
+    AlertTriangle,
     ArrowLeft,
-    Users,
-    FileText,
-    UserCheck,
+    BatteryCharging,
     Building2,
-    Shield,
-    Settings,
-    Wrench,
-    Lock,
-    Globe,
-    Download,
+    Check,
     ChevronDown,
     ChevronUp,
-    Check,
-    AlertTriangle,
-    Plane,
-    GraduationCap,
-    Trash2,
-    BatteryCharging,
     ClipboardList,
     Clock,
+    Download,
+    FileText,
+    Globe,
+    GraduationCap,
+    Lock,
+    Plane,
+    Settings,
+    Shield,
+    Trash2,
+    UserCheck,
+    Users,
+    Wrench,
 } from "lucide-react";
-import { useComplianceStore } from "@/lib/complianceStore";
-import { FileUploader } from "@/components/FileUploader";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 
 
@@ -1647,7 +1647,7 @@ export default function DroneProfilePage() {
                     <>
                         <div className="text-center mb-8 border-b-2 border-black pb-4">
                             <h1 className="text-3xl font-bold uppercase tracking-wider">{drone.modelName}</h1>
-                            <p className="text-sm font-bold text-gray-800">Aerosys Aviation India - DGCA Compliance Checklist Report</p>
+                            <p className="text-sm font-bold text-gray-800">AeroSky Aviation India - DGCA Compliance Checklist Report</p>
                             <p className="text-xs text-gray-400 mt-1">Generated: {new Date().toLocaleDateString()}</p>
                         </div>
 
@@ -1791,7 +1791,7 @@ export default function DroneProfilePage() {
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-8 border-b-2 border-black pb-4">
                             <h1 className="text-3xl font-bold uppercase tracking-wider">{drone.modelName}</h1>
-                            <p className="text-sm font-bold text-gray-800">Aerosys Aviation India - Recurring Compliance Report</p>
+                            <p className="text-sm font-bold text-gray-800">AeroSky Aviation India - Recurring Compliance Report</p>
                             <p className="text-xs text-gray-400 mt-1">Generated: {new Date().toLocaleDateString()}</p>
                         </div>
 

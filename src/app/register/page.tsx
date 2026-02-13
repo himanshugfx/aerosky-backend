@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Shield, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { authApi } from '@/lib/api'
+import { Eye, EyeOff, Loader2, Shield } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function RegisterPage() {
     const router = useRouter()
@@ -51,10 +51,10 @@ export default function RegisterPage() {
                 <div className="text-center mb-8">
                     <Link href="/" className="inline-flex items-center gap-2 text-blue-900">
                         <Shield className="w-10 h-10" />
-                        <span className="text-2xl font-bold text-gray-900">Aerosys Aviation</span>
+                        <span className="text-2xl font-bold text-gray-900">AeroSky Aviation</span>
                     </Link>
                     <h2 className="mt-6 text-3xl font-bold text-gray-900">Create Account</h2>
-                    <p className="mt-2 text-gray-600">Join the Aerosys Aviation compliance platform</p>
+                    <p className="mt-2 text-gray-600">Join the AeroSky Aviation compliance platform</p>
                 </div>
 
                 <div className="card p-8 bg-white shadow-lg rounded-2xl border border-gray-100">
