@@ -396,7 +396,7 @@ export default function FlightsPage() {
                                             required
                                             value={formData.missionType}
                                             onChange={e => setFormData({ ...formData, missionType: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
+                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold text-gray-900"
                                         >
                                             <option value="Training">Training</option>
                                             <option value="Commercial">Commercial</option>
@@ -412,7 +412,7 @@ export default function FlightsPage() {
                                             required
                                             value={formData.picId}
                                             onChange={e => setFormData({ ...formData, picId: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
+                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold text-gray-900"
                                         >
                                             <option value="">Select Pilot</option>
                                             {team.map(m => <option key={m.id} value={m.id}>{m.name} ({m.position})</option>)}
@@ -423,7 +423,7 @@ export default function FlightsPage() {
                                         <select
                                             value={formData.voId}
                                             onChange={e => setFormData({ ...formData, voId: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
+                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold text-gray-900"
                                         >
                                             <option value="">Select Observer (Optional)</option>
                                             {team.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -448,7 +448,7 @@ export default function FlightsPage() {
                                             required
                                             value={formData.droneId}
                                             onChange={e => setFormData({ ...formData, droneId: e.target.value, serialNumber: '', uin: '' })}
-                                            className="w-full px-4 py-3 bg-white border-none rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all font-semibold"
+                                            className="w-full px-4 py-3 bg-white border-none rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all font-semibold text-gray-900"
                                         >
                                             <option value="">Select drone model</option>
                                             {drones.map(d => <option key={d.id} value={d.id}>{d.modelName}</option>)}
@@ -464,7 +464,7 @@ export default function FlightsPage() {
                                                 const [sn, uin] = e.target.value.split('|')
                                                 setFormData({ ...formData, serialNumber: sn, uin })
                                             }}
-                                            className="w-full px-4 py-3 bg-white border-none rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all font-semibold disabled:opacity-50"
+                                            className="w-full px-4 py-3 bg-white border-none rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all font-semibold disabled:opacity-50 text-gray-900"
                                         >
                                             <option value="|">Select specific unit</option>
                                             {selectedDrone?.manufacturedUnits.map((u, i) => (
@@ -502,12 +502,12 @@ export default function FlightsPage() {
                                         required
                                         value={formData.batteryId}
                                         onChange={e => setFormData({ ...formData, batteryId: e.target.value })}
-                                        className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-semibold"
+                                        className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-semibold text-gray-900"
                                     >
                                         <option value="">Select registered battery pair</option>
                                         {batteries.map(b => (
                                             <option key={b.id} value={b.id}>
-                                                {b.model} (SN: {b.batteryNumberA}{b.batteryNumberB ? ` / ${b.batteryNumberB}` : ''})
+                                                {b.batteryNumberA} + {b.batteryNumberB} ({b.model})
                                             </option>
                                         ))}
                                     </select>

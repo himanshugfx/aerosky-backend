@@ -38,6 +38,12 @@ export const PERMISSIONS = {
     BATTERY_EDIT: 'battery:edit',
     BATTERY_DELETE: 'battery:delete',
 
+    // Inventory
+    INVENTORY_VIEW: 'inventory:view',
+    INVENTORY_IN: 'inventory:in',
+    INVENTORY_OUT: 'inventory:out',
+    INVENTORY_MANAGE: 'inventory:manage', // for adding component types
+
     // Compliance
     COMPLIANCE_VIEW: 'compliance:view',
     COMPLIANCE_UPLOAD: 'compliance:upload',
@@ -65,6 +71,7 @@ const ALL_VIEW_PERMISSIONS: Permission[] = [
     PERMISSIONS.TEAM_VIEW,
     PERMISSIONS.SUBCONTRACTOR_VIEW,
     PERMISSIONS.BATTERY_VIEW,
+    PERMISSIONS.INVENTORY_VIEW,
     PERMISSIONS.COMPLIANCE_VIEW,
     PERMISSIONS.REPORT_VIEW,
 ];
@@ -98,6 +105,11 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         PERMISSIONS.BATTERY_VIEW,
         PERMISSIONS.BATTERY_CREATE,
         PERMISSIONS.BATTERY_EDIT,
+        // Inventory - full access
+        PERMISSIONS.INVENTORY_VIEW,
+        PERMISSIONS.INVENTORY_IN,
+        PERMISSIONS.INVENTORY_OUT,
+        PERMISSIONS.INVENTORY_MANAGE,
         // Compliance
         PERMISSIONS.COMPLIANCE_VIEW,
         PERMISSIONS.COMPLIANCE_UPLOAD,
@@ -193,6 +205,11 @@ export const PERMISSION_METADATA: Record<
     [PERMISSIONS.BATTERY_CREATE]: { description: 'Create batteries', category: 'batteries' },
     [PERMISSIONS.BATTERY_EDIT]: { description: 'Edit batteries', category: 'batteries' },
     [PERMISSIONS.BATTERY_DELETE]: { description: 'Delete batteries', category: 'batteries' },
+
+    [PERMISSIONS.INVENTORY_VIEW]: { description: 'View inventory', category: 'inventory' },
+    [PERMISSIONS.INVENTORY_IN]: { description: 'Record inventory arrival', category: 'inventory' },
+    [PERMISSIONS.INVENTORY_OUT]: { description: 'Record inventory usage', category: 'inventory' },
+    [PERMISSIONS.INVENTORY_MANAGE]: { description: 'Manage inventory items', category: 'inventory' },
 
     [PERMISSIONS.COMPLIANCE_VIEW]: { description: 'View compliance documents', category: 'compliance' },
     [PERMISSIONS.COMPLIANCE_UPLOAD]: { description: 'Upload compliance documents', category: 'compliance' },

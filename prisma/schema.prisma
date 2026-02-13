@@ -53,6 +53,8 @@ model Organization {
   auditLogs      AuditLog[]
   supportTickets SupportTicket[]
   flightLogs     FlightLog[]
+  components     Component[]
+  inventoryTransactions InventoryTransaction[]
 
   @@map("organizations")
 }
@@ -74,6 +76,7 @@ model User {
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
   supportTickets SupportTicket[]
+  inventoryTransactions InventoryTransaction[]
 
   @@map("users")
 }
@@ -155,6 +158,7 @@ model Subcontractor {
   createdAt      DateTime @default(now()) @map("created_at")
 
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  inventoryTransactions InventoryTransaction[]
 
   @@map("subcontractors")
 }
@@ -344,5 +348,45 @@ model OtpVerification {
 
   @@index([email, otp])
   @@map("otp_verifications")
+}
+
+model Component {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  quantity       Int      @default(0)
+  organizationId String   @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  transactions InventoryTransaction[]
+
+  @@map("components")
+}
+
+enum TransactionType {
+  IN
+  OUT
+}
+
+model InventoryTransaction {
+  id              String          @id @default(uuid())
+  componentId     String          @map("component_id")
+  type            TransactionType
+  quantity        Int
+  date            DateTime        @default(now())
+  subcontractorId String?         @map("subcontractor_id")
+  userId          String?          @map("user_id")
+  takenOutFor     String?         @map("taken_out_for")
+  organizationId  String          @map("organization_id")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  component     Component      @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subcontractor Subcontractor? @relation(fields: [subcontractorId], references: [id], onDelete: SetNull)
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("inventory_transactions")
 }
 

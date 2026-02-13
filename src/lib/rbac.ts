@@ -73,6 +73,18 @@ const RESOURCE_PERMISSION_MAP: Record<string, Record<ResourceAction, Permission>
         edit: PERMISSIONS.BATTERY_EDIT,
         delete: PERMISSIONS.BATTERY_DELETE,
     },
+    inventory: {
+        view: PERMISSIONS.INVENTORY_VIEW,
+        create: PERMISSIONS.INVENTORY_MANAGE,
+        edit: PERMISSIONS.INVENTORY_IN,
+        delete: PERMISSIONS.INVENTORY_OUT, // Mapping loosely here or I can extend rbac actions
+    },
+    component: {
+        view: PERMISSIONS.INVENTORY_VIEW,
+        create: PERMISSIONS.INVENTORY_MANAGE,
+        edit: PERMISSIONS.INVENTORY_MANAGE,
+        delete: PERMISSIONS.INVENTORY_MANAGE,
+    }
 };
 
 /**

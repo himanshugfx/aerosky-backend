@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pilotsApi } from '@/lib/api'
-import { Users, UserPlus, Award, Clock, Mail, ShieldCheck, X, AlertCircle, Loader2 } from 'lucide-react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AlertCircle, Award, Clock, Loader2, ShieldCheck, UserPlus, Users, X } from 'lucide-react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 const pilotSchema = z.z.object({
@@ -187,7 +187,7 @@ export default function PilotsPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ID Type</label>
                                         <select
                                             {...register('primary_id_type')}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white text-gray-900"
                                         >
                                             <option value="Aadhaar">Aadhaar</option>
                                             <option value="Passport">Passport</option>
@@ -210,7 +210,7 @@ export default function PilotsPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                                         <select
                                             {...register('category_rating')}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white text-gray-900"
                                         >
                                             <option value="Rotary_Wing">Rotary Wing</option>
                                             <option value="Fixed_Wing">Fixed Wing</option>
@@ -221,7 +221,7 @@ export default function PilotsPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Class</label>
                                         <select
                                             {...register('class_rating')}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white text-gray-900"
                                         >
                                             <option value="Nano">Nano</option>
                                             <option value="Micro">Micro</option>
@@ -234,7 +234,7 @@ export default function PilotsPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
                                         <select
                                             {...register('operation_rating')}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white text-gray-900"
                                         >
                                             <option value="VLOS">VLOS</option>
                                             <option value="BVLOS">BVLOS</option>

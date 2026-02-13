@@ -34,6 +34,8 @@ const orgAdminNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Drones', href: '/dashboard/drones', icon: Plane },
     { name: 'Team', href: '/dashboard/team', icon: Users },
+    { name: 'Subcontractors', href: '/dashboard/subcontractors', icon: Building2 },
+    { name: 'Inventory', href: '/dashboard/inventory', icon: ShoppingCart },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
     { name: 'Batteries', href: '/dashboard/batteries', icon: Battery },
     { name: 'Flights', href: '/dashboard/flights', icon: Send },
