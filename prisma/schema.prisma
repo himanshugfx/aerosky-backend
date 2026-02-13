@@ -52,6 +52,7 @@ model Organization {
   orders         Order[]
   auditLogs      AuditLog[]
   supportTickets SupportTicket[]
+  flightLogs     FlightLog[]
 
   @@map("organizations")
 }
@@ -135,6 +136,8 @@ model TeamMember {
 
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   drones       Drone[]       @relation("AccountableManager")
+  picFlights   FlightLog[]   @relation("PIC")
+  voFlights    FlightLog[]   @relation("VO")
   user         User?
 
   @@map("team_members")
@@ -169,6 +172,7 @@ model Drone {
   accountableManager TeamMember?        @relation("AccountableManager", fields: [accountableManagerId], references: [id])
   uploads            DroneUpload[]
   manufacturedUnits  ManufacturedUnit[]
+  flightLogs         FlightLog[]
   recurringData      Json?              @map("recurring_data")
 
   @@map("drones")
@@ -209,8 +213,44 @@ model Battery {
   createdAt      DateTime @default(now()) @map("created_at")
 
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  flightLogs   FlightLog[]
 
   @@map("batteries")
+}
+
+model FlightLog {
+  id                String   @id @default(uuid())
+  organizationId    String?  @map("organization_id")
+  
+  // Pilot Flight Log
+  date             DateTime
+  takeoffTime      String   @map("takeoff_time")
+  duration         String
+  locationCoords   String?  @map("location_coords")
+  locationName     String?  @map("location_name")
+  picId            String?  @map("pic_id")
+  voId             String?  @map("vo_id")
+  missionType      String   @map("mission_type") // Training, Commercial, Testing
+  
+  // Aircraft Log
+  droneId          String   @map("drone_id")
+  serialNumber     String?  @map("serial_number")
+  uin              String?  @map("uin")
+  technicalFeedback String? @db.Text @map("technical_feedback")
+  
+  // Battery management
+  batteryId        String?  @map("battery_id")
+
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  drone            Drone         @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  pic              TeamMember?   @relation("PIC", fields: [picId], references: [id])
+  vo               TeamMember?   @relation("VO", fields: [voId], references: [id])
+  battery          Battery?      @relation(fields: [batteryId], references: [id])
+
+  @@map("flight_logs")
 }
 
 model Order {
