@@ -26,6 +26,7 @@ const superAdminNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
     { name: 'Support Tickets', href: '/dashboard/support', icon: HelpCircle },
+    { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
@@ -39,6 +40,7 @@ const orgAdminNavigation = [
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
     { name: 'Batteries', href: '/dashboard/batteries', icon: Battery },
     { name: 'Flights', href: '/dashboard/flights', icon: Send },
+    { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
     { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]

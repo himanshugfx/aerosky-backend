@@ -55,6 +55,8 @@ model Organization {
   flightLogs     FlightLog[]
   components     Component[]
   inventoryTransactions InventoryTransaction[]
+  reimbursements Reimbursement[]
+  attendanceRecords AttendanceRecord[]
 
   @@map("organizations")
 }
@@ -77,6 +79,7 @@ model User {
   teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
   supportTickets SupportTicket[]
   inventoryTransactions InventoryTransaction[]
+  reimbursements Reimbursement[]
 
   @@map("users")
 }
@@ -390,3 +393,36 @@ model InventoryTransaction {
   @@map("inventory_transactions")
 }
 
+model Reimbursement {
+  id             String   @id @default(uuid())
+  name           String
+  amount         Float
+  date           DateTime
+  billData       String   @db.Text @map("bill_data") // Base64 image or pdf
+  status         String   @default("Pending") // Pending, Approved, Rejected
+  userId         String   @map("user_id")
+  organizationId String   @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("reimbursements")
+}
+
+model AttendanceRecord {
+  id             String   @id @default(uuid())
+  employeeId     String   @map("employee_id")
+  date           DateTime
+  checkIn        String?  @map("check_in")
+  checkOut       String?  @map("check_out")
+  status         String?  // Present, Absent, Half Day
+  organizationId String   @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date, organizationId])
+  @@map("attendance_records")
+}
