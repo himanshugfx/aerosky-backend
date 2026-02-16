@@ -79,6 +79,11 @@ export default function AccountsPage() {
             alert('Please attach a bill')
             return
         }
+        if (isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) <= 0) {
+            alert('Please enter a valid amount')
+            return
+        }
+
         setSubmitting(true)
         try {
             const res = await fetch('/api/reimbursements', {
@@ -86,7 +91,9 @@ export default function AccountsPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             })
+
             if (res.ok) {
+                alert('Reimbursement submitted successfully!')
                 setShowForm(false)
                 setFormData({
                     name: '',
@@ -95,9 +102,13 @@ export default function AccountsPage() {
                     billData: ''
                 })
                 fetchReimbursements()
+            } else {
+                const errorData = await res.json()
+                alert(`Error: ${errorData.error || 'Failed to submit'}`)
             }
         } catch (error) {
             console.error('Failed to submit reimbursement:', error)
+            alert('A network error occurred. Please try again.')
         } finally {
             setSubmitting(false)
         }
