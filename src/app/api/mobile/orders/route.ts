@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
 
         const items = await prisma.order.findMany({
             where,
+            include: { uploads: true },
             orderBy: { createdAt: "desc" },
         });
         return NextResponse.json(items);
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { organizationId, ...data } = body;
+        const { organizationId, uploads, ...data } = body;
 
         // Use provided organizationId if super admin, else use current user's org
         const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
@@ -46,13 +47,23 @@ export async function POST(request: NextRequest) {
         const item = await prisma.order.create({
             data: {
                 ...data,
-                organizationId: targetOrgId
-            }
+                organizationId: targetOrgId,
+                uploads: uploads && uploads.length > 0 ? {
+                    create: uploads.map((u: any) => ({
+                        fileData: u.fileData,
+                        fileName: u.fileName,
+                    }))
+                } : undefined
+            },
+            include: { uploads: true }
         });
         return NextResponse.json(item, { status: 201 });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Create order error:', error);
-        return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+        if (error.code === 'P2002') {
+            return NextResponse.json({ error: "Contract number already exists. Please use a unique number." }, { status: 400 });
+        }
+        return NextResponse.json({ error: "Failed to create order. Please check all required fields." }, { status: 500 });
     }
 }
 

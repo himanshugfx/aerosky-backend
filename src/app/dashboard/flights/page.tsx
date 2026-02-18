@@ -15,7 +15,15 @@ import {
     User,
     UserCheck,
     X,
-    Zap
+    Zap,
+    Wind,
+    Compass,
+    Activity,
+    ChevronRight,
+    Map as MapIcon,
+    Calendar,
+    Clock,
+    ShieldCheck
 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
@@ -59,12 +67,10 @@ export default function FlightsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [submitting, setSubmitting] = useState(false)
 
-    // Dependencies for dropdowns
     const [drones, setDrones] = useState<Drone[]>([])
     const [team, setTeam] = useState<TeamMember[]>([])
     const [batteries, setBatteries] = useState<Battery[]>([])
 
-    // Form State
     const [formData, setFormData] = useState({
         date: format(new Date(), 'yyyy-MM-dd'),
         takeoffTime: format(new Date(), 'HH:mm'),
@@ -130,12 +136,10 @@ export default function FlightsPage() {
                 (error) => {
                     console.error('Geolocation failed:', error)
                     setFetchingLocation(false)
-                    alert('Could not fetch location. Please enter manually.')
                 }
             )
         } else {
             setFetchingLocation(false)
-            alert('Geolocation not supported by your browser.')
         }
     }
 
@@ -166,9 +170,6 @@ export default function FlightsPage() {
                     batteryId: ''
                 })
                 fetchData()
-            } else {
-                const err = await res.json()
-                alert(err.error || 'Failed to save flight log')
             }
         } catch (error) {
             console.error('Failed to create flight log:', error)
@@ -178,7 +179,7 @@ export default function FlightsPage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Delete this flight log?')) return
+        if (!confirm('Permanently decommission this flight record?')) return
         try {
             const res = await fetch(`/api/mobile/flights/${id}`, { method: 'DELETE' })
             if (res.ok) fetchData()
@@ -191,116 +192,143 @@ export default function FlightsPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+            <div className="flex flex-col items-center justify-center py-24 animate-in">
+                <div className="relative">
+                    <div className="w-16 h-16 border-4 border-slate-100 rounded-full animate-pulse"></div>
+                    <Loader2 className="w-16 h-16 animate-spin text-slate-900 absolute top-0 left-0 border-t-4 border-transparent rounded-full" />
+                </div>
+                <p className="mt-6 text-slate-500 font-bold uppercase tracking-widest text-xs">Aeronautical Sync In Progress</p>
             </div>
         )
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-            {/* Header + Stats */}
-            <div className="grid lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-3 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div>
-                        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Flight Operations</h2>
-                        <p className="text-gray-500 font-medium mt-1">Detailed logs for compliance and maintenance tracking</p>
+        <div className="space-y-8 animate-in">
+            {/* Operations Header */}
+            <div className="grid lg:grid-cols-4 gap-8">
+                <div className="lg:col-span-3 premium-card p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 bg-white relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-2xl">
+                                <Compass className="w-5 h-5" />
+                            </div>
+                            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Mission Operations</h2>
+                        </div>
+                        <p className="text-slate-500 font-medium max-w-md">Enterprise-grade flight logging and fleet telemetry tracking for regulatory compliance.</p>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="group flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95"
+                        className="premium-btn-primary group flex items-center gap-3 py-4 px-8 relative z-10"
                     >
                         <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                        Log New Flight
+                        Log Flight Mission
                     </button>
                 </div>
-                <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-8 rounded-3xl text-white shadow-xl shadow-blue-100">
+                <div className="premium-card p-8 bg-slate-900 text-white shadow-2xl shadow-slate-900/10 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
-                        <History className="w-8 h-8 opacity-50" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">This Month</span>
+                        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white/60">
+                            <Activity className="w-6 h-6" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Monthly Cycle</span>
                     </div>
-                    <p className="text-4xl font-black mt-4">{logs.length}</p>
-                    <p className="text-sm font-semibold opacity-80 mt-1">Total Flights Logged</p>
+                    <div>
+                        <p className="text-5xl font-black text-white tracking-tighter">{logs.length}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Active Sorties Logged</p>
+                    </div>
                 </div>
             </div>
 
-            {/* Logs Table Area */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                            <Navigation className="w-5 h-5" />
+            {/* Operations Ledger */}
+            <div className="premium-card overflow-hidden">
+                <div className="px-10 py-6 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-white">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-900 shadow-sm">
+                            <Wind className="w-5 h-5" />
                         </div>
-                        <h3 className="font-bold text-gray-900">Recent Logs</h3>
+                        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Telemetric Ledger</h3>
                     </div>
-                    <div className="relative">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <div className="relative group w-full md:w-80">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                         <input
-                            placeholder="Search location or drone..."
-                            className="pl-9 pr-4 py-2 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-1 focus:ring-blue-100 transition-all w-64"
+                            placeholder="Filter by drone or location..."
+                            className="w-full pl-12 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-4 focus:ring-slate-100 transition-all placeholder:text-slate-400"
                         />
                     </div>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto overflow-y-hidden">
                     <table className="w-full text-left">
-                        <thead className="bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <thead className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                             <tr>
-                                <th className="px-8 py-4">Status / Date</th>
-                                <th className="px-8 py-4">Operational Details</th>
-                                <th className="px-8 py-4">Staff & Location</th>
-                                <th className="px-8 py-4 text-right">Actions</th>
+                                <th className="px-10 py-6">Mission Timestamp</th>
+                                <th className="px-10 py-6">Aircraft Configuration</th>
+                                <th className="px-10 py-6">Field Intelligence</th>
+                                <th className="px-10 py-6 text-right">Operational Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50 text-sm">
+                        <tbody className="divide-y divide-slate-50 text-sm">
                             {logs.map((log) => (
-                                <tr key={log.id} className="hover:bg-gray-50/30 transition-colors group">
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-green-500 shadow-lg shadow-green-200" />
-                                            <div>
-                                                <p className="font-bold text-gray-900">{format(new Date(log.date), 'dd MMM yyyy')}</p>
-                                                <p className="text-[10px] text-gray-500 font-mono mt-0.5">{log.takeoffTime}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-gray-100 rounded-lg text-gray-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                                                <Plane className="w-4 h-4" />
+                                <tr key={log.id} className="hover:bg-slate-50/30 transition-all group">
+                                    <td className="px-10 py-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex flex-col items-center justify-center shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-all duration-500">
+                                                <span className="text-[10px] font-black leading-none">{format(new Date(log.date), 'dd')}</span>
+                                                <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5">{format(new Date(log.date), 'MMM')}</span>
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-gray-900">{log.drone.modelName}</p>
-                                                <p className="text-[10px] font-bold text-blue-600 uppercase mt-0.5 tracking-wider">{log.missionType}</p>
+                                                <p className="font-black text-slate-900 text-sm tracking-tight">{format(new Date(log.date), 'yyyy')}</p>
+                                                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-slate-400">
+                                                    <Clock className="w-3 h-3" />
+                                                    {log.takeoffTime}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5">
-                                        <div>
-                                            <div className="flex items-center gap-1.5 text-gray-700 font-medium">
-                                                <User className="w-3 h-3 text-blue-500" />
-                                                {log.pic.name}
+                                    <td className="px-10 py-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 flex items-center justify-center transition-all duration-500">
+                                                <Plane className="w-5 h-5" />
                                             </div>
-                                            <div className="flex items-center gap-1.5 text-gray-400 text-xs mt-1">
-                                                <MapPin className="w-3 h-3" />
-                                                <span className="truncate max-w-[200px]">{log.locationName}</span>
+                                            <div>
+                                                <p className="font-black text-slate-900 text-sm tracking-tight">{log.drone.modelName}</p>
+                                                <span className="inline-flex items-center px-2 py-0.5 bg-slate-900 text-white rounded text-[8px] font-black uppercase tracking-widest mt-1.5 scale-90 origin-left">
+                                                    {log.missionType}
+                                                </span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-right">
+                                    <td className="px-10 py-8">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 text-slate-600 font-extrabold text-[11px] uppercase tracking-tighter">
+                                                <UserCheck className="w-3.5 h-3.5 text-indigo-500" />
+                                                PIC: {log.pic.name}
+                                            </div>
+                                            <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold">
+                                                <MapPin className="w-3.5 h-3.5" />
+                                                <span className="truncate max-w-[240px] italic">{log.locationName}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-10 py-8 text-right">
                                         <button
                                             onClick={() => handleDelete(log.id)}
-                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                            className="w-10 h-10 bg-white text-slate-300 hover:text-red-500 hover:border-red-100 hover:bg-red-50 border border-slate-100 rounded-xl transition-all shadow-sm active:scale-90"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4 mx-auto" />
                                         </button>
                                     </td>
                                 </tr>
                             ))}
                             {logs.length === 0 && (
                                 <tr>
-                                    <td colSpan={4} className="px-8 py-20 text-center text-gray-400">
-                                        <History className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                                        <p className="font-medium italic">No flight logs found. Start your first operation!</p>
+                                    <td colSpan={4} className="px-10 py-32 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mb-6 border border-slate-100">
+                                                <Navigation className="w-10 h-10 text-slate-200" />
+                                            </div>
+                                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Ledger Neutral</h3>
+                                            <p className="text-slate-400 text-sm font-medium mt-2 max-w-xs">No aeronautical records detected in the current operational cycle.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             )}
@@ -309,153 +337,159 @@ export default function FlightsPage() {
                 </div>
             </div>
 
-            {/* Log Modal - The Big One */}
+            {/* Mission Log Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="px-10 py-8 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-2xl font-black text-gray-900">New Operational Log</h2>
-                                <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mt-1">Complete compliance record required</p>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
+                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
+                        <div className="px-12 py-10 bg-slate-900 flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h2 className="text-3xl font-black text-white tracking-tight">Mission Telemetry Entry</h2>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Finalizing Operational Compliance Record</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-3 text-gray-400 hover:text-gray-900 hover:bg-white rounded-2xl shadow-sm transition-all">
-                                <X className="w-6 h-6" />
+                            <button onClick={() => setIsModalOpen(false)} className="w-14 h-14 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-[1.25rem] flex items-center justify-center transition-all shadow-2xl active:scale-90">
+                                <X className="w-8 h-8" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10">
-                            {/* Section 1: Pilot Flight Log */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200">
+                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-12 space-y-12 scrollbar-hide">
+                            {/* Section 1: Personnel & Mission */}
+                            <div className="space-y-8">
+                                <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-xl shadow-indigo-200">
                                         <UserCheck className="w-5 h-5" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900">1. Pilot Flight Log</h3>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Critical Mission Parameters</h3>
                                 </div>
 
-                                <div className="grid md:grid-cols-3 gap-6">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Date *</label>
-                                        <input
-                                            type="date"
-                                            required
-                                            value={formData.date}
-                                            onChange={e => setFormData({ ...formData, date: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Time of Takeoff *</label>
-                                        <input
-                                            type="time"
-                                            required
-                                            value={formData.takeoffTime}
-                                            onChange={e => setFormData({ ...formData, takeoffTime: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Total Duration *</label>
-                                        <input
-                                            placeholder="e.g. 25 mins"
-                                            required
-                                            value={formData.duration}
-                                            onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1 flex justify-between">
-                                            Location *
-                                            <button
-                                                type="button"
-                                                onClick={fetchCurrentLocation}
-                                                className="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 normal-case"
-                                            >
-                                                {fetchingLocation ? <Loader2 className="w-3 h-3 animate-spin" /> : <Locate className="w-3 h-3" />}
-                                                Fetch My Location
-                                            </button>
-                                        </label>
+                                <div className="grid md:grid-cols-3 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Mission Date *</label>
                                         <div className="relative">
-                                            <MapPin className="w-4 h-4 absolute left-4 top-4 text-gray-400" />
+                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                                             <input
-                                                placeholder="Enter location name or fetch coords"
+                                                type="date"
                                                 required
-                                                value={formData.locationName}
-                                                onChange={e => setFormData({ ...formData, locationName: e.target.value })}
-                                                className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold text-sm"
+                                                value={formData.date}
+                                                onChange={e => setFormData({ ...formData, date: e.target.value })}
+                                                className="input-premium pl-12 py-4"
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Mission Type *</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Takeoff (Z) *</label>
+                                        <div className="relative">
+                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                            <input
+                                                type="time"
+                                                required
+                                                value={formData.takeoffTime}
+                                                onChange={e => setFormData({ ...formData, takeoffTime: e.target.value })}
+                                                className="input-premium pl-12 py-4"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Airtime (Min) *</label>
+                                        <input
+                                            placeholder="e.g. 45"
+                                            required
+                                            value={formData.duration}
+                                            onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                                            className="input-premium py-4"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 flex justify-between">
+                                            Operational Sector *
+                                            <button
+                                                type="button"
+                                                onClick={fetchCurrentLocation}
+                                                className="text-indigo-600 hover:text-indigo-800 transition-all flex items-center gap-1.5 text-[10px] font-black uppercase tracking-tighter"
+                                            >
+                                                {fetchingLocation ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapIcon className="w-3.5 h-3.5" />}
+                                                Synchronize Location
+                                            </button>
+                                        </label>
+                                        <div className="relative">
+                                            <MapPin className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input
+                                                placeholder="Geographic site identification..."
+                                                required
+                                                value={formData.locationName}
+                                                onChange={e => setFormData({ ...formData, locationName: e.target.value })}
+                                                className="input-premium pl-12 py-4"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Objective Vector *</label>
                                         <select
                                             required
                                             value={formData.missionType}
                                             onChange={e => setFormData({ ...formData, missionType: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold text-gray-900"
+                                            className="input-premium py-4 appearance-none"
                                         >
-                                            <option value="Training">Training</option>
-                                            <option value="Commercial">Commercial</option>
-                                            <option value="Testing">Testing</option>
+                                            <option value="Training">Training & Drills</option>
+                                            <option value="Commercial">Commercial Engagement</option>
+                                            <option value="Testing">Technical R&D</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">PIC (Pilot in Command) *</label>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">PIC Identification *</label>
                                         <select
                                             required
                                             value={formData.picId}
                                             onChange={e => setFormData({ ...formData, picId: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold text-gray-900"
+                                            className="input-premium py-4 appearance-none"
                                         >
-                                            <option value="">Select Pilot</option>
-                                            {team.map(m => <option key={m.id} value={m.id}>{m.name} ({m.position})</option>)}
+                                            <option value="">Select Command Pilot</option>
+                                            {team.map(m => <option key={m.id} value={m.id}>{m.name} — {m.position}</option>)}
                                         </select>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">VO (Visual Observer)</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Visual Observer (VO)</label>
                                         <select
                                             value={formData.voId}
                                             onChange={e => setFormData({ ...formData, voId: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold text-gray-900"
+                                            className="input-premium py-4 appearance-none"
                                         >
-                                            <option value="">Select Observer (Optional)</option>
+                                            <option value="">Optional Wing Personnel</option>
                                             {team.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                         </select>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Section 2: Aircraft Log */}
-                            <div className="p-8 bg-gray-50 rounded-[2rem] space-y-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-gray-900 text-white flex items-center justify-center shadow-lg shadow-gray-200">
+                            {/* Section 2: Aircraft Hardware */}
+                            <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-slate-100/50 space-y-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xl">
                                         <Plane className="w-5 h-5" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900">2. Aircraft Log</h3>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Aircraft Asset Allocation</h3>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Drone *</label>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Drone Ecosystem *</label>
                                         <select
                                             required
                                             value={formData.droneId}
                                             onChange={e => setFormData({ ...formData, droneId: e.target.value, serialNumber: '', uin: '' })}
-                                            className="w-full px-4 py-3 bg-white border-none rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all font-semibold text-gray-900"
+                                            className="input-premium py-4 appearance-none bg-white font-black"
                                         >
-                                            <option value="">Select drone model</option>
+                                            <option value="">Select Airframe Model</option>
                                             {drones.map(d => <option key={d.id} value={d.id}>{d.modelName}</option>)}
                                         </select>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Serial Number / UIN *</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Final Unit Identification *</label>
                                         <select
                                             required
                                             disabled={!formData.droneId}
@@ -464,9 +498,9 @@ export default function FlightsPage() {
                                                 const [sn, uin] = e.target.value.split('|')
                                                 setFormData({ ...formData, serialNumber: sn, uin })
                                             }}
-                                            className="w-full px-4 py-3 bg-white border-none rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all font-semibold disabled:opacity-50 text-gray-900"
+                                            className="input-premium py-4 appearance-none bg-white font-black disabled:opacity-30"
                                         >
-                                            <option value="|">Select specific unit</option>
+                                            <option value="|">Determine Serial / UIN</option>
                                             {selectedDrone?.manufacturedUnits.map((u, i) => (
                                                 <option key={i} value={`${u.serialNumber}|${u.uin}`}>
                                                     SN: {u.serialNumber} (UIN: {u.uin})
@@ -475,39 +509,39 @@ export default function FlightsPage() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Technical Feedback</label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Post-Flight Technical Inspection</label>
                                     <textarea
-                                        rows={3}
-                                        placeholder="Note any technical issues or observations during flight..."
+                                        rows={4}
+                                        placeholder="Record thermal spikes, rotor integrity, or telemetric anomalies..."
                                         value={formData.technicalFeedback}
                                         onChange={e => setFormData({ ...formData, technicalFeedback: e.target.value })}
-                                        className="w-full px-4 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all font-medium text-sm"
+                                        className="input-premium py-6 bg-white font-bold text-sm tracking-tight resize-none"
                                     />
                                 </div>
                             </div>
 
-                            {/* Section 3: Battery Log */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-200">
+                            {/* Section 3: Energy Cells */}
+                            <div className="space-y-8">
+                                <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xl">
                                         <Zap className="w-5 h-5" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900">3. Battery Management Log</h3>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Energy Management System</h3>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Battery Pair Used *</label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Battery Manifest Allocation *</label>
                                     <select
                                         required
                                         value={formData.batteryId}
                                         onChange={e => setFormData({ ...formData, batteryId: e.target.value })}
-                                        className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-semibold text-gray-900"
+                                        className="input-premium py-4 appearance-none font-black"
                                     >
-                                        <option value="">Select registered battery pair</option>
+                                        <option value="">Identify Operational Battery Pair</option>
                                         {batteries.map(b => (
                                             <option key={b.id} value={b.id}>
-                                                {b.batteryNumberA} + {b.batteryNumberB} ({b.model})
+                                                Pair: {b.batteryNumberA} / {b.batteryNumberB} [{b.model}]
                                             </option>
                                         ))}
                                     </select>
@@ -515,27 +549,27 @@ export default function FlightsPage() {
                             </div>
                         </form>
 
-                        <div className="px-10 py-8 bg-gray-50 border-t border-gray-100 flex gap-4">
+                        <div className="px-12 py-10 bg-slate-50 border-t border-slate-100 flex gap-6">
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="flex-1 px-8 py-4 bg-white border border-gray-200 text-gray-600 rounded-2xl font-bold hover:bg-gray-100 transition-all active:scale-95"
+                                className="flex-1 py-5 px-8 bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-300 rounded-3xl transition-all shadow-sm active:scale-95"
                             >
-                                Discard
+                                Discard Entries
                             </button>
                             <button
                                 onClick={handleSubmit}
                                 disabled={submitting}
-                                className="flex-[2] px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-[2] py-5 px-8 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-3xl shadow-2xl shadow-slate-900/20 hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
                             >
                                 {submitting ? (
                                     <>
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                        Saving Log...
+                                        Transmitting Telementry...
                                     </>
                                 ) : (
                                     <>
                                         <CheckCircle2 className="w-5 h-5" />
-                                        Save Operational Log
+                                        Commit Operational Record
                                     </>
                                 )}
                             </button>

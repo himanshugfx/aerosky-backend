@@ -36,12 +36,13 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { name, description } = body;
+        const { name, description, category } = body;
 
         const component = await prisma.component.create({
             data: {
                 name,
                 description,
+                category: category || "Operational",
                 organizationId: auth.user.organizationId!,
             },
         });

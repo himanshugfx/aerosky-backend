@@ -299,8 +299,21 @@ model Order {
   updatedAt                   DateTime @updatedAt @map("updated_at")
 
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploads      OrderUpload[]
 
   @@map("orders")
+}
+
+model OrderUpload {
+  id         String   @id @default(uuid())
+  orderId    String   @map("order_id")
+  fileData   String   @db.Text @map("file_data")
+  fileName   String?  @map("file_name")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_uploads")
 }
 
 // Support Ticket model
@@ -358,6 +371,7 @@ model Component {
   name           String
   description    String?
   quantity       Int      @default(0)
+  category       String   @default("Operational")
   organizationId String   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")

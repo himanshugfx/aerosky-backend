@@ -1,6 +1,21 @@
 'use client'
 
-import { ArrowLeft, Loader2, Send } from 'lucide-react'
+import {
+    ArrowLeft,
+    Loader2,
+    Send,
+    MessageSquare,
+    Shield,
+    Clock,
+    AlertCircle,
+    CheckCircle2,
+    User,
+    Building2,
+    Calendar,
+    ChevronDown,
+    Zap,
+    Lock
+} from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -26,15 +41,14 @@ interface Ticket {
     messages: Message[]
 }
 
-const statusConfig: Record<string, { color: string, bg: string }> = {
-    OPEN: { color: 'text-yellow-600', bg: 'bg-yellow-100' },
-    IN_PROGRESS: { color: 'text-blue-600', bg: 'bg-blue-100' },
-    RESOLVED: { color: 'text-green-600', bg: 'bg-green-100' },
-    CLOSED: { color: 'text-gray-600', bg: 'bg-gray-100' },
+const statusConfig: Record<string, { color: string, bg: string, ring: string, icon: any }> = {
+    OPEN: { color: 'text-amber-600', bg: 'bg-amber-50', ring: 'ring-amber-200', icon: Clock },
+    IN_PROGRESS: { color: 'text-blue-600', bg: 'bg-blue-50', ring: 'ring-blue-200', icon: Zap },
+    RESOLVED: { color: 'text-emerald-600', bg: 'bg-emerald-50', ring: 'ring-emerald-200', icon: CheckCircle2 },
+    CLOSED: { color: 'text-slate-600', bg: 'bg-slate-50', ring: 'ring-slate-200', icon: Lock },
 }
 
 const statusOptions = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']
-const priorityOptions = ['LOW', 'NORMAL', 'HIGH', 'URGENT']
 
 export default function TicketChatPage() {
     const { id } = useParams()
@@ -123,8 +137,9 @@ export default function TicketChatPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-12 h-[calc(100vh-200px)]">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <div className="flex flex-col items-center justify-center py-32 space-y-4 h-[calc(100vh-200px)]">
+                <Loader2 className="w-12 h-12 animate-spin text-slate-900" />
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Synchronizing Encrypted Channel...</p>
             </div>
         )
     }
@@ -132,69 +147,87 @@ export default function TicketChatPage() {
     if (!ticket) return null
 
     return (
-        <div className="max-w-6xl mx-auto flex flex-col h-[calc(100vh-120px)]">
-            {/* Header */}
-            <div className="bg-white border border-gray-200 rounded-t-xl p-4 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-4">
+        <div className="max-w-6xl mx-auto flex flex-col h-[calc(100vh-140px)] animate-in fade-in duration-700">
+            {/* Premium Header */}
+            <div className="bg-white border border-slate-200 rounded-t-[2.5rem] px-8 py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shrink-0 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                <div className="flex items-center gap-6 relative z-10">
                     <button
                         onClick={() => router.push('/dashboard/support')}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="w-12 h-12 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-90 group"
                     >
-                        <ArrowLeft className="w-5 h-5 text-gray-500" />
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-900">{ticket.subject}</h2>
-                        <div className="flex items-center gap-2 mt-1">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight">{ticket.subject}</h2>
+                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest px-2 py-0.5 border border-slate-100 rounded-lg">ID: {ticket.id.slice(-8).toUpperCase()}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
                             {isSuperAdmin ? (
-                                <select
-                                    value={ticket.status}
-                                    onChange={(e) => handleStatusUpdate(e.target.value)}
-                                    disabled={updatingStatus}
-                                    className={`text-xs font-medium px-2 py-0.5 rounded-full border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer ${statusConfig[ticket.status].bg} ${statusConfig[ticket.status].color}`}
-                                >
-                                    {statusOptions.map(opt => (
-                                        <option key={opt} value={opt}>{opt.replace('_', ' ')}</option>
-                                    ))}
-                                </select>
+                                <div className="relative group/select">
+                                    <select
+                                        value={ticket.status}
+                                        onChange={(e) => handleStatusUpdate(e.target.value)}
+                                        disabled={updatingStatus}
+                                        className={`appearance-none text-[10px] font-black uppercase tracking-widest pl-3 pr-8 py-1.5 rounded-xl border-none focus:ring-4 focus:ring-slate-100 cursor-pointer shadow-sm transition-all ${statusConfig[ticket.status].bg} ${statusConfig[ticket.status].color}`}
+                                    >
+                                        {statusOptions.map(opt => (
+                                            <option key={opt} value={opt} className="bg-white text-slate-900">{opt.replace('_', ' ')}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className={`absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 ${statusConfig[ticket.status].color} pointer-events-none group-hover/select:translate-y-0.5 transition-transform`} />
+                                </div>
                             ) : (
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig[ticket.status].bg} ${statusConfig[ticket.status].color}`}>
+                                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ring-1 ring-inset ${statusConfig[ticket.status].bg} ${statusConfig[ticket.status].color} ${statusConfig[ticket.status].ring}`}>
+                                    {(() => { const StatusIcon = statusConfig[ticket.status]?.icon; return StatusIcon ? <StatusIcon className="w-3.5 h-3.5" /> : null; })()}
                                     {ticket.status.replace('_', ' ')}
-                                </span>
+                                </div>
                             )}
-                            <span className="text-xs text-gray-400">•</span>
-                            <span className="text-xs text-gray-500">Priority: {ticket.priority}</span>
-                            {isSuperAdmin && (
-                                <>
-                                    <span className="text-xs text-gray-400">•</span>
-                                    <span className="text-xs font-medium text-gray-700">{ticket.organization?.name}</span>
-                                </>
-                            )}
+                            <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority: {ticket.priority}</span>
                         </div>
                     </div>
                 </div>
-                <div className="text-right hidden sm:block">
-                    <p className="text-sm font-medium text-gray-900">{ticket.user?.fullName}</p>
-                    <p className="text-xs text-gray-500">{ticket.user?.email}</p>
+
+                <div className="flex items-center gap-4 pl-12 sm:pl-0 relative z-10">
+                    <div className="text-right">
+                        <p className="text-sm font-black text-slate-900 leading-tight">{ticket.user?.fullName}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{ticket.organization?.name || 'External Link'}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-slate-900 rounded-[1.25rem] flex items-center justify-center text-white font-black text-lg">
+                        {ticket.user?.fullName?.charAt(0)}
+                    </div>
                 </div>
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto bg-gray-50 p-6 space-y-4 border-x border-gray-200">
+            <div className="flex-1 overflow-y-auto bg-slate-50/50 p-8 space-y-8 border-x border-slate-200 scrollbar-hide relative">
                 {ticket.messages.map((msg, index) => {
                     const isMine = msg.senderId === currentUserId
+                    const showAvatar = index === 0 || ticket.messages[index - 1].senderId !== msg.senderId
+
                     return (
                         <div
                             key={msg.id}
-                            className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
+                            className={`flex items-end gap-3 ${isMine ? 'flex-row-reverse' : 'flex-row'} animate-in slide-in-from-bottom-2 duration-300`}
                         >
-                            <div className={`max-w-[80%] rounded-2xl px-4 py-2 shadow-sm ${isMine
-                                ? 'bg-blue-600 text-white rounded-tr-none'
-                                : 'bg-white text-gray-900 border border-gray-200 rounded-tl-none'
-                                }`}>
-                                <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
-                                <p className={`text-[10px] mt-1 text-right ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
-                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm flex-shrink-0 transition-opacity duration-300 ${showAvatar ? 'opacity-100' : 'opacity-0'} ${isMine ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200'}`}>
+                                <User className="w-4 h-4" />
+                            </div>
+                            <div className={`max-w-[70%] group relative ${isMine ? 'items-end' : 'items-start'}`}>
+                                <div className={`rounded-[2rem] px-6 py-4 shadow-sm transition-all duration-300 hover:shadow-md ${isMine
+                                    ? 'bg-slate-900 text-white rounded-br-none'
+                                    : 'bg-white text-slate-900 border border-slate-200 rounded-bl-none'
+                                    }`}>
+                                    <p className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                                </div>
+                                <div className={`flex items-center gap-2 mt-2 px-1 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                    <CheckCircle2 className={`w-3 h-3 ${isMine ? 'text-blue-500' : 'text-slate-200'}`} />
+                                </div>
                             </div>
                         </div>
                     )
@@ -202,34 +235,46 @@ export default function TicketChatPage() {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Footer / Input */}
-            <div className="bg-white border border-gray-200 rounded-b-xl p-4 shrink-0">
+            {/* Premium Input Area */}
+            <div className="bg-white border border-slate-200 rounded-b-[2.5rem] p-6 shrink-0 shadow-sm relative overflow-hidden">
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-slate-50 rounded-full -ml-16 -mb-16 blur-3xl"></div>
                 {ticket.status === 'CLOSED' ? (
-                    <div className="text-center py-2 text-gray-500 text-sm italic">
-                        This ticket is closed and cannot receive further replies.
+                    <div className="flex items-center justify-center gap-3 py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 group">
+                        <Lock className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-slate-600 transition-colors">Transmission Channel Sealed: Resolved</span>
                     </div>
                 ) : (
-                    <form onSubmit={handleSendMessage} className="flex gap-2">
-                        <textarea
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder="Type your reply here..."
-                            rows={1}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none outline-none"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault()
-                                    handleSendMessage(e)
-                                }
-                            }}
-                        />
+                    <form onSubmit={handleSendMessage} className="flex gap-4 items-end relative z-10">
+                        <div className="flex-1 relative">
+                            <textarea
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                placeholder="Enter response parameters..."
+                                rows={2}
+                                className="w-full pl-6 pr-14 py-4 bg-slate-50 border-none rounded-[1.5rem] text-[15px] font-medium focus:ring-4 focus:ring-slate-100 transition-all outline-none resize-none scrollbar-hide"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault()
+                                        handleSendMessage(e)
+                                    }
+                                }}
+                            />
+                            <div className="absolute right-4 bottom-4 p-2.5 bg-white text-slate-300 rounded-xl shadow-sm border border-slate-100">
+                                <MessageSquare className="w-4 h-4" />
+                            </div>
+                        </div>
                         <button
                             type="submit"
                             disabled={!newMessage.trim() || sending}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="bg-slate-900 text-white p-5 rounded-[1.5rem] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 disabled:shadow-none group"
                         >
-                            {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                            <span className="hidden sm:inline">Send</span>
+                            {sending ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Send className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                </div>
+                            )}
                         </button>
                     </form>
                 )}

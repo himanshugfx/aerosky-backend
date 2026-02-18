@@ -20,19 +20,21 @@ export async function GET(request: Request) {
 
         console.log('Download request:', { ids, format });
 
-        let orders;
+        const where: any = {};
 
-        if (ids === 'all' || !ids) {
-            orders = await prisma.order.findMany({
-                orderBy: { createdAt: 'desc' },
-            });
-        } else {
-            const idArray = ids.split(',');
-            orders = await prisma.order.findMany({
-                where: { id: { in: idArray } },
-                orderBy: { createdAt: 'desc' },
-            });
+        // Security filter: Non-SUPER_ADMINs only see their own organization's orders
+        if ((session.user as any).role !== 'SUPER_ADMIN') {
+            where.organizationId = (session.user as any).organizationId;
         }
+
+        if (ids && ids !== 'all') {
+            where.id = { in: ids.split(',') };
+        }
+
+        orders = await prisma.order.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+        });
 
         if (orders.length === 0) {
             return NextResponse.json({ error: 'No orders found' }, { status: 404 });

@@ -15,34 +15,35 @@ import {
     ShoppingCart,
     Users,
     X,
+    ChevronRight,
+    Search,
+    Command,
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-// Navigation for Super Admin
 const superAdminNavigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
-    { name: 'Support Tickets', href: '/dashboard/support', icon: HelpCircle },
-    { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
+    { name: 'Financials', href: '/dashboard/accounts', icon: ShoppingCart },
+    { name: 'System Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
-// Navigation for Org Admin
 const orgAdminNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Drones', href: '/dashboard/drones', icon: Plane },
-    { name: 'Team', href: '/dashboard/team', icon: Users },
-    { name: 'Subcontractors', href: '/dashboard/subcontractors', icon: Building2 },
+    { name: 'Fleet', href: '/dashboard/drones', icon: Plane },
+    { name: 'Personnel', href: '/dashboard/team', icon: Users },
+    { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2 },
     { name: 'Inventory', href: '/dashboard/inventory', icon: ShoppingCart },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
-    { name: 'Batteries', href: '/dashboard/batteries', icon: Battery },
-    { name: 'Flights', href: '/dashboard/flights', icon: Send },
+    { name: 'Power Units', href: '/dashboard/batteries', icon: Battery },
+    { name: 'Flight Logs', href: '/dashboard/flights', icon: Send },
     { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
-    { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Assistance', href: '/dashboard/support', icon: HelpCircle },
+    { name: 'Configuration', href: '/dashboard/settings', icon: Settings },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -71,126 +72,193 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (status === 'loading') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 selection:bg-indigo-500/30">
+                <div className="flex flex-col items-center gap-6">
+                    <div className="relative">
+                        <div className="w-16 h-16 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                        <Shield className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" />
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                        <p className="text-slate-900 font-bold tracking-tight text-lg">AeroSky</p>
+                        <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest animate-pulse">Initializing Systems</p>
+                    </div>
+                </div>
             </div>
         )
     }
 
-    if (status === 'unauthenticated') {
-        return null
-    }
+    if (status === 'unauthenticated') return null
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+        <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row selection:bg-indigo-500/20 antialiased">
             {/* Mobile Sidebar Overlay */}
             {isMobileMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-[40] lg:hidden"
+                    className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[40] lg:hidden animate-in fade-in transition-all duration-500"
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
             )}
 
-            {/* Sidebar */}
+            {/* Sidebar - Optimized for Large Screens */}
             <aside className={`
-                fixed lg:sticky top-0 left-0 w-64 bg-white border-r border-gray-200 h-screen z-[50] transition-transform duration-300 transform lg:translate-x-0
+                fixed lg:sticky top-0 left-0 w-80 bg-[#0f172a] h-screen z-[50] transition-all duration-500 ease-out lg:translate-x-0 flex flex-col
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
-                <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-                    <Link href="/dashboard" className="flex items-center gap-2 text-blue-900">
-                        <Shield className="w-8 h-8 text-amber-500" />
-                        <span className="text-xl font-bold tracking-tight">AeroSky</span>
+                {/* Brand Header */}
+                <div className="p-10 flex items-center justify-between">
+                    <Link href="/dashboard" className="group">
+                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-600/40 group-active:scale-95 transition-all duration-300">
+                            <Shield className="w-7 h-7 text-white" />
+                        </div>
                     </Link>
                     <button
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="lg:hidden p-2 text-gray-500 hover:text-gray-900"
+                        className="lg:hidden p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                {/* Role Badge */}
-                <div className="px-4 py-2">
-                    <span className={`text-xs font-semibold px-2 py-1 rounded ${isSuperAdmin
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-blue-100 text-blue-700'
+                {/* Role Indicator */}
+                <div className="px-8 mb-6">
+                    <div className={`px-4 py-3 rounded-2xl border flex items-center gap-3 ${isSuperAdmin
+                        ? 'bg-indigo-500/10 border-indigo-500/20'
+                        : 'bg-emerald-500/10 border-emerald-500/20'
                         }`}>
-                        {isSuperAdmin ? 'SUPER ADMIN' : 'ORG ADMIN'}
-                    </span>
+                        <div className={`w-2 h-2 rounded-full animate-pulse ${isSuperAdmin ? 'bg-indigo-500' : 'bg-emerald-500'}`} />
+                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${isSuperAdmin ? 'text-indigo-400' : 'text-emerald-400'}`}>
+                            {isSuperAdmin ? 'Global Commander' : 'Operational Unit'}
+                        </span>
+                    </div>
                 </div>
 
-                <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-220px)]">
+                {/* Navigation Scroll Area */}
+                <nav className="flex-1 px-6 space-y-1 overflow-y-auto custom-scrollbar pt-2">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href
                         return (
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                    ? 'bg-blue-50 text-blue-700 font-medium'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
+                                className={`nav-item group ${isActive ? 'nav-item-active' : ''}`}
                             >
-                                <item.icon className="w-5 h-5" />
-                                {item.name}
+                                <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:translate-x-1'}`} />
+                                <span className="text-sm tracking-tight">{item.name}</span>
+                                {isActive && (
+                                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_white]" />
+                                )}
                             </Link>
                         )
                     })}
                 </nav>
 
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-                            <span className="text-blue-700 font-medium">
-                                {session?.user?.name?.charAt(0) || 'U'}
-                            </span>
+                {/* Enhanced Profile Section */}
+                <div className="p-6 pb-10">
+                    <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5 backdrop-blur-sm group hover:border-white/10 transition-all duration-500">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="relative">
+                                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[1.25rem] flex items-center justify-center text-white text-xl font-bold shadow-2xl shadow-indigo-500/30">
+                                    {session?.user?.name?.charAt(0) || 'U'}
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-[3px] border-[#0f172a] rounded-full shadow-lg"></div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-base font-bold text-white truncate leading-tight">{session?.user?.name}</p>
+                                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.1em] mt-1.5 truncate">
+                                    {session?.user?.role?.replace('_', ' ')}
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                                {session?.user?.name}
-                            </p>
-                            <p className="text-xs text-gray-500 truncate">
-                                {session?.user?.email}
-                            </p>
-                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all duration-500 font-bold text-xs uppercase tracking-widest group/btn shadow-lg shadow-transparent hover:shadow-rose-500/20"
+                        >
+                            <LogOut className="w-4 h-4 transition-transform group-hover/btn:-translate-x-1" />
+                            Disconnect
+                        </button>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg"
-                    >
-                        <LogOut className="w-5 h-5" />
-                        Sign out
-                    </button>
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* Top Bar */}
-                <header className="bg-white border-b border-gray-200 px-4 lg:px-8 py-4 flex justify-between items-center sticky top-0 z-30">
-                    <div className="flex items-center gap-4">
+            {/* Main View Area */}
+            <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
+                {/* High-Fidelity Header */}
+                <header className="glass-header px-10 py-6 min-h-[100px]">
+                    <div className="flex items-center gap-8">
                         <button
                             onClick={() => setIsMobileMenuOpen(true)}
-                            className="lg:hidden p-2 text-gray-500 hover:text-gray-900"
+                            className="lg:hidden p-3 text-slate-500 hover:bg-slate-100 rounded-2xl transition-all"
                         >
                             <Menu className="w-6 h-6" />
                         </button>
-                        <h1 className="text-lg md:text-xl font-semibold text-gray-900 truncate">
-                            {navigation.find(n => n.href === pathname)?.name || 'Dashboard'}
-                        </h1>
+
+                        {/* Page Context */}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+                                <span>AeroSky Command</span>
+                                <div className="w-1 h-1 rounded-full bg-slate-300" />
+                                <span>Live Ops</span>
+                            </div>
+                            <h1 className="text-3xl font-black text-slate-900 tracking-tightest">
+                                {navigation.find(n => n.href === pathname)?.name || 'Command Center'}
+                            </h1>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg relative">
-                            <Bell className="w-5 h-5" />
-                        </button>
+
+                    {/* Desktop Toolbar */}
+                    <div className="hidden lg:flex items-center gap-6">
+                        {/* Global Search Interface */}
+                        <div className="relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Universal Search..."
+                                className="w-72 bg-slate-100/50 hover:bg-slate-100 border-none rounded-2xl py-3 pl-12 pr-12 text-sm font-semibold focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-slate-900"
+                            />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md border border-slate-200 bg-white shadow-sm flex items-center gap-1">
+                                <Command className="w-2.5 h-2.5 text-slate-400" />
+                                <span className="text-[10px] font-bold text-slate-400">K</span>
+                            </div>
+                        </div>
+
+                        <div className="h-10 w-[1px] bg-slate-200" />
+
+                        <div className="flex items-center gap-3">
+                            <button className="relative w-11 h-11 flex items-center justify-center bg-white border border-slate-100 rounded-2xl text-slate-500 hover:text-slate-900 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
+                                <Bell className="w-5 h-5" />
+                                <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-indigo-600 border-2 border-white rounded-full"></span>
+                            </button>
+                            <button className="w-11 h-11 flex items-center justify-center bg-white border border-slate-100 rounded-2xl text-slate-500 hover:text-slate-900 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
+                                <Settings className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 </header>
 
-                {/* Page Content */}
-                <main className="p-4 lg:p-8">
-                    {children}
+                {/* Unified Stage Area */}
+                <main className="main-content-layout animate-slide-up">
+                    <div className="max-w-[1400px] mx-auto w-full">
+                        {children}
+                    </div>
                 </main>
             </div>
+
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                }
+                @font-face {
+                  font-family: 'Outfit';
+                  font-display: swap;
+                }
+            `}</style>
         </div>
     )
 }

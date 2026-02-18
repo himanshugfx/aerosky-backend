@@ -3,12 +3,31 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { maintenanceApi, dronesApi } from '@/lib/api'
-import { Wrench, CheckCircle, Clock, AlertTriangle, User, Calendar, X, AlertCircle as AlertIcon, Loader2 } from 'lucide-react'
+import {
+    Wrench,
+    CheckCircle,
+    Clock,
+    AlertTriangle,
+    User,
+    Calendar,
+    X,
+    AlertCircle as AlertIcon,
+    Loader2,
+    Activity,
+    ShieldCheck,
+    ArrowUpRight,
+    Settings,
+    Hammer,
+    ChevronRight,
+    Search,
+    Filter,
+    HardDrive
+} from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 
-const maintenanceSchema = z.z.object({
+const maintenanceSchema = z.object({
     drone_id: z.string().uuid('Please select a drone'),
     maintenance_type: z.enum(['Inspection', 'Repair', 'Software_Update', 'Component_Replacement']),
     description: z.string().min(5, 'Provide more details'),
@@ -53,91 +72,163 @@ export default function MaintenancePage() {
     const drones = dronesData?.data?.items || []
 
     const stats = [
-        { label: 'Total Logs', value: logs.length, icon: Wrench, color: 'blue' },
-        { label: 'Completed', value: logs.filter((l: any) => l.status === 'Completed').length, icon: CheckCircle, color: 'green' },
-        { label: 'Inspections', value: logs.filter((l: any) => l.maintenance_type === 'Inspection').length, icon: Clock, color: 'yellow' },
-        { label: 'Critical Rep.', value: logs.filter((l: any) => l.maintenance_type === 'Repair').length, icon: AlertTriangle, color: 'red' },
+        { label: 'Engineering Cycles', value: logs.length, icon: Wrench, color: 'slate', sub: 'Total Records' },
+        { label: 'System Healthy', value: logs.filter((l: any) => l.status === 'Completed').length, icon: ShieldCheck, color: 'slate', sub: 'Tasks Finalized' },
+        { label: 'Routine Checks', value: logs.filter((l: any) => l.maintenance_type === 'Inspection').length, icon: Activity, color: 'slate', sub: 'Active Surveys' },
+        { label: 'Critical Assets', value: logs.filter((l: any) => l.maintenance_type === 'Repair').length, icon: HardDrive, color: 'slate', sub: 'Hardware Fixes' },
     ]
 
     return (
-        <div className="space-y-6">
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="space-y-12 animate-in fade-in duration-700">
+            {/* Elegant Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest">Engineering Core</span>
+                        <div className="h-px w-8 bg-slate-200"></div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Technical Telemetry</span>
+                    </div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Maintenance Ledger</h1>
+                    <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-2xl">
+                        Comprehensive technical tracking and engineering compliance for the entire fleet infrastructure.
+                    </p>
+                </div>
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="premium-btn-primary flex items-center gap-2 py-4 px-8"
+                >
+                    <Settings className="w-5 h-5" />
+                    Initialize Engineering Log
+                </button>
+            </div>
+
+            {/* Stats Dashboard */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {stats.map((stat) => (
-                    <div key={stat.label} className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                        <div className="flex items-center gap-4">
-                            <div className={`p-3 bg-${stat.color}-100 rounded-lg`}>
-                                <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
+                    <div
+                        key={stat.label}
+                        className="premium-card p-8 group relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <stat.icon className="w-24 h-24 -mr-8 -mt-8 rotate-12" />
+                        </div>
+                        <div className="relative z-10 text-center lg:text-left">
+                            <div className="flex items-center justify-center lg:justify-between mb-6">
+                                <div className="p-3 bg-slate-50 rounded-2xl text-slate-900 border border-slate-100 shadow-sm">
+                                    <stat.icon className="w-6 h-6" />
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500">{stat.label}</p>
-                                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.sub}</p>
+                            <div className="flex flex-col lg:flex-row items-baseline gap-2 justify-center lg:justify-start">
+                                <p className="text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</p>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</span>
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Maintenance Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Maintenance Logs</h2>
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-                        <Wrench className="w-4 h-4" />
-                        Log Maintenance
-                    </button>
+            {/* Main Ledger Section */}
+            <div className="premium-card overflow-hidden bg-white border-slate-200 shadow-xl shadow-slate-200/40">
+                <div className="px-10 py-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-50/30">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg">
+                            <HardDrive className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Technical Records</h2>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">Fleet-wide Maintenance History</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="relative flex-1 md:w-64">
+                            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Search by Asset ID..."
+                                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-slate-900 transition-all outline-none"
+                            />
+                        </div>
+                        <button className="p-3.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+                            <Filter className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
+
                 <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Drone ID / Type</th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Work Details</th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Technician</th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50/50">
+                                <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Asset & Modality</th>
+                                <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Workflow Specifications</th>
+                                <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Certified Personnel</th>
+                                <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Timestamp</th>
+                                <th className="px-10 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Declaration</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-slate-50">
                             {isLoading ? (
-                                <tr><td colSpan={5} className="px-6 py-12 text-center text-gray-500">Loading logs...</td></tr>
+                                <tr>
+                                    <td colSpan={5} className="px-10 py-24 text-center">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <Loader2 className="w-10 h-10 animate-spin text-slate-900" />
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Synchronizing Technical Dossier...</p>
+                                        </div>
+                                    </td>
+                                </tr>
                             ) : logs.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                        No maintenance records found. <button onClick={() => setIsModalOpen(true)} className="text-blue-600 font-medium hover:underline">Log your first task</button>
+                                    <td colSpan={5} className="px-10 py-24 text-center">
+                                        <div className="max-w-xs mx-auto space-y-4">
+                                            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto border border-slate-100">
+                                                <Activity className="w-8 h-8 text-slate-200" />
+                                            </div>
+                                            <h3 className="text-lg font-black text-slate-900 tracking-tight">No Engineering Logs</h3>
+                                            <p className="text-slate-400 text-sm font-medium">The technical ledger is currently pristine. Initialize a new log to track fleet integrity.</p>
+                                            <button onClick={() => setIsModalOpen(true)} className="text-slate-900 font-black text-[10px] uppercase tracking-widest hover:underline flex items-center gap-2 mx-auto justify-center mt-4">
+                                                Initialize First Record <ChevronRight className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : logs.map((log: any) => (
-                                <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <Wrench className="w-4 h-4 text-blue-500" />
+                                <tr key={log.id} className="group hover:bg-slate-50/50 transition-all duration-300">
+                                    <td className="px-10 py-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-all duration-500">
+                                                <Wrench className="w-5 h-5" />
+                                            </div>
                                             <div>
-                                                <p className="font-medium text-gray-900 font-mono text-xs">{log.drone_id.substring(0, 8)}</p>
-                                                <p className="text-xs text-blue-600">{log.maintenance_type}</p>
+                                                <p className="text-xs font-black text-slate-900 font-mono tracking-tighter uppercase">ID: {log.drone_id.substring(0, 8)}</p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{log.maintenance_type.replace('_', ' ')}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                                        {log.description}
+                                    <td className="px-10 py-8">
+                                        <p className="text-sm font-medium text-slate-600 max-w-xs leading-relaxed">
+                                            {log.description}
+                                        </p>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">
-                                        <div className="flex items-center gap-2">
-                                            <User className="w-3 h-3" />
-                                            {log.technician_name}
+                                    <td className="px-10 py-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">
+                                                <User className="w-4 h-4" />
+                                            </div>
+                                            <p className="text-sm font-bold text-slate-900 uppercase tracking-tighter">{log.technician_name}</p>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                    <td className="px-10 py-8 text-sm font-medium text-slate-600">
                                         <div className="flex items-center gap-2">
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(log.maintenance_date).toLocaleDateString()}
+                                            <Calendar className="w-4 h-4 text-slate-300" />
+                                            {new Date(log.maintenance_date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                            {log.status}
+                                    <td className="px-10 py-8 text-right">
+                                        <span className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${log.status === 'Completed'
+                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                            : 'bg-amber-50 text-amber-600 border-amber-100'
+                                            }`}>
+                                            {log.status || 'Pending'}
                                         </span>
                                     </td>
                                 </tr>
@@ -147,99 +238,107 @@ export default function MaintenancePage() {
                 </div>
             </div>
 
-            {/* Log Maintenance Modal */}
+            {/* Modern Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-200">
-                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-gray-900">Log Maintenance Task</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
-                                <X className="w-5 h-5" />
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
+                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
+                        <div className="px-12 py-10 bg-slate-900 flex items-center justify-between relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                            <div className="relative z-10 space-y-1">
+                                <h2 className="text-3xl font-black text-white tracking-tight">Initialize Log</h2>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Engineering workflow compliance input</p>
+                            </div>
+                            <button onClick={() => setIsModalOpen(false)} className="relative z-10 w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90 border border-white/10">
+                                <X className="w-7 h-7" />
                             </button>
                         </div>
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
-                            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-                                {mutation.isError && (
-                                    <div className="p-3 bg-red-50 text-red-700 rounded-lg flex items-center gap-2 text-sm">
-                                        <AlertIcon className="w-4 h-4" />
-                                        {(mutation.error as any)?.response?.data?.detail || 'Failed to log maintenance.'}
-                                    </div>
-                                )}
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Select Drone</label>
+                        <form onSubmit={handleSubmit(onSubmit)} className="p-12 space-y-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Target Asset *</label>
                                     <select
                                         {...register('drone_id')}
-                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${errors.drone_id ? 'border-red-500' : 'border-gray-300'}`}
+                                        className={`input-premium appearance-none py-4 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat ${errors.drone_id ? 'border-red-500' : ''}`}
                                     >
-                                        <option value="">Select a drone</option>
+                                        <option value="">Search Airframe...</option>
                                         {drones.map((drone: any) => (
-                                            <option key={drone.id} value={drone.id}>{drone.uin || drone.manufacturer_serial_number} ({drone.status})</option>
+                                            <option key={drone.id} value={drone.id}>{drone.uin || drone.manufacturer_serial_number} — [{drone.status}]</option>
                                         ))}
                                     </select>
-                                    {errors.drone_id && <p className="text-red-500 text-xs mt-1">{errors.drone_id.message}</p>}
+                                    {errors.drone_id && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.drone_id.message}</p>}
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Task Type</label>
-                                        <select
-                                            {...register('maintenance_type')}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                        >
-                                            <option value="Inspection">Inspection</option>
-                                            <option value="Repair">Repair</option>
-                                            <option value="Software_Update">Software Update</option>
-                                            <option value="Component_Replacement">Component Replacement</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                                        <input
-                                            type="date"
-                                            {...register('maintenance_date')}
-                                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${errors.maintenance_date ? 'border-red-500' : 'border-gray-300'}`}
-                                        />
-                                        {errors.maintenance_date && <p className="text-red-500 text-xs mt-1">{errors.maintenance_date.message}</p>}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Technician Name</label>
-                                    <input
-                                        {...register('technician_name')}
-                                        placeholder="Enter your name"
-                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${errors.technician_name ? 'border-red-500' : 'border-gray-300'}`}
-                                    />
-                                    {errors.technician_name && <p className="text-red-500 text-xs mt-1">{errors.technician_name.message}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Work Description</label>
-                                    <textarea
-                                        {...register('description')}
-                                        rows={3}
-                                        placeholder="Describe the work performed..."
-                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                                    />
-                                    {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Modality *</label>
+                                    <select
+                                        {...register('maintenance_type')}
+                                        className="input-premium appearance-none py-4 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat"
+                                    >
+                                        <option value="Inspection">Routine Inspection</option>
+                                        <option value="Repair">Critical Repair</option>
+                                        <option value="Software_Update">Telemetry Update</option>
+                                        <option value="Component_Replacement">Hardware Swap</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <div className="p-4 sm:p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-                                >
-                                    Cancel
-                                </button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Engineering Date *</label>
+                                    <input
+                                        type="date"
+                                        {...register('maintenance_date')}
+                                        className={`input-premium py-4 ${errors.maintenance_date ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.maintenance_date && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.maintenance_date.message}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Certified Technician *</label>
+                                    <input
+                                        {...register('technician_name')}
+                                        placeholder="Enter Certification Name"
+                                        className={`input-premium py-4 ${errors.technician_name ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.technician_name && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.technician_name.message}</p>}
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Technical Disposition *</label>
+                                <textarea
+                                    {...register('description')}
+                                    rows={4}
+                                    placeholder="Provide detailed technical summary of the modality performed..."
+                                    className={`input-premium py-4 resize-none ${errors.description ? 'border-red-500' : ''}`}
+                                />
+                                {errors.description && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.description.message}</p>}
+                            </div>
+
+                            <div className="pt-6">
                                 <button
                                     type="submit"
                                     disabled={mutation.isPending}
-                                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                                    className="w-full py-5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] shadow-2xl shadow-slate-900/30 hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 group"
                                 >
-                                    {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Log Task'}
+                                    {mutation.isPending ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            Synchronizing Log...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShieldCheck className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                                            Commit to Engineering Ledger
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="w-full mt-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
+                                >
+                                    Cancel Initiation
                                 </button>
                             </div>
                         </form>

@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { name, description, organizationId } = body;
+        const { name, description, category, organizationId } = body;
 
         // Use provided organizationId or the user's own
         const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
             data: {
                 name,
                 description,
+                category: category || "Operational",
                 organizationId: targetOrgId,
             },
         });

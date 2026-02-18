@@ -1,6 +1,19 @@
 'use client'
 
-import { Battery, Loader2, Plus, Trash2, Zap } from 'lucide-react'
+import {
+    Battery,
+    Loader2,
+    Plus,
+    Trash2,
+    Zap,
+    Activity,
+    ShieldCheck,
+    ArrowUpRight,
+    X,
+    CheckCircle2,
+    Database,
+    Cpu
+} from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 
@@ -73,7 +86,7 @@ export default function BatteriesPage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Delete this battery?')) return
+        if (!confirm('Permanently de-register this energy cell pair?')) return
         try {
             await fetch(`/api/mobile/batteries/${id}`, { method: 'DELETE' })
             fetchBatteries()
@@ -84,48 +97,95 @@ export default function BatteriesPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <div className="flex flex-col items-center justify-center py-24 animate-in">
+                <div className="relative">
+                    <div className="w-16 h-16 border-4 border-slate-100 rounded-full animate-pulse"></div>
+                    <Loader2 className="w-16 h-16 animate-spin text-slate-900 absolute top-0 left-0 border-t-4 border-transparent rounded-full" />
+                </div>
+                <p className="mt-6 text-slate-500 font-bold uppercase tracking-widest text-xs">Propulsion Energy Sync</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Batteries</h2>
-                    <p className="text-gray-500">Track and manage your drone batteries</p>
+        <div className="space-y-8 animate-in">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-1">
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Energy Manifest</h2>
+                    <p className="text-slate-500 font-medium">Monitoring and management of propulsion power systems</p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="premium-btn-primary flex items-center gap-2 py-4 px-8"
                 >
-                    <Plus className="w-4 h-4" />
-                    Add Battery
+                    <Plus className="w-5 h-5" />
+                    Initialize Power Cell
                 </button>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Quick Stats Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="premium-card p-6 bg-slate-900 text-white flex items-center justify-between">
+                    <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Pairs</p>
+                        <p className="text-3xl font-black">{batteries.length}</p>
+                    </div>
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                        <Database className="w-5 h-5" />
+                    </div>
+                </div>
+                <div className="premium-card p-6 border-t-4 border-t-emerald-500 flex items-center justify-between">
+                    <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Health Status</p>
+                        <p className="text-3xl font-black text-slate-900">Optimal</p>
+                    </div>
+                    <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                        <ShieldCheck className="w-5 h-5" />
+                    </div>
+                </div>
+                <div className="premium-card p-6 border-t-4 border-t-indigo-500 flex items-center justify-between">
+                    <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Cycle</p>
+                        <p className="text-3xl font-black text-slate-900">{batteries.length > 0 ? 'Synchronized' : 'Standby'}</p>
+                    </div>
+                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                        <Activity className="w-5 h-5" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Batteries Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {batteries.map((battery) => (
-                    <div key={battery.id} className="bg-white rounded-xl border border-gray-200 p-6">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                                <Zap className="w-6 h-6 text-green-600" />
+                    <div key={battery.id} className="premium-card p-8 group relative overflow-hidden bg-white hover:border-slate-300">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-slate-900 group-hover:scale-110 transition-all duration-700"></div>
+                        <div className="relative z-10 flex flex-col h-full">
+                            <div className="flex items-start justify-between mb-8">
+                                <div className="w-12 h-12 bg-slate-900 text-white rounded-[1.25rem] flex items-center justify-center shadow-2xl group-hover:bg-indigo-500 transition-colors">
+                                    <Zap className="w-6 h-6" />
+                                </div>
+                                <button
+                                    onClick={() => handleDelete(battery.id)}
+                                    className="w-10 h-10 bg-white text-slate-300 hover:text-red-500 border border-slate-100 rounded-xl flex items-center justify-center transition-all hover:bg-red-50 hover:border-red-100 shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => handleDelete(battery.id)}
-                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-1">
-                            {battery.batteryNumberA} + {battery.batteryNumberB}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-2">
-                            <div className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold border border-green-100">
-                                {battery.ratedCapacity}
+
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Dual Cell Pair</p>
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tighter mb-4">
+                                {battery.batteryNumberA} <span className="text-slate-300 mx-1">+</span> {battery.batteryNumberB}
+                            </h3>
+
+                            <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                                <div className="px-3 py-1 bg-emerald-500/10 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                    {battery.ratedCapacity || 'Standard'}
+                                </div>
+                                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold">
+                                    <Cpu className="w-3.5 h-3.5" />
+                                    BMS Active
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -133,53 +193,77 @@ export default function BatteriesPage() {
             </div>
 
             {batteries.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                    <Battery className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p>No batteries registered. Add your first one!</p>
+                <div className="premium-card p-24 text-center">
+                    <div className="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mb-6 mx-auto border border-slate-100 shadow-inner">
+                        <Battery className="w-10 h-10 text-slate-200" />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight">No Propulsion Manifest</h3>
+                    <p className="text-slate-400 text-sm font-medium mt-2 max-w-xs mx-auto">Propulsion energy cells must be registered before flight operations can be authorized.</p>
                 </div>
             )}
 
+            {/* Modern Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
-                        <h3 className="text-xl font-semibold mb-4">Add Battery</h3>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Pair Number *</label>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
+                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
+                        <div className="px-10 py-8 bg-slate-900 flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-black text-white tracking-tight">Register Power Cell</h2>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">New Propulsion Unit Initiation</p>
+                            </div>
+                            <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90">
+                                <X className="w-7 h-7" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-10 space-y-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Hardware Pair Number *</label>
                                 <input
                                     type="number"
                                     value={formData.pairNumber}
                                     onChange={(e) => setFormData({ ...formData, pairNumber: e.target.value })}
-                                    placeholder="e.g. 1"
-                                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
+                                    placeholder="e.g. 01"
+                                    className="input-premium py-4"
                                     required
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Rated Capacity *</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Rated Capacity (mAh) *</label>
                                 <input
                                     type="text"
                                     value={formData.ratedCapacity}
                                     onChange={(e) => setFormData({ ...formData, ratedCapacity: e.target.value })}
                                     placeholder="e.g. 22000 mAh"
-                                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-semibold"
+                                    className="input-premium py-4"
                                     required
                                 />
                             </div>
-                            <div className="flex gap-3 pt-4">
+
+                            <div className="flex gap-4 pt-6">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                                    className="flex-1 py-4 px-6 bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 rounded-2xl transition-all border border-slate-100"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="flex-1 px-4 py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 disabled:opacity-50 font-bold shadow-lg shadow-blue-200 transition-all"
+                                    className="flex-[2] py-4 px-6 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-slate-900/20 hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
                                 >
-                                    {submitting ? 'Creating...' : 'Save Battery Pair'}
+                                    {submitting ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Initializing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle2 className="w-4 h-4" />
+                                            Commit Power Cell
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
