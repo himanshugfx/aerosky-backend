@@ -1,4 +1,5 @@
 import { authenticateRequest } from '@/lib/api-auth';
+import { sendWelcomeEmail } from '@/lib/email';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
@@ -127,6 +128,9 @@ export async function POST(request: NextRequest) {
         });
 
         console.log('Created organization and admin:', result.organization.name, result.adminUser.email);
+
+        // Fire-and-forget welcome email
+        sendWelcomeEmail(email, name, email, phone, 'organization').catch(err => console.error('Welcome email failed:', err));
 
         return NextResponse.json({
             ...result.organization,

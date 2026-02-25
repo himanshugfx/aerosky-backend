@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { name, amount, date, billData } = body;
+        const { name, category, amount, date, billData } = body;
 
         if (!name || !amount || !date || !billData) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
         const reimbursement = await prisma.reimbursement.create({
             data: {
                 name,
+                category: category || "Other",
                 amount: parseFloat(amount),
                 date: new Date(date),
                 billData,

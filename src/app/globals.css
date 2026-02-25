@@ -6,19 +6,19 @@
 
 :root {
   /* Core Palette */
-  --primary: #0f172a;
-  --primary-rgb: 15, 23, 42;
-  --accent: #6366f1;
-  /* Indigo */
-  --accent-rgb: 99, 102, 241;
+  --primary: #1e293b;
+  --primary-rgb: 30, 41, 59;
+  --accent: #f97316;
+  /* Orange */
+  --accent-rgb: 249, 115, 22;
 
   /* Backgrounds */
   --bg-surface: #f8fafc;
   --bg-card: #ffffff;
-  --bg-sidebar: #0f172a;
+  --bg-sidebar: #1e293b;
 
   /* Text */
-  --text-primary: #0f172a;
+  --text-primary: #1e293b;
   --text-secondary: #475569;
   --text-tertiary: #94a3b8;
 
@@ -28,9 +28,9 @@
 
   /* Status */
   --status-success: #10b981;
-  --status-warning: #f59e0b;
+  --status-warning: #f97316;
   --status-error: #ef4444;
-  --status-info: #0ea5e9;
+  --status-info: #f97316;
 }
 
 @layer base {
@@ -55,7 +55,7 @@
 
   /* Premium Containers */
   .modern-card {
-    @apply bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0, 0, 0, 0.02)] transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0, 0, 0, 0.06)] hover:border-slate-200/50;
+    @apply bg-white rounded-3xl border border-slate-100 shadow-premium transition-all duration-500 hover:shadow-premium-hover hover:border-slate-200/50;
   }
 
   .glass-header {
@@ -68,11 +68,11 @@
   }
 
   .btn-premium-primary {
-    @apply btn-premium bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 active:bg-slate-950;
+    @apply btn-premium bg-slate-800 text-white hover:bg-slate-700 shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 active:bg-slate-900;
   }
 
   .btn-premium-accent {
-    @apply btn-premium bg-indigo-600 text-white hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30;
+    @apply btn-premium bg-orange-600 text-white hover:bg-orange-700 shadow-xl shadow-orange-600/20 hover:shadow-orange-600/30;
   }
 
   .btn-premium-ghost {
@@ -81,7 +81,7 @@
 
   /* High-end Inputs */
   .input-modern {
-    @apply w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all duration-300 outline-none text-slate-900 placeholder:text-slate-400 font-medium;
+    @apply w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all duration-300 outline-none text-slate-900 placeholder:text-slate-400 font-medium;
   }
 
   /* Status Badges */
@@ -94,7 +94,7 @@
   }
 
   .status-badge-warning {
-    @apply bg-amber-50 text-amber-700 border-amber-100;
+    @apply bg-orange-50 text-orange-700 border-orange-100;
   }
 
   .status-badge-error {
@@ -102,7 +102,7 @@
   }
 
   .status-badge-info {
-    @apply bg-indigo-50 text-indigo-700 border-indigo-100;
+    @apply bg-orange-50 text-orange-700 border-orange-100;
   }
 }
 
@@ -143,7 +143,7 @@
 }
 
 .nav-item-active {
-  @apply bg-white/10 text-white shadow-2xl shadow-black/50 border-r-4 border-white/20;
+  @apply bg-white/10 text-white shadow-2xl shadow-black/50 border-r-4 border-orange-500/50;
 }
 
 .main-content-layout {

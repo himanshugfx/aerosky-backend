@@ -31,7 +31,7 @@ export async function GET(request: Request) {
             where.id = { in: ids.split(',') };
         }
 
-        orders = await prisma.order.findMany({
+        const orders = await prisma.order.findMany({
             where,
             orderBy: { createdAt: 'desc' },
         });
@@ -247,7 +247,7 @@ export async function GET(request: Request) {
         }
 
         // Bulk Excel Logic (Keep existing)
-        const excelData = orders.map((order, index) => ({
+        const excelData = orders.map((order: any, index: number) => ({
             'S.No': index + 1,
             'Contract Number': order.contractNumber,
             'Client Name': order.clientName,

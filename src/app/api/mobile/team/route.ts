@@ -1,5 +1,6 @@
 import { authenticateRequest } from "@/lib/api-auth";
 import { checkResourceAccess } from "@/lib/authorize";
+import { sendWelcomeEmail } from '@/lib/email';
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -79,6 +80,9 @@ export async function POST(request: NextRequest) {
                 });
                 console.log(`Created user account for staff: ${email} (password: phone number)`);
             }
+
+            // Always send welcome email when team member is created
+            sendWelcomeEmail(email, name, email, phone, 'team_member').catch(err => console.error('Welcome email failed:', err));
         }
 
         return NextResponse.json(teamMember, { status: 201 });

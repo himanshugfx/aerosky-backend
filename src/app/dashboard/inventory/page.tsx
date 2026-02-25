@@ -2,6 +2,7 @@
 
 import {
     Activity,
+    AlertCircle,
     ArrowDownRight,
     ArrowUpRight,
     Boxes,

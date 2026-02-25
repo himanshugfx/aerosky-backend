@@ -33,6 +33,7 @@ import 'jspdf-autotable'
 interface Reimbursement {
     id: string
     name: string
+    category?: string
     amount: number
     date: string
     billData: string
@@ -56,6 +57,7 @@ export default function AccountsPage() {
     const [updatingId, setUpdatingId] = useState<string | null>(null)
     const [formData, setFormData] = useState({
         name: '',
+        category: 'Travel',
         amount: '',
         date: new Date().toISOString().split('T')[0],
         billData: ''
@@ -104,6 +106,7 @@ export default function AccountsPage() {
                 setShowForm(false)
                 setFormData({
                     name: '',
+                    category: 'Travel',
                     amount: '',
                     date: new Date().toISOString().split('T')[0],
                     billData: ''
@@ -166,7 +169,7 @@ export default function AccountsPage() {
     const generatePayslip = (member: any) => {
         const doc = new jsPDF()
 
-        doc.setFillColor(15, 23, 42)
+        doc.setFillColor(30, 41, 59)
         doc.rect(0, 0, 210, 50, 'F')
         doc.setTextColor(255, 255, 255)
         doc.setFontSize(24)
@@ -176,7 +179,7 @@ export default function AccountsPage() {
         doc.setFont('helvetica', 'normal')
         doc.text('OFFICIAL PAYROLL DISBURSEMENT DOCUMENT', 20, 35)
 
-        doc.setTextColor(15, 23, 42)
+        doc.setTextColor(30, 41, 59)
         doc.setFontSize(14)
         doc.text(`STATEMENT FOR FEBRUARY 2026`, 20, 70)
 
@@ -212,7 +215,7 @@ export default function AccountsPage() {
             head: [['Technical Head', 'Amount (INR)']],
             body: tableData,
             theme: 'grid',
-            headStyles: { fillColor: [15, 23, 42], fontSize: 10, fontStyle: 'bold' },
+            headStyles: { fillColor: [30, 41, 59], fontSize: 10, fontStyle: 'bold' },
             styles: { fontSize: 10 },
             //@ts-ignore
             didParseCell: (data) => {
@@ -248,7 +251,7 @@ export default function AccountsPage() {
     const getStatusStyles = (status: string) => {
         switch (status.toLowerCase()) {
             case 'approved': return 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-            case 'completed': return 'bg-blue-50 text-blue-600 border border-blue-100'
+            case 'completed': return 'bg-orange-50 text-orange-600 border border-orange-100'
             case 'rejected': return 'bg-red-50 text-red-600 border border-red-100'
             default: return 'bg-amber-50 text-amber-600 border border-amber-100'
         }
@@ -280,7 +283,7 @@ export default function AccountsPage() {
             <div className="flex flex-col items-center justify-center py-24 animate-in">
                 <div className="relative">
                     <div className="w-16 h-16 border-4 border-slate-100 rounded-full animate-pulse"></div>
-                    <Loader2 className="w-16 h-16 animate-spin text-slate-900 absolute top-0 left-0 border-t-4 border-transparent rounded-full" />
+                    <Loader2 className="w-16 h-16 animate-spin text-orange-600 absolute top-0 left-0 border-t-4 border-transparent rounded-full" />
                 </div>
                 <p className="mt-6 text-slate-500 font-bold uppercase tracking-widest text-xs">Synchronizing Financial Core</p>
             </div>
@@ -295,13 +298,13 @@ export default function AccountsPage() {
                     <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Accounts & Disbursements</h2>
                     <p className="text-slate-500 font-medium">Enterprise financial tracking and payroll management</p>
                 </div>
-                {!showForm && activeTab === 'my' && (
+                {!showForm && (
                     <button
                         onClick={() => setShowForm(true)}
                         className="premium-btn-primary flex items-center gap-2 py-3 px-6"
                     >
                         <Plus className="w-5 h-5" />
-                        New Submission
+                        {activeTab === 'admin' ? 'Add Expense' : 'New Submission'}
                     </button>
                 )}
                 {isAdmin && activeTab === 'admin' && (
@@ -357,6 +360,22 @@ export default function AccountsPage() {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Category *</label>
+                                <select
+                                    className="input-premium py-4 bg-white"
+                                    value={formData.category}
+                                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                    required
+                                >
+                                    <option value="Travel">Travel</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Operational">Operational</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Office">Office</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
                                 <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Amount (INR) *</label>
                                 <div className="relative">
                                     <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -408,7 +427,7 @@ export default function AccountsPage() {
                             <button
                                 type="submit"
                                 disabled={submitting}
-                                className="flex-1 py-4 bg-slate-900 text-white font-extrabold uppercase tracking-widest text-[10px] rounded-2xl hover:bg-slate-800 transition-all shadow-2xl shadow-slate-900/10 flex items-center justify-center gap-3"
+                                className="flex-1 py-4 bg-orange-600 text-white font-extrabold uppercase tracking-widest text-[10px] rounded-2xl hover:bg-orange-700 transition-all shadow-2xl shadow-orange-600/10 flex items-center justify-center gap-3"
                             >
                                 {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Finalize Declaration <ChevronRight className="w-4 h-4" /></>}
                             </button>
@@ -421,7 +440,7 @@ export default function AccountsPage() {
                     <div className="lg:col-span-2 space-y-6">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white">
+                                <div className="w-8 h-8 bg-[#1e293b] rounded-lg flex items-center justify-center text-white">
                                     <Receipt className="w-4 h-4" />
                                 </div>
                                 <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
@@ -451,14 +470,18 @@ export default function AccountsPage() {
                                         <div key={item.id} className="premium-card p-6 flex flex-col group hover:-translate-y-1 transition-all duration-300">
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all duration-500">
+                                                    <div className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center border border-slate-100 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500">
                                                         <Wallet className="w-5 h-5" />
                                                     </div>
                                                     <div>
                                                         <h4 className="font-extrabold text-slate-900 text-sm line-clamp-1">{item.name}</h4>
-                                                        <div className="flex items-center gap-1.5 mt-0.5 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                                                            <Calendar className="w-3 h-3 child" />
-                                                            {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                                <Calendar className="w-3 h-3 child" />
+                                                                {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                            </div>
+                                                            <div className="w-1 h-1 rounded-full bg-slate-200" />
+                                                            <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">{item.category || 'Other'}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -523,7 +546,7 @@ export default function AccountsPage() {
 
                     {/* Financial Insights/Operations Sidebar */}
                     <div className="space-y-8">
-                        <div className="premium-card p-8 bg-slate-900 relative overflow-hidden group">
+                        <div className="premium-card p-8 bg-[#1e293b] relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
                             <h3 className="text-lg font-extrabold text-white tracking-tight mb-8">Capital Audit</h3>
 
@@ -556,7 +579,7 @@ export default function AccountsPage() {
                         {activeTab === 'admin' && (
                             <div className="premium-card p-8 bg-white border border-slate-100">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center border border-indigo-100">
+                                    <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center border border-orange-100">
                                         <CreditCard className="w-5 h-5" />
                                     </div>
                                     <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">Payroll Engine</h3>
@@ -570,7 +593,7 @@ export default function AccountsPage() {
                                         className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all group border border-slate-100/50"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs">H</div>
+                                            <div className="w-10 h-10 bg-[#1e293b] text-white rounded-xl flex items-center justify-center font-bold text-xs">H</div>
                                             <div className="text-left">
                                                 <p className="text-sm font-extrabold text-slate-900 leading-none">Himanshu</p>
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Supervisor</p>

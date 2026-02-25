@@ -410,6 +410,7 @@ model InventoryTransaction {
 model Reimbursement {
   id             String   @id @default(uuid())
   name           String
+  category       String?  @default("Other")
   amount         Float
   date           DateTime
   billData       String   @db.Text @map("bill_data") // Base64 image or pdf
