@@ -72,14 +72,29 @@ export default function OrdersPage() {
         contractNumber: '',
         clientName: '',
         clientSegment: 'Commercial',
+        contactPerson: '',
+        contactPhone: '',
+        contactEmail: '',
+        deliveryAddress: '',
         droneModel: '',
         droneType: 'Multi-rotor',
         weightClass: 'Small',
+        quantity: 1,
+        unitPrice: '',
         contractValue: '',
+        paymentTerms: '',
+        paymentStatus: 'Unpaid',
         orderDate: new Date().toISOString().split('T')[0],
         manufacturingStage: 'In Design',
         bomReadiness: 'Not Ready',
         dgcaFaaCertificationStatus: 'Pending',
+        priorityLevel: 'Normal',
+        qualityCheckStatus: 'Pending',
+        warrantyTerms: '',
+        afterSalesAmc: '',
+        specialRequirements: '',
+        internalOrderNotes: '',
+        manufacturingNotes: '',
         uploads: [] as { fileData: string, fileName: string }[]
     })
     const [submitting, setSubmitting] = useState(false)
@@ -141,10 +156,13 @@ export default function OrdersPage() {
             if (res.ok) {
                 setShowModal(false)
                 setFormData({
-                    contractNumber: '', clientName: '', clientSegment: 'Commercial', droneModel: '',
-                    droneType: 'Multi-rotor', weightClass: 'Small', contractValue: '',
-                    orderDate: new Date().toISOString().split('T')[0], manufacturingStage: 'In Design',
-                    bomReadiness: 'Not Ready', dgcaFaaCertificationStatus: 'Pending', uploads: []
+                    contractNumber: '', clientName: '', clientSegment: 'Commercial', contactPerson: '',
+                    contactPhone: '', contactEmail: '', deliveryAddress: '', droneModel: '',
+                    droneType: 'Multi-rotor', weightClass: 'Small', quantity: 1, unitPrice: '', contractValue: '',
+                    paymentTerms: '', paymentStatus: 'Unpaid', orderDate: new Date().toISOString().split('T')[0],
+                    manufacturingStage: 'In Design', bomReadiness: 'Not Ready', dgcaFaaCertificationStatus: 'Pending',
+                    priorityLevel: 'Normal', qualityCheckStatus: 'Pending', warrantyTerms: '', afterSalesAmc: '',
+                    specialRequirements: '', internalOrderNotes: '', manufacturingNotes: '', uploads: []
                 })
                 fetchOrders()
             }
@@ -227,8 +245,8 @@ export default function OrdersPage() {
                         <div className="relative">
                             <div className="flex items-center justify-between mb-8">
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm group-hover:rotate-3 transition-all duration-500 ${stat.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' :
-                                        stat.color === 'amber' ? 'bg-amber-50 text-amber-600' :
-                                            stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-violet-600'
+                                    stat.color === 'amber' ? 'bg-amber-50 text-amber-600' :
+                                        stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-violet-600'
                                     }`}>
                                     <stat.icon className="w-7 h-7" />
                                 </div>
@@ -359,56 +377,148 @@ export default function OrdersPage() {
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-12 pt-10 grid md:grid-cols-2 gap-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                            {/* Primary Configuration */}
-                            <div className="space-y-8">
-                                <div className="space-y-6">
-                                    <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] border-b border-indigo-100 pb-2">Contract Metadata</h4>
+                            {/* 1. Contract & Client Metadata */}
+                            <div className="space-y-6 md:col-span-2">
+                                <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] border-b border-indigo-100 pb-2">1. Contract & Client Metadata</h4>
+                                <div className="grid md:grid-cols-3 gap-6">
                                     <div className="space-y-2">
-                                        <label className="label-style">Contract Number</label>
+                                        <label className="label-style">Contract Number *</label>
                                         <input type="text" placeholder="e.g. AS-IND-2024-001" value={formData.contractNumber} onChange={e => setFormData({ ...formData, contractNumber: e.target.value })} className="input-modern" required />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="label-style">Enterprise Client</label>
-                                        <input type="text" placeholder="Partner organization name" value={formData.clientName} onChange={e => setFormData({ ...formData, clientName: e.target.value })} className="input-modern" required />
+                                        <label className="label-style">Enterprise Client *</label>
+                                        <input type="text" placeholder="Company name" value={formData.clientName} onChange={e => setFormData({ ...formData, clientName: e.target.value })} className="input-modern" required />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="label-style">Sector</label>
-                                            <select value={formData.clientSegment} onChange={e => setFormData({ ...formData, clientSegment: e.target.value })} className="input-modern !appearance-none">
-                                                <option>Commercial</option>
-                                                <option>Defense</option>
-                                                <option>Logistics</option>
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="label-style">Contract Value (₹)</label>
-                                            <input type="number" placeholder="Net INR" value={formData.contractValue} onChange={e => setFormData({ ...formData, contractValue: e.target.value })} className="input-modern" />
-                                        </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Client Sector</label>
+                                        <select value={formData.clientSegment} onChange={e => setFormData({ ...formData, clientSegment: e.target.value })} className="input-modern !appearance-none">
+                                            <option>Commercial</option>
+                                            <option>Defense</option>
+                                            <option>Logistics</option>
+                                            <option>Agriculture</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">POC Name</label>
+                                        <input type="text" placeholder="Contact person" value={formData.contactPerson} onChange={e => setFormData({ ...formData, contactPerson: e.target.value })} className="input-modern" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">POC Phone</label>
+                                        <input type="text" placeholder="Phone number" value={formData.contactPhone} onChange={e => setFormData({ ...formData, contactPhone: e.target.value })} className="input-modern" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">POC Email</label>
+                                        <input type="email" placeholder="Email address" value={formData.contactEmail} onChange={e => setFormData({ ...formData, contactEmail: e.target.value })} className="input-modern" />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-3">
+                                        <label className="label-style">Delivery Address</label>
+                                        <input type="text" placeholder="Full delivery address" value={formData.deliveryAddress} onChange={e => setFormData({ ...formData, deliveryAddress: e.target.value })} className="input-modern" />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Technical Configuration */}
-                            <div className="space-y-8">
-                                <div className="space-y-6">
-                                    <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] border-b border-indigo-100 pb-2">Technical Specification</h4>
+                            {/* 2. Financials */}
+                            <div className="space-y-6 md:col-span-2">
+                                <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] border-b border-indigo-100 pb-2">2. Financials</h4>
+                                <div className="grid md:grid-cols-4 gap-6">
                                     <div className="space-y-2">
-                                        <label className="label-style">Platform Model</label>
-                                        <input type="text" placeholder="e.g. AeroX-Heavy" value={formData.droneModel} onChange={e => setFormData({ ...formData, droneModel: e.target.value })} className="input-modern" required />
+                                        <label className="label-style">Quantity</label>
+                                        <input type="number" min="1" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })} className="input-modern" />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="label-style">Airframe</label>
-                                            <select value={formData.droneType} onChange={e => setFormData({ ...formData, droneType: e.target.value })} className="input-modern">
-                                                <option>Multi-rotor</option>
-                                                <option>Fixed-wing</option>
-                                                <option>VTOL</option>
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="label-style">Commission Date</label>
-                                            <input type="date" value={formData.orderDate} onChange={e => setFormData({ ...formData, orderDate: e.target.value })} className="input-modern" />
-                                        </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Unit Price (₹)</label>
+                                        <input type="number" placeholder="0.00" value={formData.unitPrice} onChange={e => setFormData({ ...formData, unitPrice: e.target.value })} className="input-modern" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Total Value (₹)</label>
+                                        <input type="number" placeholder="Net INR" value={formData.contractValue} onChange={e => setFormData({ ...formData, contractValue: e.target.value })} className="input-modern" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Order Date</label>
+                                        <input type="date" value={formData.orderDate} onChange={e => setFormData({ ...formData, orderDate: e.target.value })} className="input-modern" />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="label-style">Payment Terms</label>
+                                        <input type="text" placeholder="e.g. 50% Advance, 50% Delivery" value={formData.paymentTerms} onChange={e => setFormData({ ...formData, paymentTerms: e.target.value })} className="input-modern" />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="label-style">Payment Status</label>
+                                        <select value={formData.paymentStatus} onChange={e => setFormData({ ...formData, paymentStatus: e.target.value })} className="input-modern">
+                                            <option>Unpaid</option>
+                                            <option>Partial</option>
+                                            <option>Paid</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 3. Operational & Manufacturing */}
+                            <div className="space-y-6 md:col-span-2">
+                                <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] border-b border-indigo-100 pb-2">3. Operations & Manufacturing</h4>
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="label-style">Platform Model *</label>
+                                        <input type="text" placeholder="e.g. VEDANSH, SHAURYA" value={formData.droneModel} onChange={e => setFormData({ ...formData, droneModel: e.target.value })} className="input-modern" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Airframe Type</label>
+                                        <select value={formData.droneType} onChange={e => setFormData({ ...formData, droneType: e.target.value })} className="input-modern">
+                                            <option>Multi-rotor</option>
+                                            <option>Fixed-wing</option>
+                                            <option>Hybrid VTOL</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Weight Class</label>
+                                        <select value={formData.weightClass} onChange={e => setFormData({ ...formData, weightClass: e.target.value })} className="input-modern">
+                                            <option>Nano (&lt;250g)</option>
+                                            <option>Micro (250g-2kg)</option>
+                                            <option>Small (2kg-25kg)</option>
+                                            <option>Medium (25kg-150kg)</option>
+                                            <option>Large (&gt;150kg)</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Manufacturing Stage</label>
+                                        <select value={formData.manufacturingStage} onChange={e => setFormData({ ...formData, manufacturingStage: e.target.value })} className="input-modern">
+                                            <option>In Design</option>
+                                            <option>Assembling</option>
+                                            <option>Testing</option>
+                                            <option>Delivered</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Priority Level</label>
+                                        <select value={formData.priorityLevel} onChange={e => setFormData({ ...formData, priorityLevel: e.target.value })} className="input-modern">
+                                            <option>Low</option>
+                                            <option>Normal</option>
+                                            <option>High</option>
+                                            <option>Urgent</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="label-style">Quality Check Status</label>
+                                        <select value={formData.qualityCheckStatus} onChange={e => setFormData({ ...formData, qualityCheckStatus: e.target.value })} className="input-modern">
+                                            <option>Pending</option>
+                                            <option>Passed</option>
+                                            <option>Failed</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2 md:col-span-3">
+                                        <label className="label-style">Manufacturing Notes (Project & Payload Details)</label>
+                                        <textarea placeholder="Details for the manufacturing team..." value={formData.manufacturingNotes} onChange={e => setFormData({ ...formData, manufacturingNotes: e.target.value })} className="input-modern" rows={3} />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-3">
+                                        <label className="label-style">Special Requirements</label>
+                                        <textarea placeholder="Custom specs from client..." value={formData.specialRequirements} onChange={e => setFormData({ ...formData, specialRequirements: e.target.value })} className="input-modern" rows={2} />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-3">
+                                        <label className="label-style">Internal Team Notes</label>
+                                        <textarea placeholder="Private notes..." value={formData.internalOrderNotes} onChange={e => setFormData({ ...formData, internalOrderNotes: e.target.value })} className="input-modern" rows={2} />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-3">
+                                        <label className="label-style">Warranty / AMC Terms</label>
+                                        <textarea placeholder="e.g. 1-year comprehensive..." value={formData.warrantyTerms} onChange={e => setFormData({ ...formData, warrantyTerms: e.target.value })} className="input-modern" rows={2} />
                                     </div>
                                 </div>
                             </div>

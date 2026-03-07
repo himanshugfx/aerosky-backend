@@ -56,7 +56,6 @@ model Organization {
   components     Component[]
   inventoryTransactions InventoryTransaction[]
   reimbursements Reimbursement[]
-  attendanceRecords AttendanceRecord[]
 
   @@map("organizations")
 }
@@ -173,7 +172,7 @@ model Drone {
   accountableManagerId String?  @map("accountable_manager_id")
   webPortalLink        String?  @map("web_portal_link")
   organizationId       String?  @map("organization_id")
-  createdAt            DateTime @default(now()) @map("created_at")
+  createdAt      DateTime @default(now()) @map("created_at")
 
   organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   accountableManager TeamMember?        @relation("AccountableManager", fields: [accountableManagerId], references: [id])
@@ -272,6 +271,14 @@ model Order {
   contractValue               Float    @map("contract_value")
   currency                    String   @default("INR")
   revenueRecognitionStatus    String   @default("Pending") @map("revenue_recognition_status")
+  quantity                    Int      @default(1)
+  unitPrice                   Float?   @map("unit_price")
+  deliveryAddress             String?  @db.Text @map("delivery_address")
+  contactPerson               String?  @map("contact_person")
+  contactPhone                String?  @map("contact_phone")
+  contactEmail                String?  @map("contact_email")
+  paymentTerms                String?  @map("payment_terms")
+  paymentStatus               String   @default("Unpaid") @map("payment_status")
   
   // 2. Technical & Configuration Details
   droneModel                  String   @map("drone_model")
@@ -292,7 +299,13 @@ model Order {
   manufacturingStage          String   @default("In Design") @map("manufacturing_stage")
   calibrationTestLogs         String?  @db.Text @map("calibration_test_logs")
   afterSalesAmc               String?  @map("after_sales_amc")
+  manufacturingNotes          String?  @db.Text @map("manufacturing_notes")
   cocData                     String?  @db.Text @map("coc_data")
+  priorityLevel               String   @default("Normal") @map("priority_level")
+  qualityCheckStatus          String   @default("Pending") @map("quality_check_status")
+  warrantyTerms               String?  @db.Text @map("warranty_terms")
+  specialRequirements         String?  @db.Text @map("special_requirements")
+  internalOrderNotes          String?  @db.Text @map("internal_order_notes")
   
   organizationId              String?  @map("organization_id")
   createdAt                   DateTime @default(now()) @map("created_at")
@@ -424,20 +437,4 @@ model Reimbursement {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("reimbursements")
-}
-
-model AttendanceRecord {
-  id             String   @id @default(uuid())
-  employeeId     String   @map("employee_id")
-  date           DateTime
-  checkIn        String?  @map("check_in")
-  checkOut       String?  @map("check_out")
-  status         String?  // Present, Absent, Half Day
-  organizationId String   @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@unique([employeeId, date, organizationId])
-  @@map("attendance_records")
 }

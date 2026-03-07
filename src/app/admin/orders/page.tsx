@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
     ClipboardList,
     Plus,
@@ -51,6 +51,20 @@ const initialFormData = {
     manufacturingStage: "In Design",
     calibrationTestLogs: "",
     afterSalesAmc: "",
+    manufacturingNotes: "",
+    quantity: 1,
+    unitPrice: "",
+    deliveryAddress: "",
+    contactPerson: "",
+    contactPhone: "",
+    contactEmail: "",
+    paymentTerms: "",
+    paymentStatus: "Unpaid",
+    priorityLevel: "Normal",
+    qualityCheckStatus: "Pending",
+    warrantyTerms: "",
+    specialRequirements: "",
+    internalOrderNotes: "",
     cocData: "",
 };
 
@@ -101,6 +115,20 @@ export default function OrdersPage() {
                 manufacturingStage: order.manufacturingStage,
                 calibrationTestLogs: order.calibrationTestLogs || "",
                 afterSalesAmc: order.afterSalesAmc || "",
+                manufacturingNotes: order.manufacturingNotes || "",
+                quantity: order.quantity || 1,
+                unitPrice: order.unitPrice ? order.unitPrice.toString() : "",
+                deliveryAddress: order.deliveryAddress || "",
+                contactPerson: order.contactPerson || "",
+                contactPhone: order.contactPhone || "",
+                contactEmail: order.contactEmail || "",
+                paymentTerms: order.paymentTerms || "",
+                paymentStatus: order.paymentStatus || "Unpaid",
+                priorityLevel: order.priorityLevel || "Normal",
+                qualityCheckStatus: order.qualityCheckStatus || "Pending",
+                warrantyTerms: order.warrantyTerms || "",
+                specialRequirements: order.specialRequirements || "",
+                internalOrderNotes: order.internalOrderNotes || "",
                 cocData: order.cocData || "",
             });
         } else {
@@ -115,7 +143,7 @@ export default function OrdersPage() {
         clearForm();
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
 
@@ -131,6 +159,7 @@ export default function OrdersPage() {
             const orderData = {
                 ...formData,
                 contractValue: parseFloat(formData.contractValue) || 0,
+                unitPrice: formData.unitPrice ? parseFloat(formData.unitPrice) : undefined,
             };
             if (editingOrder) {
                 await updateOrder(editingOrder.id, orderData);
@@ -178,7 +207,7 @@ export default function OrdersPage() {
         }
     };
 
-    const filteredOrders = orders.filter(order =>
+    const filteredOrders = orders.filter((order: Order) =>
         order.contractNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.droneModel.toLowerCase().includes(searchQuery.toLowerCase())
@@ -263,7 +292,7 @@ export default function OrdersPage() {
                     <input
                         type="text"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                         placeholder="Search by contract number, client name, or drone model..."
                         className="w-full bg-[#0f0f12] border border-white/5 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                     />
@@ -273,7 +302,7 @@ export default function OrdersPage() {
             {/* Order List */}
             {filteredOrders.length > 0 ? (
                 <div className="space-y-3">
-                    {filteredOrders.map((order) => (
+                    {filteredOrders.map((order: Order) => (
                         <div
                             key={order.id}
                             className="bg-[#0f0f12] border border-white/5 rounded-xl overflow-hidden hover:border-white/10 transition-colors"
@@ -305,7 +334,7 @@ export default function OrdersPage() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
-                                        onClick={(e) => {
+                                        onClick={(e: React.MouseEvent) => {
                                             e.stopPropagation();
                                             handleDownload(order.id);
                                         }}
@@ -315,7 +344,7 @@ export default function OrdersPage() {
                                         <Download className="w-5 h-5" />
                                     </button>
                                     <button
-                                        onClick={(e) => {
+                                        onClick={(e: React.MouseEvent) => {
                                             e.stopPropagation();
                                             handleOpenForm(order);
                                         }}
@@ -325,7 +354,7 @@ export default function OrdersPage() {
                                         <Edit2 className="w-5 h-5" />
                                     </button>
                                     <button
-                                        onClick={(e) => {
+                                        onClick={(e: React.MouseEvent) => {
                                             e.stopPropagation();
                                             handleDelete(order.id);
                                         }}
@@ -344,17 +373,30 @@ export default function OrdersPage() {
 
                             {/* Expanded Details */}
                             {expandedOrder === order.id && (
-                                <div className="border-t border-white/5 p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="border-t border-white/5 p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                                    {/* Client & Contacts */}
+                                    <div className="space-y-3">
+                                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Client Info</h4>
+                                        <div className="space-y-2 text-sm">
+                                            <p><span className="text-gray-500">Segment:</span> <span className="text-white">{order.clientSegment}</span></p>
+                                            {order.contactPerson && <p><span className="text-gray-500">POC:</span> <span className="text-white">{order.contactPerson}</span></p>}
+                                            {order.contactPhone && <p><span className="text-gray-500">Phone:</span> <span className="text-white">{order.contactPhone}</span></p>}
+                                            {order.contactEmail && <p><span className="text-gray-500">Email:</span> <span className="text-white">{order.contactEmail}</span></p>}
+                                            {order.deliveryAddress && <p><span className="text-gray-500">Delivery:</span> <span className="text-white truncate" title={order.deliveryAddress}>{order.deliveryAddress}</span></p>}
+                                        </div>
+                                    </div>
+
                                     {/* Core Order Info */}
                                     <div className="space-y-3">
                                         <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Financial Info</h4>
                                         <div className="space-y-2 text-sm">
-                                            <p><span className="text-gray-500">Segment:</span> <span className="text-white">{order.clientSegment}</span></p>
                                             <p><span className="text-gray-500">Order Date:</span> <span className="text-white">{new Date(order.orderDate).toLocaleDateString()}</span></p>
                                             {order.estimatedCompletionDate && (
                                                 <p><span className="text-gray-500">Est. Completion:</span> <span className="text-white">{new Date(order.estimatedCompletionDate).toLocaleDateString()}</span></p>
                                             )}
-                                            <p><span className="text-gray-500">Revenue Status:</span> <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusColor(order.revenueRecognitionStatus)}`}>{order.revenueRecognitionStatus}</span></p>
+                                            <p><span className="text-gray-500">Qty:</span> <span className="text-white">{order.quantity || 1}</span></p>
+                                            <p><span className="text-gray-500">Revenue:</span> <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusColor(order.revenueRecognitionStatus)}`}>{order.revenueRecognitionStatus}</span></p>
+                                            <p><span className="text-gray-500">Payment:</span> <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusColor(order.paymentStatus || 'Unpaid')}`}>{order.paymentStatus || 'Unpaid'}</span></p>
                                         </div>
                                     </div>
 
@@ -385,9 +427,18 @@ export default function OrdersPage() {
                                     <div className="space-y-3">
                                         <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Operational</h4>
                                         <div className="space-y-2 text-sm">
-                                            <p><span className="text-gray-500">BOM:</span> <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusColor(order.bomReadiness)}`}>{order.bomReadiness}</span></p>
+                                            <p><span className="text-gray-500">Priority:</span> <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusColor(order.priorityLevel || 'Normal')}`}>{order.priorityLevel || 'Normal'}</span></p>
                                             <p><span className="text-gray-500">Stage:</span> <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusColor(order.manufacturingStage)}`}>{order.manufacturingStage}</span></p>
-                                            {order.afterSalesAmc && <p><span className="text-gray-500">AMC:</span> <span className="text-white">{order.afterSalesAmc}</span></p>}
+                                            <p><span className="text-gray-500">QC:</span> <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusColor(order.qualityCheckStatus || 'Pending')}`}>{order.qualityCheckStatus || 'Pending'}</span></p>
+                                            {order.warrantyTerms && <p><span className="text-gray-500">Warranty:</span> <span className="text-white">{order.warrantyTerms}</span></p>}
+                                            {order.manufacturingNotes && (
+                                                <div className="pt-2">
+                                                    <p className="text-gray-500 mb-1">Notes:</p>
+                                                    <div className="bg-white/5 rounded-lg p-2 text-white italic text-[12px] border border-white/5">
+                                                        {order.manufacturingNotes}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -459,7 +510,7 @@ export default function OrdersPage() {
                                             <input
                                                 type="text"
                                                 value={formData.contractNumber}
-                                                onChange={(e) => setFormData({ ...formData, contractNumber: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contractNumber: e.target.value })}
                                                 placeholder="e.g., ORD-2026-001"
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
@@ -471,7 +522,7 @@ export default function OrdersPage() {
                                             <input
                                                 type="text"
                                                 value={formData.clientName}
-                                                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, clientName: e.target.value })}
                                                 placeholder="Client organization name"
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
@@ -482,7 +533,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.clientSegment}
-                                                onChange={(e) => setFormData({ ...formData, clientSegment: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, clientSegment: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 <option value="">Select segment</option>
@@ -498,7 +549,7 @@ export default function OrdersPage() {
                                             <input
                                                 type="date"
                                                 value={formData.orderDate}
-                                                onChange={(e) => setFormData({ ...formData, orderDate: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, orderDate: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
                                         </div>
@@ -509,8 +560,80 @@ export default function OrdersPage() {
                                             <input
                                                 type="date"
                                                 value={formData.estimatedCompletionDate}
-                                                onChange={(e) => setFormData({ ...formData, estimatedCompletionDate: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, estimatedCompletionDate: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                POC Name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.contactPerson}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactPerson: e.target.value })}
+                                                placeholder="Contact person"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                POC Phone
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.contactPhone}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactPhone: e.target.value })}
+                                                placeholder="Phone number"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                POC Email
+                                            </label>
+                                            <input
+                                                type="email"
+                                                value={formData.contactEmail}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactEmail: e.target.value })}
+                                                placeholder="Email address"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Delivery Address
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.deliveryAddress}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, deliveryAddress: e.target.value })}
+                                                placeholder="Full delivery address"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Quantity
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={formData.quantity}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                                                min="1"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Unit Price (₹)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={formData.unitPrice}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, unitPrice: e.target.value })}
+                                                placeholder="0.00"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
                                         </div>
                                         <div>
@@ -520,7 +643,7 @@ export default function OrdersPage() {
                                             <div className="flex gap-2">
                                                 <select
                                                     value={formData.currency}
-                                                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, currency: e.target.value })}
                                                     className="bg-white/5 border border-white/10 rounded-xl py-3 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                                 >
                                                     <option value="INR">₹</option>
@@ -529,7 +652,7 @@ export default function OrdersPage() {
                                                 <input
                                                     type="number"
                                                     value={formData.contractValue}
-                                                    onChange={(e) => setFormData({ ...formData, contractValue: e.target.value })}
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contractValue: e.target.value })}
                                                     placeholder="Amount"
                                                     className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                                 />
@@ -537,11 +660,37 @@ export default function OrdersPage() {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Payment Status
+                                            </label>
+                                            <select
+                                                value={formData.paymentStatus}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, paymentStatus: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            >
+                                                <option value="Unpaid">Unpaid</option>
+                                                <option value="Partial">Partial</option>
+                                                <option value="Paid">Paid</option>
+                                            </select>
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Payment Terms
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.paymentTerms}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, paymentTerms: e.target.value })}
+                                                placeholder="e.g. 50% Advance, 50% on Delivery"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
                                                 Revenue Status
                                             </label>
                                             <select
                                                 value={formData.revenueRecognitionStatus}
-                                                onChange={(e) => setFormData({ ...formData, revenueRecognitionStatus: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, revenueRecognitionStatus: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 {REVENUE_STATUSES.map((status) => (
@@ -565,7 +714,7 @@ export default function OrdersPage() {
                                             <input
                                                 type="text"
                                                 value={formData.droneModel}
-                                                onChange={(e) => setFormData({ ...formData, droneModel: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, droneModel: e.target.value })}
                                                 placeholder="e.g., Aerosys Aviation X1"
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
@@ -576,7 +725,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.droneType}
-                                                onChange={(e) => setFormData({ ...formData, droneType: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, droneType: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 <option value="">Select type</option>
@@ -591,7 +740,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.weightClass}
-                                                onChange={(e) => setFormData({ ...formData, weightClass: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, weightClass: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 <option value="">Select class</option>
@@ -606,7 +755,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.payloadConfiguration}
-                                                onChange={(e) => setFormData({ ...formData, payloadConfiguration: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, payloadConfiguration: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 <option value="">Select payload</option>
@@ -622,7 +771,7 @@ export default function OrdersPage() {
                                             <input
                                                 type="text"
                                                 value={formData.flightEnduranceRequirements}
-                                                onChange={(e) => setFormData({ ...formData, flightEnduranceRequirements: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, flightEnduranceRequirements: e.target.value })}
                                                 placeholder="e.g., 45 minutes"
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
@@ -633,7 +782,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.softwareAiTier}
-                                                onChange={(e) => setFormData({ ...formData, softwareAiTier: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, softwareAiTier: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 <option value="">Select tier</option>
@@ -657,7 +806,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.dgcaFaaCertificationStatus}
-                                                onChange={(e) => setFormData({ ...formData, dgcaFaaCertificationStatus: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, dgcaFaaCertificationStatus: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 {CERTIFICATION_STATUSES.map((status) => (
@@ -672,7 +821,7 @@ export default function OrdersPage() {
                                             <input
                                                 type="text"
                                                 value={formData.uin}
-                                                onChange={(e) => setFormData({ ...formData, uin: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, uin: e.target.value })}
                                                 placeholder="Government-issued ID"
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
@@ -683,7 +832,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.exportLicenseStatus}
-                                                onChange={(e) => setFormData({ ...formData, exportLicenseStatus: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, exportLicenseStatus: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 <option value="">Select status</option>
@@ -699,7 +848,7 @@ export default function OrdersPage() {
                                             <input
                                                 type="text"
                                                 value={formData.geofencingRequirements}
-                                                onChange={(e) => setFormData({ ...formData, geofencingRequirements: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, geofencingRequirements: e.target.value })}
                                                 placeholder="Specific software restrictions based on operational region"
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             />
@@ -731,7 +880,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.bomReadiness}
-                                                onChange={(e) => setFormData({ ...formData, bomReadiness: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, bomReadiness: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 {BOM_READINESS_OPTIONS.map((option) => (
@@ -745,7 +894,7 @@ export default function OrdersPage() {
                                             </label>
                                             <select
                                                 value={formData.manufacturingStage}
-                                                onChange={(e) => setFormData({ ...formData, manufacturingStage: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, manufacturingStage: e.target.value })}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
                                             >
                                                 {MANUFACTURING_STAGES.map((stage) => (
@@ -760,9 +909,62 @@ export default function OrdersPage() {
                                             <input
                                                 type="text"
                                                 value={formData.afterSalesAmc}
-                                                onChange={(e) => setFormData({ ...formData, afterSalesAmc: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, afterSalesAmc: e.target.value })}
                                                 placeholder="e.g., 1-year AMC included"
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Priority Level
+                                            </label>
+                                            <select
+                                                value={formData.priorityLevel}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, priorityLevel: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            >
+                                                <option value="Low">Low</option>
+                                                <option value="Normal">Normal</option>
+                                                <option value="High">High</option>
+                                                <option value="Urgent">Urgent</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Quality Check Status
+                                            </label>
+                                            <select
+                                                value={formData.qualityCheckStatus}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, qualityCheckStatus: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            >
+                                                <option value="Pending">Pending</option>
+                                                <option value="Passed">Passed</option>
+                                                <option value="Failed">Failed</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Warranty Terms
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.warrantyTerms}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, warrantyTerms: e.target.value })}
+                                                placeholder="e.g., 1-year comprehensive..."
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2 lg:col-span-3">
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Manufacturing Notes (Project & Payload Details)
+                                            </label>
+                                            <textarea
+                                                value={formData.manufacturingNotes}
+                                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, manufacturingNotes: e.target.value })}
+                                                placeholder="Provide detailed instructions for the manufacturing team regarding project specifics and payload integration."
+                                                rows={4}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 resize-none"
                                             />
                                         </div>
                                         <div className="md:col-span-2 lg:col-span-3">
@@ -771,9 +973,33 @@ export default function OrdersPage() {
                                             </label>
                                             <textarea
                                                 value={formData.calibrationTestLogs}
-                                                onChange={(e) => setFormData({ ...formData, calibrationTestLogs: e.target.value })}
+                                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, calibrationTestLogs: e.target.value })}
                                                 placeholder="Links or notes about flight test data required before handover"
                                                 rows={3}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 resize-none"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2 lg:col-span-3">
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Special Requirements
+                                            </label>
+                                            <textarea
+                                                value={formData.specialRequirements}
+                                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, specialRequirements: e.target.value })}
+                                                placeholder="Custom specs from client..."
+                                                rows={2}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 resize-none"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2 lg:col-span-3">
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                                Internal Team Notes
+                                            </label>
+                                            <textarea
+                                                value={formData.internalOrderNotes}
+                                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, internalOrderNotes: e.target.value })}
+                                                placeholder="Private notes..."
+                                                rows={2}
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 resize-none"
                                             />
                                         </div>

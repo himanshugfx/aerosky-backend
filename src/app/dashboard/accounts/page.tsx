@@ -130,108 +130,7 @@ export default function AccountsPage() {
         }
     }
 
-    const handleBiometricUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
 
-        const reader = new FileReader()
-        reader.onload = async (evt) => {
-            const bstr = evt.target?.result
-            const wb = XLSX.read(bstr, { type: 'binary' })
-            const wsname = wb.SheetNames[0]
-            const ws = wb.Sheets[wsname]
-            const data = XLSX.utils.sheet_to_json(ws)
-
-            const records = data.map((row: any) => ({
-                employeeId: String(row.EmployeeID || row.ID || row.Employee_ID),
-                date: row.Date,
-                checkIn: row.CheckIn || row.Check_In || row.TimeIn,
-                checkOut: row.CheckOut || row.Check_Out || row.TimeOut,
-                status: 'Present'
-            }))
-
-            try {
-                const res = await fetch('/api/attendance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ records })
-                })
-                if (res.ok) {
-                    alert(`Successfully imported ${records.length} records`)
-                }
-            } catch (error) {
-                console.error('Failed to upload biometric data:', error)
-            }
-        }
-        reader.readAsBinaryString(file)
-    }
-
-    const generatePayslip = (member: any) => {
-        const doc = new jsPDF()
-
-        doc.setFillColor(30, 41, 59)
-        doc.rect(0, 0, 210, 50, 'F')
-        doc.setTextColor(255, 255, 255)
-        doc.setFontSize(24)
-        doc.setFont('helvetica', 'bold')
-        doc.text('AEROSKY AVIATION', 20, 25)
-        doc.setFontSize(10)
-        doc.setFont('helvetica', 'normal')
-        doc.text('OFFICIAL PAYROLL DISBURSEMENT DOCUMENT', 20, 35)
-
-        doc.setTextColor(30, 41, 59)
-        doc.setFontSize(14)
-        doc.text(`STATEMENT FOR FEBRUARY 2026`, 20, 70)
-
-        const employeeInfo = [
-            ['NAME', member.user?.fullName || member.name],
-            ['ID', member.accessId || 'N/A'],
-            ['ROLE', member.position || 'N/A'],
-            ['PERIOD', 'Feb 01 - Feb 28, 2026']
-        ]
-
-        //@ts-ignore
-        doc.autoTable({
-            startY: 80,
-            body: employeeInfo,
-            theme: 'plain',
-            styles: { fontSize: 9, cellPadding: 2 },
-            columnStyles: { 0: { fontStyle: 'bold', width: 40 } }
-        })
-
-        const tableData = [
-            ['Basic Component', '45,000.00'],
-            ['HRA Allocation', '15,000.00'],
-            ['Logistics/Conveyance', '5,000.00'],
-            ['Medical Benefit', '3,000.00'],
-            ['Approved Reimbursements', '2,500.00'],
-            ['Taxes/Deductions', '-4,000.00'],
-            ['DISBURSED TOTAL (INR)', '66,500.00']
-        ]
-
-        //@ts-ignore
-        doc.autoTable({
-            startY: 120,
-            head: [['Technical Head', 'Amount (INR)']],
-            body: tableData,
-            theme: 'grid',
-            headStyles: { fillColor: [30, 41, 59], fontSize: 10, fontStyle: 'bold' },
-            styles: { fontSize: 10 },
-            //@ts-ignore
-            didParseCell: (data) => {
-                if (data.row.index === 6) {
-                    data.cell.styles.fontStyle = 'bold'
-                    data.cell.styles.fillColor = [241, 245, 249]
-                }
-            }
-        })
-
-        doc.setFontSize(8)
-        doc.setTextColor(150)
-        doc.text('This is a computer generated document and does not require a physical signature.', 20, 280)
-
-        doc.save(`Payslip_${member.name}_Feb2026.pdf`)
-    }
 
     const exportToExcel = () => {
         const dataToExport = reimbursements.map(r => ({
@@ -296,7 +195,7 @@ export default function AccountsPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Accounts & Disbursements</h2>
-                    <p className="text-slate-500 font-medium">Enterprise financial tracking and payroll management</p>
+                    <p className="text-slate-500 font-medium">Enterprise financial tracking and disbursements</p>
                 </div>
                 {!showForm && (
                     <button
@@ -306,15 +205,6 @@ export default function AccountsPage() {
                         <Plus className="w-5 h-5" />
                         {activeTab === 'admin' ? 'Add Expense' : 'New Submission'}
                     </button>
-                )}
-                {isAdmin && activeTab === 'admin' && (
-                    <div className="flex gap-3">
-                        <label className="premium-btn-outline cursor-pointer flex items-center gap-2 py-3 px-6">
-                            <ShieldCheck className="w-5 h-5" />
-                            Security Sync
-                            <input type="file" className="hidden" accept=".xlsx,.csv" onChange={handleBiometricUpload} />
-                        </label>
-                    </div>
                 )}
             </div>
 
@@ -576,38 +466,6 @@ export default function AccountsPage() {
                             </button>
                         </div>
 
-                        {activeTab === 'admin' && (
-                            <div className="premium-card p-8 bg-white border border-slate-100">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center border border-orange-100">
-                                        <CreditCard className="w-5 h-5" />
-                                    </div>
-                                    <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">Payroll Engine</h3>
-                                </div>
-
-                                <p className="text-xs font-medium text-slate-500 leading-relaxed mb-6">Automated disbursement generation based on personnel logistics and biometric synchronization.</p>
-
-                                <div className="space-y-4">
-                                    <button
-                                        onClick={() => generatePayslip({ name: 'Himanshu', position: 'Logistics Supervisor', accessId: 'AS-001' })}
-                                        className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all group border border-slate-100/50"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-[#1e293b] text-white rounded-xl flex items-center justify-center font-bold text-xs">H</div>
-                                            <div className="text-left">
-                                                <p className="text-sm font-extrabold text-slate-900 leading-none">Himanshu</p>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Supervisor</p>
-                                            </div>
-                                        </div>
-                                        <Download className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:scale-110 transition-all" />
-                                    </button>
-
-                                    <button className="w-full py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-all flex items-center justify-center gap-2">
-                                        Access Personnel Directory <ChevronRight className="w-3.5 h-3.5" />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             )}

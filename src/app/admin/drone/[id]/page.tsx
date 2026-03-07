@@ -864,7 +864,7 @@ export default function DroneProfilePage() {
                                             updateRecurringData(droneId, { personnel: newData, personnelReported: false });
                                         }
                                     }}
-                                    className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-500 py-2 rounded-lg text-xs font-semibold"
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
                                     + Add Personnel Change
                                 </button>
@@ -979,7 +979,7 @@ export default function DroneProfilePage() {
                                             updateRecurringData(droneId, { staffCompetence: newData });
                                         }
                                     }}
-                                    className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-500 py-2 rounded-lg text-xs font-semibold"
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
                                     + Add Staff Competence Record
                                 </button>
@@ -1066,7 +1066,7 @@ export default function DroneProfilePage() {
                                             updateRecurringData(droneId, { trainingRecords: newData });
                                         }
                                     }}
-                                    className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-500 py-2 rounded-lg text-xs font-semibold"
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
                                     + Add Training Record
                                 </button>
@@ -1156,7 +1156,7 @@ export default function DroneProfilePage() {
                                             updateRecurringData(droneId, { equipmentMaintenance: newData });
                                         }
                                     }}
-                                    className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-500 py-2 rounded-lg text-xs font-semibold"
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
                                     + Add Equipment Record
                                 </button>
@@ -1282,7 +1282,7 @@ export default function DroneProfilePage() {
                                             updateRecurringData(droneId, { batterySafety: newData });
                                         }
                                     }}
-                                    className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-500 py-2 rounded-lg text-xs font-semibold"
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
                                     + Add Battery Safety Record
                                 </button>
@@ -1405,7 +1405,7 @@ export default function DroneProfilePage() {
                                             updateRecurringData(droneId, { operationalRecords: newData });
                                         }
                                     }}
-                                    className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-500 py-2 rounded-lg text-xs font-semibold"
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
                                     + Add Operational Record
                                 </button>
