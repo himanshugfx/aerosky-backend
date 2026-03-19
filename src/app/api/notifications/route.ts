@@ -41,7 +41,14 @@ export async function GET() {
         });
 
         // Transform into unified notification format
-        const notifications = [];
+        interface Notification {
+            id: string;
+            title: string;
+            message: string;
+            time: string;
+            type: 'success' | 'info' | 'warning' | 'error';
+        }
+        const notifications: Notification[] = [];
 
         // Add Flight Notifications
         recentFlights.forEach(flight => {
