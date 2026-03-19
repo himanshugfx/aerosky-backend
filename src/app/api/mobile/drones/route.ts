@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
             data: {
                 modelName,
                 image,
-                isDgcaCertified: isDgcaCertified || false,
+                isDgcaCertified: (isDgcaCertified || false) as any,
                 organizationId: targetOrgId,
                 manufacturedUnits: {
                     create: (manufacturedUnits || []).map((unit: any) => ({
