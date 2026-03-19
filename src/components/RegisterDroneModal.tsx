@@ -14,6 +14,7 @@ export function RegisterDroneModal({ isOpen, onClose }: RegisterDroneModalProps)
 
     const [modelName, setModelName] = useState("");
     const [image, setImage] = useState<string | undefined>();
+    const [isDgcaCertified, setIsDgcaCertified] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +38,7 @@ export function RegisterDroneModal({ isOpen, onClose }: RegisterDroneModalProps)
         const droneData = {
             modelName,
             image,
+            isDgcaCertified,
             manufacturedUnits: [],
         };
 
@@ -45,6 +47,7 @@ export function RegisterDroneModal({ isOpen, onClose }: RegisterDroneModalProps)
         // Reset form
         setModelName("");
         setImage(undefined);
+        setIsDgcaCertified(false);
         setLoading(false);
         onClose();
     };
@@ -125,6 +128,16 @@ export function RegisterDroneModal({ isOpen, onClose }: RegisterDroneModalProps)
                                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all"
                                     required
                                 />
+                            </div>
+
+                            <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl cursor-pointer" onClick={() => setIsDgcaCertified(!isDgcaCertified)}>
+                                <div className={`w-6 h-6 rounded-md border flex items-center justify-center transition-all ${isDgcaCertified ? 'bg-blue-600 border-blue-600 text-white' : 'border-white/20 bg-white/5'}`}>
+                                    {isDgcaCertified && <ShieldCheck className="w-4 h-4 text-white" />}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-semibold text-white">DGCA Type Certified</span>
+                                    <span className="text-xs text-gray-500">Enable regulatory compliance flag</span>
+                                </div>
                             </div>
                         </div>
                     </form>

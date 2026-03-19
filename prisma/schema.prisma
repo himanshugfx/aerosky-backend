@@ -171,8 +171,9 @@ model Drone {
   image                String?  @db.Text
   accountableManagerId String?  @map("accountable_manager_id")
   webPortalLink        String?  @map("web_portal_link")
+  isDgcaCertified      Boolean  @default(false) @map("is_dgca_certified")
   organizationId       String?  @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
+  createdAt            DateTime @default(now()) @map("created_at")
 
   organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   accountableManager TeamMember?        @relation("AccountableManager", fields: [accountableManagerId], references: [id])
@@ -437,4 +438,61 @@ model Reimbursement {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("reimbursements")
+}
+
+model FunnelStage {
+  id        String   @id @default(uuid())
+  name      String   // NEW, CONTACTED, QUALIFIED, PROPOSAL, WON, LOST
+  order     Int
+  color     String
+  leads     Lead[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("funnel_stages")
+}
+
+model Lead {
+  id          String         @id
+  name        String
+  email       String
+  phone       String?
+  company     String?
+  source      String         // WEBSITE, IMPORT, MANUAL
+  stageId     String         @map("stage_id")
+  stage       FunnelStage    @relation(fields: [stageId], references: [id])
+  value       Float?
+  notes       String?
+  activities  LeadActivity[]
+  convertedAt DateTime?      @map("converted_at")
+  followUps   FollowUp[]
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@map("leads")
+}
+
+model LeadActivity {
+  id        String   @id @default(uuid())
+  leadId    String   @map("lead_id")
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type      String   // NOTE, CALL, EMAIL, STAGE_CHANGE
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("lead_activities")
+}
+
+model FollowUp {
+  id          String   @id @default(uuid())
+  leadId      String   @map("lead_id")
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  scheduledAt DateTime @map("scheduled_at")
+  status      String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("follow_ups")
 }

@@ -29,6 +29,7 @@ const superAdminNavigation = [
     { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
     { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
     { name: 'Financials', href: '/dashboard/accounts', icon: ShoppingCart },
+    { name: 'Lead Management', href: '/dashboard/leads', icon: Users },
 ]
 
 const orgAdminNavigation = [
@@ -40,6 +41,7 @@ const orgAdminNavigation = [
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
     { name: 'Power Units', href: '/dashboard/batteries', icon: Battery },
     { name: 'Flight Logs', href: '/dashboard/flights', icon: Send },
+    { name: 'Lead Management', href: '/dashboard/leads', icon: Users },
     { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
     { name: 'Assistance', href: '/dashboard/support', icon: HelpCircle },
 ]
@@ -52,14 +54,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [searchQuery, setSearchQuery] = useState('')
     const [isSearchFocused, setIsSearchFocused] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
-    const [notifications, setNotifications] = useState([
-        { id: 1, title: 'Flight Success', message: 'Mission AH-12 completed successfully', time: '2m ago', type: 'success' },
-        { id: 2, title: 'Low Battery', message: 'Unit B-004 requires immediate charging', time: '15m ago', type: 'warning' },
-        { id: 3, title: 'Maintenance Due', message: 'Drone D-990 scheduled for service', time: '1h ago', type: 'info' },
-    ])
+    const [notifications, setNotifications] = useState<any[]>([])
+    const [isLoadingNotifications, setIsLoadingNotifications] = useState(true)
 
     const isSuperAdmin = session?.user?.role === 'SUPER_ADMIN'
     const navigation = isSuperAdmin ? superAdminNavigation : orgAdminNavigation
+
+    // Fetch real notifications
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const res = await fetch('/api/notifications')
+                const data = await res.json()
+                if (Array.isArray(data)) {
+                    setNotifications(data)
+                }
+            } catch (err) {
+                console.error("Failed to fetch notifications:", err)
+            } finally {
+                setIsLoadingNotifications(false)
+            }
+        }
+
+        if (status === 'authenticated') {
+            fetchNotifications()
+        }
+    }, [status])
 
     useEffect(() => {
         setIsMobileMenuOpen(false)
