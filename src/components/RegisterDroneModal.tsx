@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, Plane, Upload } from "lucide-react";
+import { X, Plane, Upload, ShieldCheck } from "lucide-react";
 import { useComplianceStore } from "@/lib/complianceStore";
 
 interface RegisterDroneModalProps {
