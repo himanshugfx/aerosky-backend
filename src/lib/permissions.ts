@@ -135,6 +135,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         // Reports
         PERMISSIONS.REPORT_VIEW,
         PERMISSIONS.REPORT_EXPORT,
+        // Inventory - View only
+        PERMISSIONS.INVENTORY_VIEW,
     ],
 
     PILOT: [
@@ -145,6 +147,11 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         // Compliance
         PERMISSIONS.COMPLIANCE_VIEW,
         PERMISSIONS.COMPLIANCE_UPLOAD, // Can upload flight logs
+        // Inventory - View only
+        PERMISSIONS.INVENTORY_VIEW,
+        // Operational Visibility
+        PERMISSIONS.SUBCONTRACTOR_VIEW,
+        PERMISSIONS.REPORT_VIEW,
     ],
 
     TECHNICIAN: [
@@ -159,6 +166,13 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         // Compliance
         PERMISSIONS.COMPLIANCE_VIEW,
         PERMISSIONS.COMPLIANCE_UPLOAD,
+        // Inventory - Full technician access
+        PERMISSIONS.INVENTORY_VIEW,
+        PERMISSIONS.INVENTORY_IN,
+        PERMISSIONS.INVENTORY_OUT,
+        // Operational Visibility
+        PERMISSIONS.SUBCONTRACTOR_VIEW,
+        PERMISSIONS.REPORT_VIEW,
     ],
 
     VIEWER: [
