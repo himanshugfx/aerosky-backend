@@ -161,7 +161,7 @@ export default function DashboardPage() {
                             </div>
 
                             <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                            <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</h3>
+                            <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{typeof stat.value === 'number' ? stat.value.toLocaleString('en-IN') : stat.value}</h3>
                         </div>
                     </div>
                 ))}

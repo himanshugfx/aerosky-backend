@@ -98,7 +98,7 @@ export interface Order {
 export interface Drone {
     id: string;
     modelName: string;
-    // uin: string; // Removed from top-level
+    isDgcaCertified: boolean;
     image?: string;
     accountableManagerId?: string;
     uploads: DroneUpload;

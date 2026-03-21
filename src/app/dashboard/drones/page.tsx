@@ -37,7 +37,7 @@ export default function DronesPage() {
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
-    const [formData, setFormData] = useState({ modelName: '', webPortalLink: '' })
+    const [formData, setFormData] = useState({ modelName: '', webPortalLink: '', isDgcaCertified: false })
     const [submitting, setSubmitting] = useState(false)
 
     const fetchDrones = async () => {
@@ -69,7 +69,7 @@ export default function DronesPage() {
             })
             if (res.ok) {
                 setShowModal(false)
-                setFormData({ modelName: '', webPortalLink: '' })
+                setFormData({ modelName: '', webPortalLink: '', isDgcaCertified: false })
                 fetchDrones()
             }
         } finally {
@@ -123,11 +123,9 @@ export default function DronesPage() {
             </div>
 
             {/* Fleet Telemetry Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-1 max-w-sm gap-8">
                 {[
                     { label: 'Active Fleet Size', value: drones.length, icon: Plane, color: 'orange' },
-                    { label: 'Deployment Ready', value: drones.length, icon: Signal, color: 'emerald' },
-                    { label: 'Compliance Health', value: '100%', icon: ShieldCheck, color: 'amber' },
                 ].map((stat, i) => (
                     <div key={i} className="modern-card p-10 group relative overflow-hidden">
                         <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl opacity-5 rounded-full translate-x-12 -translate-y-12 bg-${stat.color === 'orange' ? 'orange' : stat.color}-600 group-hover:scale-150 transition-transform duration-700`} />
@@ -281,6 +279,16 @@ export default function DronesPage() {
                                             onChange={(e) => setFormData({ ...formData, webPortalLink: e.target.value })}
                                             className="input-modern !pl-16 shadow-sm"
                                         />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 p-6 rounded-3xl group cursor-pointer" onClick={() => setFormData({ ...formData, isDgcaCertified: !formData.isDgcaCertified })}>
+                                    <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all ${formData.isDgcaCertified ? 'bg-orange-600 border-orange-600 text-white' : 'border-slate-200 bg-white'}`}>
+                                        {formData.isDgcaCertified && <ShieldCheck className="w-5 h-5" />}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-black text-slate-900 uppercase tracking-tight">DGCA Type Certified</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verify regulatory compliance state</span>
                                     </div>
                                 </div>
                             </div>

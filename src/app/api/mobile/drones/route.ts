@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { modelName, image, manufacturedUnits, organizationId } = body;
+        const { modelName, image, manufacturedUnits, organizationId, isDgcaCertified } = body;
 
         // Use provided organizationId if super admin, else use current user's org
         const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
             data: {
                 modelName,
                 image,
+                isDgcaCertified: (isDgcaCertified || false) as any,
                 organizationId: targetOrgId,
                 manufacturedUnits: {
                     create: (manufacturedUnits || []).map((unit: any) => ({

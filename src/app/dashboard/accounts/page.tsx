@@ -268,7 +268,7 @@ export default function AccountsPage() {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Amount (INR) *</label>
                                 <div className="relative">
-                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
                                     <input
                                         type="number"
                                         placeholder="0.00"
@@ -401,7 +401,7 @@ export default function AccountsPage() {
                                             <div className="mt-auto pt-5 border-t border-slate-50 flex items-center justify-between">
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Disbursement</span>
-                                                    <span className="text-xl font-black text-slate-900 tracking-tighter">₹{item.amount.toLocaleString()}</span>
+                                                    <span className="text-xl font-black text-slate-900 tracking-tighter">₹{item.amount.toLocaleString('en-IN')}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     {item.billData && (
@@ -444,14 +444,14 @@ export default function AccountsPage() {
                                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Queue Pending</p>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-black text-white tracking-tighter">₹{reimbursements.filter(r => r.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}</span>
+                                        <span className="text-2xl font-black text-white tracking-tighter">₹{reimbursements.filter(r => r.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
                                         <TrendingUp className="w-4 h-4 text-amber-500" />
                                     </div>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Execution Total</p>
                                     <div className="flex items-baseline gap-2 text-emerald-400">
-                                        <span className="text-2xl font-black tracking-tighter">₹{reimbursements.filter(r => r.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}</span>
+                                        <span className="text-2xl font-black tracking-tighter">₹{reimbursements.filter(r => r.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
                                         <CheckCircle className="w-4 h-4" />
                                     </div>
                                 </div>

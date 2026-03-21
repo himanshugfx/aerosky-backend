@@ -328,7 +328,7 @@ export default function OrdersPage() {
                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
                                                 <TrendingUp className="w-3 h-3" /> Value
                                             </p>
-                                            <p className="text-sm font-black text-indigo-600">₹{order.contractValue.toLocaleString()}</p>
+                                            <p className="text-sm font-black text-indigo-600">₹{order.contractValue.toLocaleString('en-IN')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -427,7 +427,7 @@ export default function OrdersPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="label-style">Unit Price (₹)</label>
-                                        <input type="number" placeholder="0.00" value={formData.unitPrice} onChange={e => setFormData({ ...formData, unitPrice: e.target.value })} className="input-modern" />
+                                        <input type="number" placeholder="Net INR" value={formData.unitPrice} onChange={e => setFormData({ ...formData, unitPrice: e.target.value })} className="input-modern" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="label-style">Total Value (₹)</label>

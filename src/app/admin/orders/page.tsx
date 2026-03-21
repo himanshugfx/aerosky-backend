@@ -213,10 +213,10 @@ export default function OrdersPage() {
         order.droneModel.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const formatCurrency = (value: number, currency: string) => {
+    const formatCurrency = (value: number) => {
         return new Intl.NumberFormat("en-IN", {
             style: "currency",
-            currency: currency === "USD" ? "USD" : "INR",
+            currency: "INR",
             maximumFractionDigits: 0,
         }).format(value);
     };
@@ -328,7 +328,7 @@ export default function OrdersPage() {
                                         <span>{order.droneModel}</span>
                                         <span>•</span>
                                         <span className="font-semibold text-green-400">
-                                            {formatCurrency(order.contractValue, order.currency)}
+                                            {formatCurrency(order.contractValue)}
                                         </span>
                                     </div>
                                 </div>
