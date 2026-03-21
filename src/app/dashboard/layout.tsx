@@ -18,6 +18,7 @@ import {
     ChevronRight,
     Search,
     Command,
+    Target
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -27,21 +28,21 @@ import { useEffect, useState } from 'react'
 const superAdminNavigation = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
+    { name: 'Leads', href: '/dashboard/leads', icon: Target },
     { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
     { name: 'Financials', href: '/dashboard/accounts', icon: ShoppingCart },
-    { name: 'Lead Management', href: '/dashboard/leads', icon: Users },
 ]
 
 const orgAdminNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Fleet', href: '/dashboard/drones', icon: Plane },
+    { name: 'Leads', href: '/dashboard/leads', icon: Target },
     { name: 'Personnel', href: '/dashboard/team', icon: Users },
     { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2 },
     { name: 'Inventory', href: '/dashboard/inventory', icon: ShoppingCart },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
     { name: 'Power Units', href: '/dashboard/batteries', icon: Battery },
     { name: 'Flight Logs', href: '/dashboard/flights', icon: Send },
-    { name: 'Lead Management', href: '/dashboard/leads', icon: Users },
     { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
     { name: 'Assistance', href: '/dashboard/support', icon: HelpCircle },
 ]

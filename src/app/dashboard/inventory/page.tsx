@@ -320,19 +320,27 @@ export default function InventoryPage() {
     )
 }
 
+import ClientPortal from '@/components/ClientPortal'
+
 function Modal({ children, title, subtitle, onClose, color = 'slate' }: any) {
     return (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6 animate-in fade-in duration-500">
-            <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden animate-slide-up border border-white/20">
-                <div className={`p-12 pb-8 flex items-center justify-between relative overflow-hidden ${color === 'emerald' ? 'bg-emerald-600' : 'bg-slate-900'} text-white`}>
-                    <div className="relative z-10 space-y-2">
-                        <h3 className="text-3xl font-black tracking-tightest uppercase">{title}</h3>
-                        <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">{subtitle}</p>
+        <ClientPortal selector="body">
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6 animate-in fade-in duration-500">
+                <div 
+                    className="absolute inset-0 z-0" 
+                    onClick={onClose}
+                />
+                <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden animate-slide-up border border-white/20 relative z-10 transition-all duration-500">
+                    <div className={`p-12 pb-8 flex items-center justify-between relative overflow-hidden ${color === 'emerald' ? 'bg-emerald-600' : 'bg-slate-900'} text-white`}>
+                        <div className="relative z-10 space-y-2">
+                            <h3 className="text-3xl font-black tracking-tightest uppercase">{title}</h3>
+                            <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">{subtitle}</p>
+                        </div>
+                        <button onClick={onClose} className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5"><X className="w-6 h-6" /></button>
                     </div>
-                    <button onClick={onClose} className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5"><X className="w-6 h-6" /></button>
+                    <div className="p-12 pt-10">{children}</div>
                 </div>
-                <div className="p-12 pt-10">{children}</div>
             </div>
-        </div>
+        </ClientPortal>
     )
 }

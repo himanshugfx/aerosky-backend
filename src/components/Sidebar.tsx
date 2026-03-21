@@ -12,7 +12,8 @@ import {
     HelpCircle,
     X,
     LogOut,
-    Shield
+    Shield,
+    Target
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -21,6 +22,7 @@ import { useSession, signOut } from 'next-auth/react'
 const superAdminNavigation = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
+    { name: 'Leads', href: '/dashboard/leads', icon: Target },
     { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
     { name: 'Financials', href: '/dashboard/accounts', icon: ShoppingCart },
 ]
@@ -28,6 +30,7 @@ const superAdminNavigation = [
 const orgAdminNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Fleet', href: '/dashboard/drones', icon: Plane },
+    { name: 'Leads', href: '/dashboard/leads', icon: Target },
     { name: 'Personnel', href: '/dashboard/team', icon: Users },
     { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2 },
     { name: 'Inventory', href: '/dashboard/inventory', icon: Package },
@@ -55,7 +58,7 @@ export default function Sidebar() {
         <aside className="fixed left-6 top-6 bottom-6 w-24 bg-white rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center py-10 z-[50] transition-all duration-500 overflow-visible">
             {/* User Avatar */}
             <div className="mb-12 relative group cursor-pointer px-4">
-                <div className="w-14 h-14 bg-[#7c3aed] rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-[#7c3aed]/30 overflow-hidden ring-4 ring-white group-hover:scale-105 transition-transform duration-300">
+                <div className="w-14 h-14 bg-orange-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-orange-600/30 overflow-hidden ring-4 ring-white group-hover:scale-105 transition-transform duration-300">
                     {session?.user?.name ? (
                         <div className="text-2xl font-black uppercase tracking-tighter">
                             {session.user.name.charAt(0)}
@@ -78,25 +81,27 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation Icons Scrollable Area */}
-            <nav className="flex-1 flex flex-col gap-5 w-full items-center overflow-y-auto custom-scrollbar px-2 pb-6">
+            <nav className="flex-1 flex flex-col gap-5 w-full items-center overflow-y-auto overflow-x-visible no-scrollbar px-2 pb-6">
                 {navigation.map((item) => {
                     const isActive = pathname === item.href
                     return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`relative p-4 rounded-2xl transition-all duration-500 group ${
-                                isActive 
-                                ? 'bg-[#7c3aed] text-white shadow-xl shadow-[#7c3aed]/30 ring-4 ring-[#7c3aed]/10' 
-                                : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
-                            }`}
-                        >
-                            <item.icon className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-                            
+                        <div key={item.href} className="relative group flex items-center justify-center w-full">
+                            <Link
+                                href={item.href}
+                                className={`p-4 rounded-2xl transition-all duration-500 ${
+                                    isActive 
+                                    ? 'bg-orange-600 text-white shadow-xl shadow-orange-600/30 ring-4 ring-orange-600/10' 
+                                    : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                                }`}
+                            >
+                                <item.icon className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                            </Link>
+
+                            {/* Tooltip - Moved outside the link container to avoid clipping if possible, but still needs parent overflow:visible */}
                             <span className="absolute left-full ml-6 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100]">
                                 {item.name}
                             </span>
-                        </Link>
+                        </div>
                     )
                 })}
             </nav>
@@ -114,6 +119,15 @@ export default function Sidebar() {
                     Disconnect
                 </span>
             </button>
+            <style jsx>{`
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .no-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
         </aside>
     )
 }
