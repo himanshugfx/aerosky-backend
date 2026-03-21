@@ -155,11 +155,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </div>
 
                         <div className="flex-1 overflow-y-auto no-scrollbar space-y-8">
-                            {/* Mobile Category Selector */}
                             <div className="space-y-2">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Navigation Domain</p>
                                 <div className="grid grid-cols-2 gap-2">
-                                    {(['Dashboard', 'Sales', 'Operations', 'Administration'] as Category[]).map((cat) => (
+                                    {(['Dashboard', 'Sales', 'Operations', 'Administration'] as Category[])
+                                        .filter(cat => cat !== 'Administration' || (session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ORG_ADMIN'))
+                                        .map((cat) => (
                                         <button
                                             key={cat}
                                             onClick={() => handleCategoryChange(cat)}
@@ -308,7 +309,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </header>
 
                 {/* Contextual TopBar */}
-                <TopBar activeCategory={currentCategory} onCategoryChange={handleCategoryChange} />
+                <TopBar activeCategory={currentCategory} onCategoryChange={handleCategoryChange} userRole={session?.user?.role} />
 
                 {/* Unified Stage Area - Use flex-1 to push footer down if there was one, or just fill space */}
                 <main className="flex-1 px-6 lg:px-12 py-8 animate-slide-up">
