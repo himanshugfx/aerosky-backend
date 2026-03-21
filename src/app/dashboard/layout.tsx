@@ -44,6 +44,8 @@ const orgAdminNavigation = [
     { name: 'Assistance', href: '/dashboard/support', icon: HelpCircle },
 ]
 
+import Sidebar from '@/components/Sidebar'
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathname = usePathname()
@@ -121,12 +123,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 />
             )}
 
-            {/* Sidebar - Optimized for Large Screens */}
+            {/* Desktop Sidebar - Premium Pill Design */}
+            <div className="hidden lg:block">
+                <Sidebar />
+            </div>
+
+            {/* Mobile Navigation Drawer */}
             <aside className={`
-                fixed lg:sticky top-0 left-0 w-80 bg-[#1e293b] h-screen z-[50] transition-all duration-500 ease-out lg:translate-x-0 flex flex-col
+                fixed lg:hidden top-0 left-0 w-80 bg-[#1e293b] h-screen z-[50] transition-all duration-500 ease-out flex flex-col
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
-                {/* Brand Header */}
                 <div className="p-10 flex items-center justify-between">
                     <Link href="/dashboard" className="group">
                         <div className="w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-600/40 group-active:scale-95 transition-all duration-300">
@@ -135,26 +141,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </Link>
                     <button
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="lg:hidden p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
+                        className="p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
                     >
                         <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                {/* Role Indicator */}
-                <div className="px-8 mb-6">
-                    <div className={`px-4 py-3 rounded-2xl border flex items-center gap-3 ${isSuperAdmin
-                        ? 'bg-orange-500/10 border-orange-500/20'
-                        : 'bg-emerald-500/10 border-emerald-500/20'
-                        }`}>
-                        <div className={`w-2 h-2 rounded-full animate-pulse ${isSuperAdmin ? 'bg-orange-500' : 'bg-emerald-500'}`} />
-                        <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${isSuperAdmin ? 'text-orange-400' : 'text-emerald-400'}`}>
-                            {isSuperAdmin ? 'Global Commander' : 'Operational Unit'}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Navigation Scroll Area */}
                 <nav className="flex-1 px-6 space-y-1 overflow-y-auto custom-scrollbar pt-2">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href
@@ -164,46 +156,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 href={item.href}
                                 className={`nav-item group ${isActive ? 'nav-item-active' : ''}`}
                             >
-                                <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:translate-x-1'}`} />
+                                <item.icon className="w-5 h-5" />
                                 <span className="text-sm tracking-tight">{item.name}</span>
-                                {isActive && (
-                                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_white]" />
-                                )}
                             </Link>
                         )
                     })}
                 </nav>
 
-                {/* Enhanced Profile Section */}
                 <div className="p-6 pb-10">
-                    <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5 backdrop-blur-sm group hover:border-white/10 transition-all duration-500">
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="relative">
-                                <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-700 rounded-[1.25rem] flex items-center justify-center text-white text-xl font-bold shadow-2xl shadow-orange-500/30">
-                                    {session?.user?.name?.charAt(0) || 'U'}
-                                </div>
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-[3px] border-[#1e293b] rounded-full shadow-lg"></div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-base font-bold text-white truncate leading-tight">{session?.user?.name}</p>
-                                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.1em] mt-1.5 truncate">
-                                    {session?.user?.role?.replace('_', ' ')}
-                                </p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all duration-500 font-bold text-xs uppercase tracking-widest group/btn shadow-lg shadow-transparent hover:shadow-rose-500/20"
-                        >
-                            <LogOut className="w-4 h-4 transition-transform group-hover/btn:-translate-x-1" />
-                            Disconnect
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all duration-500 font-bold text-xs uppercase tracking-widest group/btn shadow-lg shadow-transparent hover:shadow-rose-500/20"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        Disconnect
+                    </button>
                 </div>
             </aside>
 
             {/* Main View Area */}
-            <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
+            <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc] lg:pl-[144px]">
                 {/* High-Fidelity Header */}
                 <header className="glass-header px-10 py-6 min-h-[100px]">
                     <div className="flex items-center gap-8">
