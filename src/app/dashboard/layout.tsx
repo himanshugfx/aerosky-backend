@@ -25,26 +25,26 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-const superAdminNavigation = [
-    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
-    { name: 'Leads', href: '/dashboard/leads', icon: Target },
-    { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
-    { name: 'Financials', href: '/dashboard/accounts', icon: ShoppingCart },
-]
+import TopBar, { Category } from '@/components/TopBar'
 
-const orgAdminNavigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Fleet', href: '/dashboard/drones', icon: Plane },
-    { name: 'Leads', href: '/dashboard/leads', icon: Target },
-    { name: 'Personnel', href: '/dashboard/team', icon: Users },
-    { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2 },
-    { name: 'Inventory', href: '/dashboard/inventory', icon: ShoppingCart },
-    { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
-    { name: 'Power Units', href: '/dashboard/batteries', icon: Battery },
-    { name: 'Flight Logs', href: '/dashboard/flights', icon: Send },
-    { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
-    { name: 'Assistance', href: '/dashboard/support', icon: HelpCircle },
+const navigationItems = [
+    // Dashboard Category
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, category: 'Dashboard' as Category },
+    
+    // Sales Category
+    { name: 'Lead Management', href: '/dashboard/leads', icon: Target, category: 'Sales' as Category },
+    
+    // Operations Category
+    { name: 'Inventory Management', href: '/dashboard/inventory', icon: ShoppingCart, category: 'Operations' as Category },
+    { name: 'Power Units', href: '/dashboard/batteries', icon: Battery, category: 'Operations' as Category },
+    { name: 'Flight Logs', href: '/dashboard/flights', icon: Send, category: 'Operations' as Category },
+    { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2, category: 'Operations' as Category },
+    
+    // Administration Category
+    { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart, category: 'Administration' as Category },
+    { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart, category: 'Administration' as Category },
+    { name: 'Fleet', href: '/dashboard/drones', icon: Plane, category: 'Administration' as Category },
+    { name: 'Personnel', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
 ]
 
 import Sidebar from '@/components/Sidebar'
@@ -54,39 +54,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname()
     const { data: session, status } = useSession()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const [currentCategory, setCurrentCategory] = useState<Category>('Dashboard')
     const [searchQuery, setSearchQuery] = useState('')
     const [isSearchFocused, setIsSearchFocused] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
     const [notifications, setNotifications] = useState<any[]>([])
     const [isLoadingNotifications, setIsLoadingNotifications] = useState(true)
 
-    const isSuperAdmin = session?.user?.role === 'SUPER_ADMIN'
-    const navigation = isSuperAdmin ? superAdminNavigation : orgAdminNavigation
-
-    // Fetch real notifications
+    // Sync category with pathname
     useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const res = await fetch('/api/notifications')
-                const data = await res.json()
-                if (Array.isArray(data)) {
-                    setNotifications(data)
-                }
-            } catch (err) {
-                console.error("Failed to fetch notifications:", err)
-            } finally {
-                setIsLoadingNotifications(false)
-            }
+        const matchingItem = navigationItems.find(item => item.href === pathname)
+        if (matchingItem) {
+            setCurrentCategory(matchingItem.category)
         }
-
-        if (status === 'authenticated') {
-            fetchNotifications()
-        }
-    }, [status])
-
-    useEffect(() => {
-        setIsMobileMenuOpen(false)
     }, [pathname])
+
+    const handleCategoryChange = (category: Category) => {
+        setCurrentCategory(category)
+        const firstItem = navigationItems.find(item => item.category === category)
+        if (firstItem) {
+            router.push(firstItem.href)
+        }
+    }
+
+    const filteredNavigation = navigationItems.filter(item => item.category === currentCategory)
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -94,250 +85,233 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
     }, [status, router])
 
-    const handleLogout = async () => {
-        await signOut({ redirect: false })
-        router.push('/login')
-    }
-
-    // Keyboard shortcut for search (Cmd+K or Ctrl+K)
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault()
-                document.getElementById('universal-search')?.focus()
+        if (session) {
+            const fetchNotifications = async () => {
+                try {
+                    const res = await fetch('/api/notifications')
+                    if (res.ok) {
+                        const data = await res.json()
+                        if (Array.isArray(data)) {
+                            setNotifications(data)
+                        }
+                    }
+                } finally {
+                    setIsLoadingNotifications(false)
+                }
             }
+            fetchNotifications()
         }
-        window.addEventListener('keydown', handleKeyDown)
-        return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [])
-
-    const filteredNavigation = searchQuery.length > 0
-        ? navigation.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        : []
+    }, [session])
 
     if (status === 'loading') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 selection:bg-indigo-500/30">
-                <div className="flex flex-col items-center gap-6">
-                    <div className="relative">
-                        <div className="w-16 h-16 border-4 border-slate-200 border-t-orange-600 rounded-full animate-spin"></div>
-                        <Shield className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" />
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                        <p className="text-slate-900 font-bold tracking-tight text-lg">AeroSky</p>
-                        <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest animate-pulse">Initializing Systems</p>
-                    </div>
-                </div>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+                <div className="w-16 h-16 border-4 border-slate-200 border-t-orange-600 rounded-full animate-spin" />
+                <p className="mt-8 text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Initializing Flight Systems</p>
             </div>
         )
     }
 
     if (status === 'unauthenticated') return null
 
-    return (
-        <div className="min-h-screen bg-[#f8fafc] flex flex-col lg:flex-row selection:bg-orange-500/20 antialiased">
-            {/* Mobile Sidebar Overlay */}
-            {isMobileMenuOpen && (
-                <div
-                    className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[40] lg:hidden animate-in fade-in transition-all duration-500"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                />
-            )}
+    const handleLogout = async () => {
+        await signOut({ redirect: false })
+        router.push('/login')
+    }
 
+    return (
+        <div className="min-h-screen bg-slate-50 font-sans selection:bg-orange-600 selection:text-white">
             {/* Desktop Sidebar - Premium Pill Design */}
             <div className="hidden lg:block">
-                <Sidebar />
+                <Sidebar items={filteredNavigation} />
             </div>
 
             {/* Mobile Navigation Drawer */}
-            <aside className={`
-                fixed lg:hidden top-0 left-0 w-80 bg-[#1e293b] h-screen z-[50] transition-all duration-500 ease-out flex flex-col
-                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+            <div className={`
+                fixed inset-0 z-[100] transition-all duration-500
+                ${isMobileMenuOpen ? 'visible' : 'invisible'}
             `}>
-                <div className="p-10 flex items-center justify-between">
-                    <Link href="/dashboard" className="group">
-                        <div className="w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-600/40 group-active:scale-95 transition-all duration-300">
-                            <Shield className="w-7 h-7 text-white" />
+                <div className={`
+                    absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-500
+                    ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}
+                `} onClick={() => setIsMobileMenuOpen(false)} />
+                
+                <div className={`
+                    absolute left-0 top-0 bottom-0 w-80 bg-white shadow-2xl transition-transform duration-500 transform
+                    ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+                `}>
+                    <div className="p-8 flex flex-col h-full">
+                        <div className="flex items-center justify-between mb-12">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-600/20">
+                                    <Plane className="w-6 h-6" />
+                                </div>
+                                <span className="text-xl font-black tracking-tighter text-slate-900">AeroSky</span>
+                            </div>
+                            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                <X className="w-6 h-6 text-slate-400" />
+                            </button>
                         </div>
-                    </Link>
-                    <button
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
+
+                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-8">
+                            {/* Mobile Category Selector */}
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Navigation Domain</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {(['Dashboard', 'Sales', 'Operations', 'Administration'] as Category[]).map((cat) => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => handleCategoryChange(cat)}
+                                            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+                                                currentCategory === cat 
+                                                ? 'bg-orange-600 text-white shadow-lg' 
+                                                : 'bg-slate-50 text-slate-400 hover:text-slate-900'
+                                            }`}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <nav className="space-y-1">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-3">{currentCategory} Links</p>
+                                {filteredNavigation.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={`
+                                            flex items-center gap-4 px-4 py-4 rounded-2xl transition-all
+                                            ${pathname === item.href 
+                                                ? 'bg-orange-50 text-orange-600' 
+                                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                            }
+                                        `}
+                                    >
+                                        <item.icon className="w-5 h-5" />
+                                        <span className="font-bold text-sm tracking-tight">{item.name}</span>
+                                        {pathname === item.href && <ChevronRight className="w-4 h-4 ml-auto" />}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </div>
+
+                        <button
+                            onClick={handleLogout}
+                            className="mt-8 flex items-center gap-4 px-4 py-5 rounded-2xl bg-rose-50 text-rose-600 font-bold transition-all hover:bg-rose-100"
+                        >
+                            <LogOut className="w-5 h-5" />
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
                 </div>
+            </div>
 
-                <nav className="flex-1 px-6 space-y-1 overflow-y-auto custom-scrollbar pt-2">
-                    {navigation.map((item) => {
-                        const isActive = pathname === item.href
-                        return (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={`nav-item group ${isActive ? 'nav-item-active' : ''}`}
-                            >
-                                <item.icon className="w-5 h-5" />
-                                <span className="text-sm tracking-tight">{item.name}</span>
-                            </Link>
-                        )
-                    })}
-                </nav>
-
-                <div className="p-6 pb-10">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all duration-500 font-bold text-xs uppercase tracking-widest group/btn shadow-lg shadow-transparent hover:shadow-rose-500/20"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        Disconnect
-                    </button>
-                </div>
-            </aside>
-
-            {/* Main View Area */}
-            <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc] lg:pl-[144px]">
-                {/* High-Fidelity Header */}
-                <header className="glass-header px-10 py-6 min-h-[100px]">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-2 lg:hidden">
-                            <button
+            {/* Desktop Dashboard Stage */}
+            <div className="lg:pl-36 flex-1 flex flex-col transition-all duration-500">
+                <header className="sticky top-0 z-[40] transition-all duration-500 bg-slate-50/80 backdrop-blur-md">
+                    <div className="px-6 lg:px-12 py-6 flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-6 flex-1">
+                            <button 
                                 onClick={() => setIsMobileMenuOpen(true)}
-                                className="p-3 text-slate-500 hover:bg-slate-100 rounded-2xl transition-all"
+                                className="lg:hidden w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-900"
                             >
                                 <Menu className="w-6 h-6" />
                             </button>
-                            <button
-                                onClick={() => setShowNotifications(!showNotifications)}
-                                className="p-3 text-slate-500 hover:bg-slate-100 rounded-2xl transition-all relative"
-                            >
-                                <Bell className="w-5 h-5" />
-                                {notifications.length > 0 && (
-                                    <span className="absolute top-3 right-3 w-2 h-2 bg-orange-600 border border-white rounded-full"></span>
-                                )}
-                            </button>
-                        </div>
 
-                        {/* Page Context */}
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
-                                <span>AeroSky Command</span>
-                                <div className="w-1 h-1 rounded-full bg-slate-300" />
-                                <span>Live Ops</span>
-                            </div>
-                            <h1 className="text-3xl font-black text-slate-900 tracking-tightest">
-                                {navigation.find(n => n.href === pathname)?.name || 'Command Center'}
-                            </h1>
-                        </div>
-                    </div>
-
-                    {/* Desktop Toolbar */}
-                    <div className="hidden lg:flex items-center gap-6">
-                        {/* Global Search Interface */}
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-orange-600 transition-colors" />
-                            <input
-                                id="universal-search"
-                                type="text"
-                                placeholder="Universal Search..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onFocus={() => setIsSearchFocused(true)}
-                                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                                className="w-72 bg-slate-100/50 hover:bg-slate-100 border-none rounded-2xl py-3 pl-12 pr-12 text-sm font-semibold focus:ring-4 focus:ring-orange-500/10 transition-all outline-none text-slate-900"
-                            />
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md border border-slate-200 bg-white shadow-sm flex items-center gap-1">
-                                <Command className="w-2.5 h-2.5 text-slate-400" />
-                                <span className="text-[10px] font-bold text-slate-400">K</span>
-                            </div>
-
-                            {/* Search Results Dropdown */}
-                            {isSearchFocused && searchQuery.length > 0 && (
-                                <div className="absolute top-full left-0 right-0 mt-4 bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2 duration-300">
-                                    <div className="p-3">
-                                        <p className="px-5 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50 mb-2">Navigation Results</p>
-                                        {filteredNavigation.length > 0 ? (
-                                            filteredNavigation.map((item) => (
-                                                <button
-                                                    key={item.href}
-                                                    onClick={() => {
-                                                        router.push(item.href)
-                                                        setSearchQuery('')
-                                                    }}
-                                                    className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 rounded-2xl transition-all text-left group"
-                                                >
-                                                    <item.icon className="w-4 h-4 text-slate-400 group-hover:text-orange-600" />
-                                                    <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900">{item.name}</span>
-                                                    <ChevronRight className="ml-auto w-4 h-4 text-slate-200 group-hover:text-orange-600" />
-                                                </button>
-                                            ))
-                                        ) : (
-                                            <div className="px-5 py-8 text-center">
-                                                <p className="text-sm font-bold text-slate-400 tracking-tight">No results found for "{searchQuery}"</p>
-                                            </div>
-                                        )}
-                                    </div>
+                            <div className="hidden lg:flex flex-col">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Status: Live</span>
                                 </div>
-                            )}
+                                <h1 className="text-xl font-black text-slate-900 tracking-tighter">AeroSky Control</h1>
+                            </div>
+
+                            <div className={`
+                                hidden xl:flex items-center relative flex-1 max-w-xl transition-all duration-500
+                                ${isSearchFocused ? 'scale-105' : 'scale-100'}
+                            `}>
+                                <div className="absolute left-6 text-slate-400">
+                                    <Search className="w-5 h-5" />
+                                </div>
+                                <input 
+                                    type="text" 
+                                    placeholder="Universal Search... (⌘ K)" 
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onFocus={() => setIsSearchFocused(true)}
+                                    onBlur={() => setIsSearchFocused(false)}
+                                    className="w-full bg-white border-2 border-slate-100 rounded-[2rem] py-4 pl-16 pr-6 text-sm font-medium focus:outline-none focus:border-orange-600/20 focus:bg-white shadow-sm transition-all"
+                                />
+                                <div className="absolute right-6 flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-400 select-none">
+                                    <Command className="w-3 h-3" />
+                                    <span>K</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="h-10 w-[1px] bg-slate-200" />
-
-                        <div className="flex items-center gap-3">
-                            {/* Notifications Dropdown */}
+                        <div className="flex items-center gap-4">
                             <div className="relative">
-                                <button
+                                <button 
                                     onClick={() => setShowNotifications(!showNotifications)}
-                                    className={`relative w-11 h-11 flex items-center justify-center border rounded-2xl transition-all duration-300 ${showNotifications ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-500 border-slate-100 hover:text-slate-900 hover:shadow-xl'}`}>
-                                    <Bell className="w-5 h-5" />
+                                    className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-400 hover:text-orange-600 hover:border-orange-600/20 transition-all relative group"
+                                >
+                                    <Bell className="w-5 h-5 group-hover:animate-bounce" />
                                     {notifications.length > 0 && (
-                                        <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-indigo-600 border-2 border-white rounded-full"></span>
+                                        <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-orange-600 border-2 border-white rounded-full"></span>
                                     )}
                                 </button>
-
+                                
                                 {showNotifications && (
-                                    <div className="absolute top-full right-0 mt-4 w-96 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2 duration-300">
-                                        <div className="p-8 pb-4 border-b border-slate-50 flex items-center justify-between">
-                                            <h3 className="text-lg font-black text-slate-900">Intelligence Feed</h3>
-                                            <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-lg">{notifications.length} New</span>
+                                    <div className="absolute right-0 mt-4 w-96 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300 z-50">
+                                        <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white">
+                                            <div>
+                                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Telemetry Alerts</h3>
+                                                <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mt-0.5">Real-time Grid Feedback</p>
+                                            </div>
+                                            <span className="px-3 py-1 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black text-slate-500">{notifications.length} New</span>
                                         </div>
-                                        <div className="p-2 space-y-1">
-                                            {notifications.map((notif) => (
-                                                <button key={notif.id} className="w-full text-left p-6 hover:bg-slate-50 rounded-3xl transition-all group">
-                                                    <div className="flex gap-4">
-                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${notif.type === 'success' ? 'bg-emerald-50 text-emerald-600' :
-                                                            notif.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-orange-50 text-orange-600'
-                                                            }`}>
-                                                            {notif.type === 'success' ? <Shield className="w-6 h-6" /> : <Command className="w-6 h-6" />}
-                                                        </div>
-                                                        <div className="space-y-1">
-                                                            <div className="flex items-center justify-between">
-                                                                <p className="text-sm font-black text-slate-900 leading-none">{notif.title}</p>
-                                                                <span className="text-[10px] font-bold text-slate-400">{notif.time}</span>
-                                                            </div>
-                                                            <p className="text-xs text-slate-500 font-medium leading-relaxed">{notif.message}</p>
-                                                        </div>
+                                        <div className="max-h-[400px] overflow-y-auto p-4 space-y-2 no-scrollbar bg-slate-50/30">
+                                            {isLoadingNotifications ? (
+                                                <div className="py-12 flex flex-col items-center justify-center gap-4 text-slate-400">
+                                                    <div className="w-8 h-8 border-2 border-slate-200 border-t-orange-600 rounded-full animate-spin" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">Polling Server</span>
+                                                </div>
+                                            ) : notifications.length > 0 ? (
+                                                notifications.map((n: any) => (
+                                                    <div key={n.id} className="p-6 bg-white rounded-[1.5rem] border border-slate-100 hover:border-orange-600/10 transition-all group cursor-pointer shadow-sm hover:shadow-md">
+                                                        <p className="text-sm font-bold text-slate-900 line-clamp-2 leading-relaxed">{n.message}</p>
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-3 flex items-center justify-between">
+                                                            <span>Telemetry Sync</span>
+                                                            <span className="opacity-0 group-hover:opacity-100 transition-opacity">Dismiss</span>
+                                                        </p>
                                                     </div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <div className="p-4 bg-slate-50/50">
-                                            <button
-                                                onClick={() => setNotifications([])}
-                                                className="w-full py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-slate-900 transition-all"
-                                            >
-                                                Clear All Notifications
-                                            </button>
+                                                ))
+                                            ) : (
+                                                <div className="py-20 flex flex-col items-center justify-center gap-4 text-slate-300">
+                                                    <Bell className="w-12 h-12 opacity-20" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">Clear Skies</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
                             </div>
+
+                            <button className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-400 hover:text-slate-900 transition-all">
+                                <Settings className="w-5 h-5" />
+                            </button>
                         </div>
                     </div>
                 </header>
 
-                {/* Unified Stage Area */}
-                <main className="main-content-layout animate-slide-up">
+                {/* Contextual TopBar */}
+                <TopBar activeCategory={currentCategory} onCategoryChange={handleCategoryChange} />
+
+                {/* Unified Stage Area - Use flex-1 to push footer down if there was one, or just fill space */}
+                <main className="flex-1 px-6 lg:px-12 py-8 animate-slide-up">
                     <div className="max-w-[1400px] mx-auto w-full">
                         {children}
                     </div>

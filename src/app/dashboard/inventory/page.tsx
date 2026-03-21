@@ -11,6 +11,8 @@ import {
     Clock,
     History,
     Layers,
+    LayoutGrid,
+    LayoutList,
     Loader2,
     Package,
     Plus,
@@ -55,6 +57,7 @@ export default function InventoryPage() {
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
     })
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
     const [compForm, setCompForm] = useState({ name: '', description: '', category: 'Operational' })
 
     const fetchData = async () => {
@@ -170,36 +173,105 @@ export default function InventoryPage() {
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                         <input type="text" placeholder="Scan SKU or component name..." value={stockSearch} onChange={e => setStockSearch(e.target.value)} className="input-modern !pl-14 bg-white shadow-sm" />
                     </div>
+                    
+                    {/* View Toggle */}
+                    <div className="flex p-1 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+                        <button 
+                            onClick={() => setViewMode('grid')}
+                            className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            <LayoutGrid className="w-4.5 h-4.5" />
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('list')}
+                            className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            <LayoutList className="w-4.5 h-4.5" />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-                    {filteredComponents.map(comp => (
-                        <div key={comp.id} className="modern-card group flex flex-col hover:border-indigo-600/20">
-                            <div className="p-10 flex-1">
-                                <div className="flex items-start justify-between mb-8">
-                                    <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm border border-slate-100">
-                                        <Package className="w-7 h-7" />
+                {viewMode === 'grid' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+                        {filteredComponents.map(comp => (
+                            <div key={comp.id} className="modern-card group flex flex-col hover:border-indigo-600/20">
+                                <div className="p-10 flex-1">
+                                    <div className="flex items-start justify-between mb-8">
+                                        <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm border border-slate-100">
+                                            <Package className="w-7 h-7" />
+                                        </div>
+                                        <div className={`status-badge ${comp.quantity > 5 ? 'status-badge-success' : 'status-badge-error'}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${comp.quantity > 5 ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                                            {comp.quantity > 5 ? 'Steady' : 'Critical'}
+                                        </div>
                                     </div>
-                                    <div className={`status-badge ${comp.quantity > 5 ? 'status-badge-success' : 'status-badge-error'}`}>
-                                        <div className={`w-1.5 h-1.5 rounded-full ${comp.quantity > 5 ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
-                                        {comp.quantity > 5 ? 'Steady' : 'Critical'}
+                                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">{comp.category}</p>
+                                    <h4 className="text-2xl font-black text-slate-900 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">{comp.name}</h4>
+                                </div>
+                                <div className="px-10 py-6 bg-slate-50/50 border-t border-slate-100 flex items-end justify-between group-hover:bg-white transition-colors">
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Inventory Level</p>
+                                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{comp.quantity} <span className="text-xs text-slate-400 font-bold uppercase ml-1">Units</span></p>
+                                    </div>
+                                    <div className="h-1 w-16 bg-slate-200 rounded-full overflow-hidden">
+                                        <div className={`h-full transition-all duration-1000 ${comp.quantity > 20 ? 'w-full bg-emerald-500' : comp.quantity > 5 ? 'w-1/2 bg-amber-500' : 'w-1/4 bg-rose-500'}`} />
                                     </div>
                                 </div>
-                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">{comp.category}</p>
-                                <h4 className="text-2xl font-black text-slate-900 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">{comp.name}</h4>
                             </div>
-                            <div className="px-10 py-6 bg-slate-50/50 border-t border-slate-100 flex items-end justify-between group-hover:bg-white transition-colors">
-                                <div className="space-y-1">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Inventory Level</p>
-                                    <p className="text-3xl font-black text-slate-900 tracking-tighter">{comp.quantity} <span className="text-xs text-slate-400 font-bold uppercase ml-1">Units</span></p>
-                                </div>
-                                <div className="h-1 w-16 bg-slate-200 rounded-full overflow-hidden">
-                                    <div className={`h-full transition-all duration-1000 ${comp.quantity > 20 ? 'w-full bg-emerald-500' : comp.quantity > 5 ? 'w-1/2 bg-amber-500' : 'w-1/4 bg-rose-500'}`} />
-                                </div>
-                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="modern-card overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50/80 border-b border-slate-100">
+                                    <tr>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Name</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Classification</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Stock</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Operational Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {filteredComponents.map(comp => (
+                                        <tr key={comp.id} className="group hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                                        <Package className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-black text-slate-900 text-sm">{comp.name}</p>
+                                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">UID: {comp.id.slice(0, 8)}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
+                                                    {comp.category}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-3">
+                                                    <p className="text-xl font-black text-slate-900 tracking-tighter">{comp.quantity}</p>
+                                                    <div className="h-1.5 w-12 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div className={`h-full ${comp.quantity > 20 ? 'w-full bg-emerald-500' : comp.quantity > 5 ? 'w-1/2 bg-amber-500' : 'w-1/4 bg-rose-500'}`} />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${comp.quantity > 5 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100 animation-pulse'}`}>
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${comp.quantity > 5 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest">{comp.quantity > 5 ? 'Steady' : 'Critical Stock'}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                )}
             </div>
 
             {/* Audit Ledger */}

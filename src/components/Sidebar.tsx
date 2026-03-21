@@ -18,36 +18,62 @@ import {
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
+import { useState, useEffect, useRef } from 'react'
+import ClientPortal from './ClientPortal'
 
-const superAdminNavigation = [
-    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
-    { name: 'Leads', href: '/dashboard/leads', icon: Target },
-    { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
-    { name: 'Financials', href: '/dashboard/accounts', icon: ShoppingCart },
-]
+function NavigationLink({ item, isActive }: { item: any, isActive: boolean }) {
+    const [isHovered, setIsHovered] = useState(false)
+    const [rect, setRect] = useState<DOMRect | null>(null)
+    const ref = useRef<HTMLDivElement>(null)
 
-const orgAdminNavigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Fleet', href: '/dashboard/drones', icon: Plane },
-    { name: 'Leads', href: '/dashboard/leads', icon: Target },
-    { name: 'Personnel', href: '/dashboard/team', icon: Users },
-    { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2 },
-    { name: 'Inventory', href: '/dashboard/inventory', icon: Package },
-    { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
-    { name: 'Power Units', href: '/dashboard/batteries', icon: Battery },
-    { name: 'Flight Logs', href: '/dashboard/flights', icon: Send },
-    // { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart },
-    { name: 'Assistance', href: '/dashboard/support', icon: HelpCircle },
-]
+    useEffect(() => {
+        if (ref.current) {
+            setRect(ref.current.getBoundingClientRect())
+        }
+    }, [isHovered])
 
-export default function Sidebar() {
+    return (
+        <div 
+            ref={ref}
+            className="relative group flex flex-col items-center justify-center w-full"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <Link
+                href={item.href}
+                className={`flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-500 hover:scale-105 active:scale-95 ${
+                    isActive 
+                    ? 'bg-orange-600 text-white shadow-xl shadow-orange-600/30 ring-4 ring-orange-600/10' 
+                    : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50 border border-transparent hover:border-slate-100'
+                }`}
+            >
+                <item.icon className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+            </Link>
+
+            {isHovered && rect && (
+                <ClientPortal selector="body">
+                    <div 
+                        style={{ 
+                            position: 'fixed',
+                            top: rect.top + rect.height / 2,
+                            left: rect.right + 24,
+                            transform: 'translateY(-50%)',
+                            zIndex: 9999
+                        }}
+                        className="px-3 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-xl animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap shadow-2xl border border-white/10"
+                    >
+                        {item.name}
+                    </div>
+                </ClientPortal>
+            )}
+        </div>
+    )
+}
+
+export default function Sidebar({ items }: { items: any[] }) {
     const pathname = usePathname()
     const router = useRouter()
     const { data: session } = useSession()
-
-    const isSuperAdmin = session?.user?.role === 'SUPER_ADMIN'
-    const navigation = isSuperAdmin ? superAdminNavigation : orgAdminNavigation
 
     const handleLogout = async () => {
         await signOut({ redirect: false })
@@ -55,9 +81,9 @@ export default function Sidebar() {
     }
 
     return (
-        <aside className="fixed left-6 top-6 bottom-6 w-24 bg-white rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center py-10 z-[50] transition-all duration-500 overflow-visible">
+        <aside className="fixed left-6 top-6 bottom-6 w-24 bg-white rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center justify-center gap-12 py-10 z-[50] transition-all duration-500 overflow-visible">
             {/* User Avatar */}
-            <div className="mb-12 relative group cursor-pointer px-4">
+            <div className="relative group cursor-pointer flex flex-col items-center">
                 <div className="w-14 h-14 bg-orange-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-orange-600/30 overflow-hidden ring-4 ring-white group-hover:scale-105 transition-transform duration-300">
                     {session?.user?.name ? (
                         <div className="text-2xl font-black uppercase tracking-tighter">
@@ -81,35 +107,16 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation Icons Scrollable Area */}
-            <nav className="flex-1 flex flex-col gap-5 w-full items-center overflow-y-auto overflow-x-visible no-scrollbar px-2 pb-6">
-                {navigation.map((item) => {
-                    const isActive = pathname === item.href
-                    return (
-                        <div key={item.href} className="relative group flex items-center justify-center w-full">
-                            <Link
-                                href={item.href}
-                                className={`p-4 rounded-2xl transition-all duration-500 ${
-                                    isActive 
-                                    ? 'bg-orange-600 text-white shadow-xl shadow-orange-600/30 ring-4 ring-orange-600/10' 
-                                    : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
-                                }`}
-                            >
-                                <item.icon className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-                            </Link>
-
-                            {/* Tooltip - Moved outside the link container to avoid clipping if possible, but still needs parent overflow:visible */}
-                            <span className="absolute left-full ml-6 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100]">
-                                {item.name}
-                            </span>
-                        </div>
-                    )
-                })}
+            <nav className="flex flex-col gap-5 items-center overflow-y-auto no-scrollbar pb-6 w-full">
+                {items?.map((item) => (
+                    <NavigationLink key={item.href} item={item} isActive={pathname === item.href} />
+                ))}
             </nav>
 
             {/* Logout/Disconnect Button */}
             <button
                 onClick={handleLogout}
-                className="mt-auto p-4 rounded-2xl text-rose-500 hover:bg-rose-50 transition-all duration-500 group relative"
+                className="flex items-center justify-center w-14 h-14 rounded-2xl text-rose-500 hover:bg-rose-50 transition-all duration-500 group relative"
             >
                 <div className="w-12 h-12 border-2 border-slate-100 rounded-full flex items-center justify-center group-hover:border-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-rose-500/20">
                     <X className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" />
