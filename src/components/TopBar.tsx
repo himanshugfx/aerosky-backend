@@ -25,7 +25,7 @@ const categories: { name: Category; icon: LucideIcon }[] = [
 ]
 
 export default function TopBar({ activeCategory, onCategoryChange, userRole }: TopBarProps) {
-    const isAdmin = userRole === 'SUPER_ADMIN' || userRole === 'ORG_ADMIN'
+    const isAdmin = userRole === 'SUPER_ADMIN' || userRole === 'ADMIN'
     
     const visibleCategories = categories.filter(cat => 
         cat.name !== 'Administration' || isAdmin

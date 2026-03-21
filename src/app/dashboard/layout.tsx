@@ -160,7 +160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Navigation Domain</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {(['Dashboard', 'Sales', 'Operations', 'Administration'] as Category[])
-                                        .filter(cat => cat !== 'Administration' || (session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ORG_ADMIN'))
+                                        .filter(cat => cat !== 'Administration' || (session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMIN'))
                                         .map((cat) => (
                                         <button
                                             key={cat}
