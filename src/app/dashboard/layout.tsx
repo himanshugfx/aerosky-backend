@@ -18,7 +18,8 @@ import {
     ChevronRight,
     Search,
     Command,
-    Target
+    Target,
+    CreditCard
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -39,10 +40,10 @@ const navigationItems = [
     { name: 'Power Units', href: '/dashboard/batteries', icon: Battery, category: 'Operations' as Category },
     { name: 'Flight Logs', href: '/dashboard/flights', icon: Send, category: 'Operations' as Category },
     { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2, category: 'Operations' as Category },
+    { name: 'Accounts / Reimbursements', href: '/dashboard/accounts', icon: CreditCard, category: 'Operations' as Category },
     
     // Administration Category
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart, category: 'Administration' as Category },
-    { name: 'Accounts', href: '/dashboard/accounts', icon: ShoppingCart, category: 'Administration' as Category },
     { name: 'Fleet', href: '/dashboard/drones', icon: Plane, category: 'Administration' as Category },
     { name: 'Personnel', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
 ]
