@@ -302,9 +302,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 )}
                             </div>
 
-                            <button className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-400 hover:text-slate-900 transition-all">
+                            <Link href="/dashboard/settings" className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-400 hover:text-slate-900 transition-all">
                                 <Settings className="w-5 h-5" />
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </header>
