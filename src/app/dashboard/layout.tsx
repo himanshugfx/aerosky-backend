@@ -213,45 +213,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Desktop Dashboard Stage */}
             <div className="lg:pl-36 flex-1 flex flex-col transition-all duration-500">
+                {/* Contextual TopBar - Now at the very top with Search */}
+                <TopBar 
+                    activeCategory={currentCategory} 
+                    onCategoryChange={handleCategoryChange} 
+                    userRole={session?.user?.role} 
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                />
+
                 <header className="sticky top-0 z-[40] transition-all duration-500 bg-slate-50/80 backdrop-blur-md">
-                    <div className="px-6 lg:px-12 py-6 flex items-center justify-between gap-6">
-                        <div className="flex items-center gap-6 flex-1">
+                    <div className="px-6 lg:px-12 py-4 flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-6">
                             <button 
                                 onClick={() => setIsMobileMenuOpen(true)}
                                 className="lg:hidden w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-900"
                             >
                                 <Menu className="w-6 h-6" />
                             </button>
-
-                            <div className="hidden lg:flex flex-col">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Status: Live</span>
-                                </div>
-                                <h1 className="text-xl font-black text-slate-900 tracking-tighter">AeroSky Control</h1>
-                            </div>
-
-                            <div className={`
-                                hidden xl:flex items-center relative flex-1 max-w-xl transition-all duration-500
-                                ${isSearchFocused ? 'scale-105' : 'scale-100'}
-                            `}>
-                                <div className="absolute left-6 text-slate-400">
-                                    <Search className="w-5 h-5" />
-                                </div>
-                                <input 
-                                    type="text" 
-                                    placeholder="Universal Search... (⌘ K)" 
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onFocus={() => setIsSearchFocused(true)}
-                                    onBlur={() => setIsSearchFocused(false)}
-                                    className="w-full bg-white border-2 border-slate-100 rounded-[2rem] py-4 pl-16 pr-6 text-sm font-medium focus:outline-none focus:border-orange-600/20 focus:bg-white shadow-sm transition-all"
-                                />
-                                <div className="absolute right-6 flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-400 select-none">
-                                    <Command className="w-3 h-3" />
-                                    <span>K</span>
-                                </div>
-                            </div>
                         </div>
 
                         <div className="flex items-center gap-4">
@@ -309,8 +288,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 </header>
 
-                {/* Contextual TopBar */}
-                <TopBar activeCategory={currentCategory} onCategoryChange={handleCategoryChange} userRole={session?.user?.role} />
 
                 {/* Unified Stage Area - Use flex-1 to push footer down if there was one, or just fill space */}
                 <main className="flex-1 px-6 lg:px-12 py-8 animate-slide-up">
