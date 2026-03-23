@@ -384,7 +384,7 @@ export default function InventoryPage() {
                                 {isComponentDropdownOpenIn && (
                                     <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-64 overflow-y-auto p-2">
                                         {components.filter(c => c.name.toLowerCase().includes(searchComponentIn.toLowerCase())).length > 0 ? components.filter(c => c.name.toLowerCase().includes(searchComponentIn.toLowerCase())).map(c => (
-                                            <div key={c.id} className={`px-4 py-3 cursor-pointer rounded-xl transition-all ${formData.componentId === c.id ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-600 hover:bg-slate-50'}`} onClick={() => { setFormData({ ...formData, componentId: c.id }); setSearchComponentIn(c.name); setIsComponentDropdownOpenIn(false); }}>
+                                            <div key={c.id} className={`px-4 py-3 cursor-pointer rounded-xl transition-all ${formData.componentId === c.id ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-600 hover:bg-slate-50'}`} onMouseDown={() => { setFormData({ ...formData, componentId: c.id }); setSearchComponentIn(c.name); setIsComponentDropdownOpenIn(false); }}>
                                                 {c.name} <span className="text-[10px] ml-2 font-bold uppercase text-slate-400">({c.category})</span>
                                             </div>
                                         )) : (
@@ -415,7 +415,7 @@ export default function InventoryPage() {
                                 {isComponentDropdownOpenOut && (
                                     <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-64 overflow-y-auto p-2">
                                         {components.filter(c => c.name.toLowerCase().includes(searchComponentOut.toLowerCase())).length > 0 ? components.filter(c => c.name.toLowerCase().includes(searchComponentOut.toLowerCase())).map(c => (
-                                            <div key={c.id} className={`flex items-center justify-between px-4 py-3 cursor-pointer rounded-xl transition-all ${formData.componentId === c.id ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-600 hover:bg-slate-50'}`} onClick={() => { setFormData({ ...formData, componentId: c.id }); setSearchComponentOut(c.name); setIsComponentDropdownOpenOut(false); }}>
+                                            <div key={c.id} className={`flex items-center justify-between px-4 py-3 cursor-pointer rounded-xl transition-all ${formData.componentId === c.id ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-600 hover:bg-slate-50'}`} onMouseDown={() => { setFormData({ ...formData, componentId: c.id }); setSearchComponentOut(c.name); setIsComponentDropdownOpenOut(false); }}>
                                                 <span>{c.name}</span>
                                                 <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${c.quantity > 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>Avl: {c.quantity}</span>
                                             </div>
