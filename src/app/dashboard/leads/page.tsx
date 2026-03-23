@@ -125,8 +125,8 @@ export default function LeadsPage() {
     }, [])
 
     const filteredLeads = leads.filter(lead => {
-        const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             lead.company?.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesSearch = (lead.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                             (lead.company?.toLowerCase() || '').includes(searchTerm.toLowerCase())
         const matchesStage = filterStage === 'all' || lead.stageId === filterStage
         return matchesSearch && matchesStage
     })
@@ -249,11 +249,11 @@ export default function LeadsPage() {
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-[11px] font-black text-white shadow-lg shadow-slate-900/20">
-                                                {lead.name.charAt(0)}
+                                                {lead.name?.charAt(0) || '?'}
                                             </div>
                                             <div>
-                                                <Link href={`/dashboard/leads/${lead.id}`} className="text-sm font-black text-slate-900 hover:text-orange-600 transition-colors">{lead.name}</Link>
-                                                <div className="text-[11px] font-medium text-slate-400">{lead.email}</div>
+                                                <Link href={`/dashboard/leads/${lead.id}`} className="text-sm font-black text-slate-900 hover:text-orange-600 transition-colors">{lead.name || 'Unnamed Lead'}</Link>
+                                                <div className="text-[11px] font-medium text-slate-400">{lead.email || 'No email provided'}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -265,8 +265,14 @@ export default function LeadsPage() {
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lead.stage.color }} />
-                                            <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{lead.stage.name}</span>
+                                            {lead.stage ? (
+                                                <>
+                                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lead.stage.color }} />
+                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{lead.stage.name}</span>
+                                                </>
+                                            ) : (
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Unassigned</span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
@@ -316,22 +322,20 @@ export default function LeadsPage() {
                         <form onSubmit={handleAddLead} className="p-12 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Name *</label>
+                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Name</label>
                                     <input
                                         type="text"
                                         placeholder="Full Name"
-                                        required
                                         className="input-modern shadow-sm"
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address *</label>
+                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                                     <input
                                         type="email"
                                         placeholder="email@company.com"
-                                        required
                                         className="input-modern shadow-sm"
                                         value={formData.email}
                                         onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -368,13 +372,13 @@ export default function LeadsPage() {
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Lead Origin *</label>
+                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Lead Origin</label>
                                     <select
-                                        required
                                         className="input-modern shadow-sm appearance-none bg-white font-bold text-sm"
                                         value={formData.source}
                                         onChange={e => setFormData({ ...formData, source: e.target.value })}
                                     >
+                                        <option value="">Select Origin</option>
                                         <option value="Website">Website</option>
                                         <option value="Reference">Reference</option>
                                         <option value="Cold calls">Cold calls</option>
@@ -383,10 +387,9 @@ export default function LeadsPage() {
                                 </div>
                                 {formData.source === 'Custom' && (
                                     <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
-                                        <label className="text-[11px] font-black text-orange-600 uppercase tracking-widest ml-1">Specify Origin *</label>
+                                        <label className="text-[11px] font-black text-orange-600 uppercase tracking-widest ml-1">Specify Origin</label>
                                         <input
                                             type="text"
-                                            required
                                             placeholder="e.g. Industry Expo 2024"
                                             className="input-modern shadow-sm border-orange-100 bg-orange-50/10 focus:border-orange-600"
                                             value={customSource}
@@ -395,13 +398,13 @@ export default function LeadsPage() {
                                     </div>
                                 )}
                                 <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Funnel Stage *</label>
+                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Funnel Stage</label>
                                     <select
-                                        required
                                         className="input-modern shadow-sm appearance-none bg-white font-bold text-sm"
                                         value={formData.stageId}
                                         onChange={e => setFormData({ ...formData, stageId: e.target.value })}
                                     >
+                                        <option value="">No Stage</option>
                                         {stages.map(s => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}

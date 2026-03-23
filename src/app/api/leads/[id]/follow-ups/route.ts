@@ -14,9 +14,9 @@ export async function POST(
         const followUp = await prisma.followUp.create({
             data: {
                 leadId: params.id,
-                title,
-                description,
-                scheduledAt: new Date(scheduledAt),
+                title: title || null,
+                description: description || null,
+                scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
             }
         });
 
@@ -25,7 +25,7 @@ export async function POST(
             data: {
                 leadId: params.id,
                 type: 'FOLLOW_UP_SCHEDULED',
-                content: `Scheduled: ${title} on ${new Date(scheduledAt).toLocaleString()}`
+                content: `Scheduled: ${title || 'Follow-up'} on ${scheduledAt ? new Date(scheduledAt).toLocaleString() : 'TBD'}`
             }
         });
 

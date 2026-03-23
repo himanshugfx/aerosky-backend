@@ -454,13 +454,13 @@ model FunnelStage {
 
 model Lead {
   id          String         @id
-  name        String
-  email       String
+  name        String?
+  email       String?
   phone       String?
   company     String?
-  source      String         // WEBSITE, IMPORT, MANUAL
-  stageId     String         @map("stage_id")
-  stage       FunnelStage    @relation(fields: [stageId], references: [id])
+  source      String?        // WEBSITE, IMPORT, MANUAL
+  stageId     String?        @map("stage_id")
+  stage       FunnelStage?   @relation(fields: [stageId], references: [id])
   value       Float?
   notes       String?
   activities  LeadActivity[]
@@ -484,12 +484,12 @@ model LeadActivity {
 }
 
 model FollowUp {
-  id          String   @id @default(uuid())
-  leadId      String   @map("lead_id")
-  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  title       String
+  id          String    @id @default(uuid())
+  leadId      String    @map("lead_id")
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  title       String?
   description String?
-  scheduledAt DateTime @map("scheduled_at")
+  scheduledAt DateTime? @map("scheduled_at")
   status      String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

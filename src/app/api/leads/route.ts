@@ -33,14 +33,14 @@ export async function POST(req: NextRequest) {
         const lead = await prisma.lead.create({
             data: {
                 id: customId,
-                name,
-                email,
-                phone,
-                company,
+                name: name || null,
+                email: email || null,
+                phone: phone || null,
+                company: company || null,
                 source: source || 'MANUAL',
-                stageId,
+                stageId: stageId || null,
                 value: parseFloat(value) || 0,
-                notes,
+                notes: notes || null,
                 activities: {
                     create: {
                         type: 'NOTE',

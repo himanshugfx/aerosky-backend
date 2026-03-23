@@ -138,14 +138,20 @@ export default function LeadDetailsPage() {
                         <div className="relative flex items-start justify-between">
                             <div className="flex gap-8">
                                 <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-4xl font-black text-white shadow-2xl shadow-slate-900/30">
-                                    {lead.name.charAt(0)}
+                                    {lead.name?.charAt(0) || '?'}
                                 </div>
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-4">
-                                        <h1 className="text-4xl font-black text-slate-900 tracking-tightest">{lead.name}</h1>
-                                        <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-100" style={{ backgroundColor: lead.stage.color + '10', color: lead.stage.color }}>
-                                            {lead.stage.name}
-                                        </span>
+                                        <h1 className="text-4xl font-black text-slate-900 tracking-tightest">{lead.name || 'Unnamed Lead'}</h1>
+                                        {lead.stage ? (
+                                            <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-100" style={{ backgroundColor: lead.stage.color + '10', color: lead.stage.color }}>
+                                                {lead.stage.name}
+                                            </span>
+                                        ) : (
+                                            <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-100 bg-slate-50 text-slate-400">
+                                                Unassigned
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="flex flex-wrap gap-6">
                                         <div className="flex items-center gap-2 text-slate-500 font-medium">
@@ -154,11 +160,11 @@ export default function LeadDetailsPage() {
                                         </div>
                                         <div className="flex items-center gap-2 text-slate-500 font-medium">
                                             <Mail className="w-4 h-4 opacity-40" />
-                                            <span className="text-sm">{lead.email}</span>
+                                            <span className="text-sm">{lead.email || 'No email provided'}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-slate-500 font-medium">
                                             <TrendingUp className="w-4 h-4 opacity-40 text-orange-600" />
-                                            <span className="text-sm font-bold uppercase tracking-tightest italic">{lead.source}</span>
+                                            <span className="text-sm font-bold uppercase tracking-tightest italic">{lead.source || 'MANUAL'}</span>
                                         </div>
                                         {lead.phone && (
                                             <div className="flex items-center gap-2 text-slate-500 font-medium">
@@ -290,7 +296,6 @@ export default function LeadDetailsPage() {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Objective</label>
                                 <input
                                     type="text"
-                                    required
                                     placeholder="e.g. Technical Proposal Review"
                                     className="input-modern"
                                     value={followUpData.title}
@@ -301,7 +306,6 @@ export default function LeadDetailsPage() {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Schedule Log</label>
                                 <input
                                     type="datetime-local"
-                                    required
                                     className="input-modern font-bold uppercase text-[11px]"
                                     value={followUpData.scheduledAt}
                                     onChange={e => setFollowUpData({ ...followUpData, scheduledAt: e.target.value })}
