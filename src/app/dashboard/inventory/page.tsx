@@ -49,11 +49,13 @@ export default function InventoryPage() {
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [stockSearch, setStockSearch] = useState('')
+    const [searchComponentIn, setSearchComponentIn] = useState('')
+    const [searchComponentOut, setSearchComponentOut] = useState('')
     const [activeTab, setActiveTab] = useState('All')
     const [modals, setModals] = useState({ in: false, out: false, add: false })
     const [submitting, setSubmitting] = useState(false)
     const [formData, setFormData] = useState({
-        componentId: '', quantity: 1, subcontractorId: '', takenOutFor: '',
+        componentId: '', quantity: 1, subcontractorId: '', takenOutFor: '', otherSupplierName: '',
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
     })
@@ -82,15 +84,19 @@ export default function InventoryPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    ...formData, type, quantity: Number(formData.quantity),
-                    subcontractorId: type === 'IN' ? (formData.subcontractorId || null) : null,
-                    takenOutFor: type === 'OUT' ? (formData.takenOutFor || null) : null,
+                    componentId: formData.componentId,
+                    type,
+                    quantity: Number(formData.quantity),
+                    subcontractorId: type === 'IN' ? (formData.subcontractorId === 'other' ? null : formData.subcontractorId || null) : null,
+                    takenOutFor: type === 'OUT' ? (formData.takenOutFor || null) : (type === 'IN' && formData.subcontractorId === 'other' ? (formData.otherSupplierName || null) : null),
                     date: `${formData.date}T${formData.time}:00`
                 })
             })
             if (res.ok) {
                 setModals({ ...modals, in: false, out: false })
-                setFormData({ ...formData, componentId: '', quantity: 1 })
+                setFormData({ ...formData, componentId: '', quantity: 1, otherSupplierName: '', subcontractorId: '', takenOutFor: '' })
+                setSearchComponentIn('')
+                setSearchComponentOut('')
                 fetchData()
             }
         } finally { setSubmitting(false) }
@@ -327,7 +333,7 @@ export default function InventoryPage() {
                                             <div className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-100 bg-white text-slate-400">
                                                 {t.type === 'IN' ? <Building2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
                                             </div>
-                                            <span className="text-xs font-bold text-slate-600">{t.type === 'IN' ? t.subcontractor?.companyName : t.takenOutFor}</span>
+                                            <span className="text-xs font-bold text-slate-600">{t.type === 'IN' ? (t.subcontractor?.companyName || t.takenOutFor) : t.takenOutFor}</span>
                                         </div>
                                     </td>
                                     <td className="px-10 py-7 text-right">
@@ -356,13 +362,13 @@ export default function InventoryPage() {
             {modals.in && (
                 <Modal title="Stock Arrival" subtitle="Log incoming inventory logistics" color="emerald" onClose={() => setModals({ ...modals, in: false })}>
                     <div className="space-y-8">
-                        <div className="space-y-2"><label className="label-style">Target Asset</label><select value={formData.componentId} onChange={e => setFormData({ ...formData, componentId: e.target.value })} className="input-modern !appearance-none"><option value="">Select component type...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-                        <div className="space-y-2"><label className="label-style">Supply Chain Source</label><select value={formData.subcontractorId} onChange={e => setFormData({ ...formData, subcontractorId: e.target.value })} className="input-modern !appearance-none"><option value="">Select partner...</option>{subcontractors.map(s => <option key={s.id} value={s.id}>{s.companyName}</option>)}</select></div>
+                        <div className="space-y-2"><label className="label-style">Target Asset</label><input type="text" placeholder="Search component..." value={searchComponentIn} onChange={e => setSearchComponentIn(e.target.value)} className="input-modern mb-2" /><select value={formData.componentId} onChange={e => setFormData({ ...formData, componentId: e.target.value })} className="input-modern !appearance-none"><option value="">Select component type...</option>{components.filter(c => c.name.toLowerCase().includes(searchComponentIn.toLowerCase())).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+                        <div className="space-y-2"><label className="label-style">Supply Chain Source</label><select value={formData.subcontractorId} onChange={e => setFormData({ ...formData, subcontractorId: e.target.value })} className="input-modern !appearance-none mb-2"><option value="">Select partner...</option>{subcontractors.map(s => <option key={s.id} value={s.id}>{s.companyName}</option>)}<option value="other">Others (Specify below)</option></select>{formData.subcontractorId === 'other' && (<input type="text" placeholder="Enter custom supplier name..." value={formData.otherSupplierName} onChange={e => setFormData({ ...formData, otherSupplierName: e.target.value })} className="input-modern" />)}</div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2"><label className="label-style">Arrival Quantity</label><input type="number" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) })} className="input-modern" min="1" /></div>
                             <div className="space-y-2"><label className="label-style">Entry Date</label><input type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className="input-modern" /></div>
                         </div>
-                        <div className="flex gap-4"><button type="button" onClick={() => setModals({ ...modals, in: false })} className="btn-premium-ghost flex-1 font-black text-xs uppercase tracking-widest">Cancel</button><button onClick={() => handleTransaction('IN')} disabled={submitting || !formData.componentId || !formData.subcontractorId} className="btn-premium-accent !bg-emerald-600 hover:!bg-emerald-500 !shadow-emerald-500/20 flex-[2] font-black text-xs uppercase tracking-widest">{submitting ? 'Syncing...' : 'Finalize Arrival'}</button></div>
+                        <div className="flex gap-4"><button type="button" onClick={() => setModals({ ...modals, in: false })} className="btn-premium-ghost flex-1 font-black text-xs uppercase tracking-widest">Cancel</button><button onClick={() => handleTransaction('IN')} disabled={submitting || !formData.componentId || !formData.subcontractorId || (formData.subcontractorId === 'other' && !formData.otherSupplierName)} className="btn-premium-accent !bg-emerald-600 hover:!bg-emerald-500 !shadow-emerald-500/20 flex-[2] font-black text-xs uppercase tracking-widest">{submitting ? 'Syncing...' : 'Finalize Arrival'}</button></div>
                     </div>
                 </Modal>
             )}
@@ -370,7 +376,7 @@ export default function InventoryPage() {
             {modals.out && (
                 <Modal title="Resource Usage" subtitle="Record deployment for operations" onClose={() => setModals({ ...modals, out: false })}>
                     <div className="space-y-8">
-                        <div className="space-y-2"><label className="label-style">Deploy Component</label><select value={formData.componentId} onChange={e => setFormData({ ...formData, componentId: e.target.value })} className="input-modern !appearance-none"><option value="">Select from stock...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name} (Avl: {c.quantity})</option>)}</select></div>
+                        <div className="space-y-2"><label className="label-style">Deploy Component</label><input type="text" placeholder="Search component..." value={searchComponentOut} onChange={e => setSearchComponentOut(e.target.value)} className="input-modern mb-2" /><select value={formData.componentId} onChange={e => setFormData({ ...formData, componentId: e.target.value })} className="input-modern !appearance-none"><option value="">Select from stock...</option>{components.filter(c => c.name.toLowerCase().includes(searchComponentOut.toLowerCase())).map(c => <option key={c.id} value={c.id}>{c.name} (Avl: {c.quantity})</option>)}</select></div>
                         <div className="space-y-2"><label className="label-style">Deployment Purpose</label><input type="text" placeholder="e.g. Flight-7 Maintenance Burst" value={formData.takenOutFor} onChange={e => setFormData({ ...formData, takenOutFor: e.target.value })} className="input-modern" /></div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2"><label className="label-style">Dispatch Quantity</label><input type="number" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) })} className="input-modern" min="1" /></div>
