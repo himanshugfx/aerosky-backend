@@ -51,7 +51,10 @@ export default function InventoryPage() {
     const [stockSearch, setStockSearch] = useState('')
     const [searchComponentIn, setSearchComponentIn] = useState('')
     const [searchComponentOut, setSearchComponentOut] = useState('')
+    const [isComponentDropdownOpenIn, setIsComponentDropdownOpenIn] = useState(false)
+    const [isComponentDropdownOpenOut, setIsComponentDropdownOpenOut] = useState(false)
     const [activeTab, setActiveTab] = useState('All')
+    const [bucketFilter, setBucketFilter] = useState<'all' | 'in_stock' | 'out_of_stock'>('all')
     const [modals, setModals] = useState({ in: false, out: false, add: false })
     const [submitting, setSubmitting] = useState(false)
     const [formData, setFormData] = useState({
@@ -102,10 +105,14 @@ export default function InventoryPage() {
         } finally { setSubmitting(false) }
     }
 
-    const filteredComponents = components.filter(c =>
-        (activeTab === 'All' || c.category === activeTab) &&
-        c.name.toLowerCase().includes(stockSearch.toLowerCase())
-    )
+    const filteredComponents = components.filter(c => {
+        const matchesTab = activeTab === 'All' || c.category === activeTab;
+        const matchesSearch = c.name.toLowerCase().includes(stockSearch.toLowerCase());
+        const matchesBucket = bucketFilter === 'all' 
+            ? true 
+            : (bucketFilter === 'in_stock' ? c.quantity > 0 : c.quantity === 0);
+        return matchesTab && matchesSearch && matchesBucket;
+    })
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] animate-slide-up">
@@ -147,12 +154,19 @@ export default function InventoryPage() {
             {/* Global Telemetry */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                    { label: 'Total components', value: components.length, icon: Boxes, color: 'indigo' },
-                    { label: 'Active stock units', value: components.reduce((a, c) => a + c.quantity, 0), icon: Package, color: 'violet' },
-                    { label: 'Low Stock warnings', value: components.filter(c => c.quantity <= 5).length, icon: AlertCircle, color: 'rose' },
-                    { label: 'Monthly movements', value: transactions.length, icon: Activity, color: 'emerald' },
+                    { label: 'Total components', value: components.length, icon: Boxes, color: 'indigo', filter: 'all' },
+                    { label: 'Components in stock', value: components.filter(c => c.quantity > 0).length, icon: Package, color: 'emerald', filter: 'in_stock' },
+                    { label: 'Component out of stock', value: components.filter(c => c.quantity === 0).length, icon: AlertCircle, color: 'rose', filter: 'out_of_stock' },
+                    { label: 'Monthly movements', value: transactions.length, icon: Activity, color: 'violet', isScroll: true },
                 ].map((stat, i) => (
-                    <div key={i} className="modern-card p-8 group overflow-hidden relative">
+                    <div 
+                        key={i} 
+                        onClick={() => {
+                            if (stat.filter) setBucketFilter(stat.filter as any);
+                            else if (stat.isScroll) document.getElementById('audit-ledger')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className={`modern-card p-8 group overflow-hidden relative cursor-pointer transition-all ${stat.filter && bucketFilter === stat.filter ? 'ring-2 ring-indigo-500 shadow-xl scale-[1.02]' : 'hover:-translate-y-1'}`}
+                    >
                         <div className={`absolute top-0 right-0 w-24 h-24 blur-3xl opacity-10 rounded-full translate-x-12 -translate-y-12 bg-${stat.color}-500 group-hover:scale-150 transition-transform duration-700`} />
                         <div className="relative">
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-slate-100 mb-8 bg-${stat.color}-50 text-${stat.color}-600`}>
@@ -281,7 +295,7 @@ export default function InventoryPage() {
             </div>
 
             {/* Audit Ledger */}
-            <div className="modern-card overflow-hidden">
+            <div id="audit-ledger" className="modern-card overflow-hidden">
                 <div className="p-10 border-b border-slate-100 flex flex-col xl:flex-row justify-between items-center gap-8 bg-slate-50/30">
                     <div className="flex items-center gap-5">
                         <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-indigo-600">
@@ -362,7 +376,24 @@ export default function InventoryPage() {
             {modals.in && (
                 <Modal title="Stock Arrival" subtitle="Log incoming inventory logistics" color="emerald" onClose={() => setModals({ ...modals, in: false })}>
                     <div className="space-y-8">
-                        <div className="space-y-2"><label className="label-style">Target Asset</label><input type="text" placeholder="Search component..." value={searchComponentIn} onChange={e => setSearchComponentIn(e.target.value)} className="input-modern mb-2" /><select value={formData.componentId} onChange={e => setFormData({ ...formData, componentId: e.target.value })} className="input-modern !appearance-none"><option value="">Select component type...</option>{components.filter(c => c.name.toLowerCase().includes(searchComponentIn.toLowerCase())).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+                        <div className="space-y-2 relative">
+                            <label className="label-style">Target Asset</label>
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input type="text" placeholder="Search and select component..." value={searchComponentIn} onChange={e => { setSearchComponentIn(e.target.value); setIsComponentDropdownOpenIn(true); }} onFocus={() => setIsComponentDropdownOpenIn(true)} onBlur={() => setTimeout(() => setIsComponentDropdownOpenIn(false), 200)} className="input-modern !pl-11 w-full" />
+                                {isComponentDropdownOpenIn && (
+                                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-64 overflow-y-auto p-2">
+                                        {components.filter(c => c.name.toLowerCase().includes(searchComponentIn.toLowerCase())).length > 0 ? components.filter(c => c.name.toLowerCase().includes(searchComponentIn.toLowerCase())).map(c => (
+                                            <div key={c.id} className={`px-4 py-3 cursor-pointer rounded-xl transition-all ${formData.componentId === c.id ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-600 hover:bg-slate-50'}`} onClick={() => { setFormData({ ...formData, componentId: c.id }); setSearchComponentIn(c.name); setIsComponentDropdownOpenIn(false); }}>
+                                                {c.name} <span className="text-[10px] ml-2 font-bold uppercase text-slate-400">({c.category})</span>
+                                            </div>
+                                        )) : (
+                                            <div className="px-4 py-3 text-sm text-slate-400">No components found</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         <div className="space-y-2"><label className="label-style">Supply Chain Source</label><select value={formData.subcontractorId} onChange={e => setFormData({ ...formData, subcontractorId: e.target.value })} className="input-modern !appearance-none mb-2"><option value="">Select partner...</option>{subcontractors.map(s => <option key={s.id} value={s.id}>{s.companyName}</option>)}<option value="other">Others (Specify below)</option></select>{formData.subcontractorId === 'other' && (<input type="text" placeholder="Enter custom supplier name..." value={formData.otherSupplierName} onChange={e => setFormData({ ...formData, otherSupplierName: e.target.value })} className="input-modern" />)}</div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2"><label className="label-style">Arrival Quantity</label><input type="number" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) })} className="input-modern" min="1" /></div>
@@ -376,7 +407,25 @@ export default function InventoryPage() {
             {modals.out && (
                 <Modal title="Resource Usage" subtitle="Record deployment for operations" onClose={() => setModals({ ...modals, out: false })}>
                     <div className="space-y-8">
-                        <div className="space-y-2"><label className="label-style">Deploy Component</label><input type="text" placeholder="Search component..." value={searchComponentOut} onChange={e => setSearchComponentOut(e.target.value)} className="input-modern mb-2" /><select value={formData.componentId} onChange={e => setFormData({ ...formData, componentId: e.target.value })} className="input-modern !appearance-none"><option value="">Select from stock...</option>{components.filter(c => c.name.toLowerCase().includes(searchComponentOut.toLowerCase())).map(c => <option key={c.id} value={c.id}>{c.name} (Avl: {c.quantity})</option>)}</select></div>
+                        <div className="space-y-2 relative">
+                            <label className="label-style">Deploy Component</label>
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input type="text" placeholder="Search and select component..." value={searchComponentOut} onChange={e => { setSearchComponentOut(e.target.value); setIsComponentDropdownOpenOut(true); }} onFocus={() => setIsComponentDropdownOpenOut(true)} onBlur={() => setTimeout(() => setIsComponentDropdownOpenOut(false), 200)} className="input-modern !pl-11 w-full" />
+                                {isComponentDropdownOpenOut && (
+                                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-64 overflow-y-auto p-2">
+                                        {components.filter(c => c.name.toLowerCase().includes(searchComponentOut.toLowerCase())).length > 0 ? components.filter(c => c.name.toLowerCase().includes(searchComponentOut.toLowerCase())).map(c => (
+                                            <div key={c.id} className={`flex items-center justify-between px-4 py-3 cursor-pointer rounded-xl transition-all ${formData.componentId === c.id ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-600 hover:bg-slate-50'}`} onClick={() => { setFormData({ ...formData, componentId: c.id }); setSearchComponentOut(c.name); setIsComponentDropdownOpenOut(false); }}>
+                                                <span>{c.name}</span>
+                                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${c.quantity > 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>Avl: {c.quantity}</span>
+                                            </div>
+                                        )) : (
+                                            <div className="px-4 py-3 text-sm text-slate-400">No components found</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         <div className="space-y-2"><label className="label-style">Deployment Purpose</label><input type="text" placeholder="e.g. Flight-7 Maintenance Burst" value={formData.takenOutFor} onChange={e => setFormData({ ...formData, takenOutFor: e.target.value })} className="input-modern" /></div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2"><label className="label-style">Dispatch Quantity</label><input type="number" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) })} className="input-modern" min="1" /></div>
