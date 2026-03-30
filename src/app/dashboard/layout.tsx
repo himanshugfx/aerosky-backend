@@ -58,9 +58,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [currentCategory, setCurrentCategory] = useState<Category>('Dashboard')
     const [searchQuery, setSearchQuery] = useState('')
     const [isSearchFocused, setIsSearchFocused] = useState(false)
-    const [showNotifications, setShowNotifications] = useState(false)
-    const [notifications, setNotifications] = useState<any[]>([])
-    const [isLoadingNotifications, setIsLoadingNotifications] = useState(true)
 
     // Sync category with pathname
     useEffect(() => {
@@ -86,24 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
     }, [status, router])
 
-    useEffect(() => {
-        if (session) {
-            const fetchNotifications = async () => {
-                try {
-                    const res = await fetch('/api/notifications')
-                    if (res.ok) {
-                        const data = await res.json()
-                        if (Array.isArray(data)) {
-                            setNotifications(data)
-                        }
-                    }
-                } finally {
-                    setIsLoadingNotifications(false)
-                }
-            }
-            fetchNotifications()
-        }
-    }, [session])
+
 
     if (status === 'loading') {
         return (
@@ -213,7 +193,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Desktop Dashboard Stage */}
             <div className="lg:pl-36 flex-1 flex flex-col transition-all duration-500">
-                {/* Contextual TopBar - Now at the very top with Search */}
+                {/* Contextual TopBar - Now at the very top with Search and Settings */}
                 <TopBar 
                     activeCategory={currentCategory} 
                     onCategoryChange={handleCategoryChange} 
@@ -222,69 +202,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setSearchQuery={setSearchQuery}
                 />
 
-                <header className="sticky top-0 z-[40] transition-all duration-500 bg-slate-50/80 backdrop-blur-md">
-                    <div className="px-6 lg:px-12 py-4 flex items-center justify-between gap-6">
-                        <div className="flex items-center gap-6">
-                            <button 
-                                onClick={() => setIsMobileMenuOpen(true)}
-                                className="lg:hidden w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-900"
-                            >
-                                <Menu className="w-6 h-6" />
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <div className="relative">
-                                <button 
-                                    onClick={() => setShowNotifications(!showNotifications)}
-                                    className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-400 hover:text-orange-600 hover:border-orange-600/20 transition-all relative group"
-                                >
-                                    <Bell className="w-5 h-5 group-hover:animate-bounce" />
-                                    {notifications.length > 0 && (
-                                        <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-orange-600 border-2 border-white rounded-full"></span>
-                                    )}
-                                </button>
-                                
-                                {showNotifications && (
-                                    <div className="absolute right-0 mt-4 w-96 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300 z-50">
-                                        <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white">
-                                            <div>
-                                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Telemetry Alerts</h3>
-                                                <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mt-0.5">Real-time Grid Feedback</p>
-                                            </div>
-                                            <span className="px-3 py-1 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black text-slate-500">{notifications.length} New</span>
-                                        </div>
-                                        <div className="max-h-[400px] overflow-y-auto p-4 space-y-2 no-scrollbar bg-slate-50/30">
-                                            {isLoadingNotifications ? (
-                                                <div className="py-12 flex flex-col items-center justify-center gap-4 text-slate-400">
-                                                    <div className="w-8 h-8 border-2 border-slate-200 border-t-orange-600 rounded-full animate-spin" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">Polling Server</span>
-                                                </div>
-                                            ) : notifications.length > 0 ? (
-                                                notifications.map((n: any) => (
-                                                    <div key={n.id} className="p-6 bg-white rounded-[1.5rem] border border-slate-100 hover:border-orange-600/10 transition-all group cursor-pointer shadow-sm hover:shadow-md">
-                                                        <p className="text-sm font-bold text-slate-900 line-clamp-2 leading-relaxed">{n.message}</p>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-3 flex items-center justify-between">
-                                                            <span>Telemetry Sync</span>
-                                                            <span className="opacity-0 group-hover:opacity-100 transition-opacity">Dismiss</span>
-                                                        </p>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div className="py-20 flex flex-col items-center justify-center gap-4 text-slate-300">
-                                                    <Bell className="w-12 h-12 opacity-20" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">Clear Skies</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <Link href="/dashboard/settings" className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-400 hover:text-slate-900 transition-all">
-                                <Settings className="w-5 h-5" />
-                            </Link>
-                        </div>
+                <header className="sticky top-0 z-[40] transition-all duration-500 bg-slate-50/80 backdrop-blur-md lg:hidden">
+                    <div className="px-6 py-4 flex items-center justify-between">
+                        <button 
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-900"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
                     </div>
                 </header>
 

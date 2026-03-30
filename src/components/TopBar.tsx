@@ -8,8 +8,10 @@ import {
     ShieldCheck,
     LucideIcon,
     Search,
-    Command
+    Command,
+    Settings
 } from 'lucide-react'
+import Link from 'next/link'
 
 export type Category = 'Dashboard' | 'Sales' | 'Operations' | 'Administration'
 
@@ -28,7 +30,13 @@ const categories: { name: Category; icon: LucideIcon }[] = [
     { name: 'Administration', icon: ShieldCheck },
 ]
 
-export default function TopBar({ activeCategory, onCategoryChange, userRole, searchQuery, setSearchQuery }: TopBarProps) {
+export default function TopBar({ 
+    activeCategory, 
+    onCategoryChange, 
+    userRole, 
+    searchQuery, 
+    setSearchQuery,
+}: TopBarProps) {
     const isAdmin = userRole === 'SUPER_ADMIN' || userRole === 'ADMIN'
     const [isFocused, setIsFocused] = React.useState(false)
     
@@ -86,6 +94,12 @@ export default function TopBar({ activeCategory, onCategoryChange, userRole, sea
                         <Command className="w-2.5 h-2.5" />
                         <span>K</span>
                     </div>
+                </div>
+
+                <div className="flex items-center gap-2 ml-4 mr-2">
+                    <Link href="/dashboard/settings" className="w-10 h-10 flex items-center justify-center bg-slate-50/50 hover:bg-white rounded-full border border-slate-100/50 text-slate-400 hover:text-slate-900 transition-all">
+                        <Settings className="w-4 h-4" />
+                    </Link>
                 </div>
             </div>
         </div>
