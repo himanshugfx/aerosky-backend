@@ -6,7 +6,8 @@ import { NextRequest } from "next/server";
  */
 export function isAllowedIp(req: NextRequest): boolean {
     const defaultSubnet = "192.168.29"; // fallback
-    const allowedSubnet = process.env.ALLOWED_SUBNET || defaultSubnet;
+    const envSubnets = process.env.ALLOWED_SUBNET || defaultSubnet;
+    const allowedSubnets = envSubnets.split(',').map(s => s.trim());
     
     // Get IP from headers or connection
     // Vercel uses x-real-ip or x-forwarded-for
@@ -34,10 +35,12 @@ export function isAllowedIp(req: NextRequest): boolean {
         return true;
     }
 
-    // Check if the IP starts with the allowed subnet
+    // Check if the IP starts with any of the allowed subnets
     // Handle IPv4-mapped IPv6 address formatting if present (e.g., ::ffff:192.168.29.125)
-    if (clientIp.includes(allowedSubnet)) {
-        return true;
+    for (const subnet of allowedSubnets) {
+        if (subnet && clientIp.includes(subnet)) {
+            return true;
+        }
     }
 
     return false;

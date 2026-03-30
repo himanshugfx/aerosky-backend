@@ -5,11 +5,15 @@ import { isAllowedIp } from "@/lib/networkGuard";
 export default withAuth(
     function middleware(req) {
         // 1. IP Filtering Check
+        // We will inline the IP extraction here so we can pass it to the unauthorized page
+        const forwardedFor = req.headers.get("x-forwarded-for");
+        const realIp = req.headers.get("x-real-ip");
+        const clientIp = req.ip || realIp || (forwardedFor ? forwardedFor.split(',')[0].trim() : null) || 'unknown';
+        
         if (!isAllowedIp(req)) {
-            return new NextResponse(
-                JSON.stringify({ error: "Access Denied: You must be connected to the authorized WiFi network." }),
-                { status: 403, headers: { "Content-Type": "application/json" } }
-            );
+            // Rewrite rather than redirect so URL stays the same, or redirect if preferred.
+            // Let's redirect to /unauthorized with the IP in query param for debugging
+            return NextResponse.redirect(new URL(`/unauthorized?ip=${encodeURIComponent(clientIp)}`, req.url));
         }
 
         // 2. Auth Check
