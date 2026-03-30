@@ -202,20 +202,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setSearchQuery={setSearchQuery}
                 />
 
-                <header className="sticky top-0 z-[40] transition-all duration-500 bg-slate-50/80 backdrop-blur-md lg:hidden">
-                    <div className="px-6 py-4 flex items-center justify-between">
+                <header className="sticky top-0 z-[40] bg-slate-50/80 backdrop-blur-md lg:hidden">
+                    <div className="px-4 py-3 flex items-center justify-between">
                         <button 
                             onClick={() => setIsMobileMenuOpen(true)}
-                            className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-900"
+                            className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-100 text-slate-900 active:scale-95 transition-all"
                         >
-                            <Menu className="w-6 h-6" />
+                            <Menu className="w-5 h-5" />
                         </button>
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center text-white text-xs font-black">AS</div>
+                            <span className="text-sm font-black tracking-tighter text-slate-900">AeroSky</span>
+                        </div>
+                        <div className="w-10"></div> {/* Spacer for symmetry */}
                     </div>
                 </header>
 
 
                 {/* Unified Stage Area - Use flex-1 to push footer down if there was one, or just fill space */}
-                <main className="flex-1 px-6 lg:px-12 py-8 animate-slide-up">
+                <main className="flex-1 px-4 lg:px-12 py-4 lg:py-8 animate-slide-up">
                     <div className="max-w-[1400px] mx-auto w-full">
                         {children}
                     </div>

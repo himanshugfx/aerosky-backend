@@ -131,22 +131,22 @@ export default function InventoryPage() {
                         <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AeroSky Assets</span>
                     </div>
-                    <h1 className="text-5xl font-black text-slate-900 tracking-tighter">Inventory <span className="text-slate-400">Logistics</span></h1>
+                    <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter">Inventory <span className="text-slate-400">Logistics</span></h1>
                     <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
                         Precision tracking of aerospace components, manufacturing consumables, and operational hardware across the AeroSky network.
                     </p>
                 </div>
-                <div className="flex flex-wrap gap-4">
-                    <button onClick={() => setModals({ ...modals, add: true })} className="btn-premium-ghost border border-slate-200 !py-4 px-6 text-[11px] font-black uppercase tracking-widest">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 lg:gap-4 w-full xl:w-auto">
+                    <button onClick={() => setModals({ ...modals, add: true })} className="w-full sm:w-auto btn-premium-ghost border border-slate-200 !py-3.5 lg:!py-4 px-6 text-[10px] lg:text-[11px] font-black uppercase tracking-widest order-3 sm:order-1">
                         <Plus className="w-4 h-4" /> New Category
                     </button>
-                    <button onClick={() => setModals({ ...modals, in: true })} className="btn-premium-accent bg-emerald-600 hover:bg-emerald-700 !py-4 shadow-xl shadow-emerald-500/20 group">
+                    <button onClick={() => setModals({ ...modals, in: true })} className="w-full sm:w-auto btn-premium-accent bg-emerald-600 hover:bg-emerald-700 !py-3.5 lg:!py-4 shadow-xl shadow-emerald-500/20 group order-1 sm:order-2">
                         <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                        Stock Arrival
+                        Arrival
                     </button>
-                    <button onClick={() => setModals({ ...modals, out: true })} className="btn-premium-primary !py-4 shadow-xl shadow-slate-900/20 group">
+                    <button onClick={() => setModals({ ...modals, out: true })} className="w-full sm:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-xl shadow-slate-900/20 group order-2 sm:order-3">
                         <ArrowDownRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform" />
-                        Record Usage
+                        Usage
                     </button>
                 </div>
             </div>
@@ -165,15 +165,15 @@ export default function InventoryPage() {
                             if (stat.filter) setBucketFilter(stat.filter as any);
                             else if (stat.isScroll) document.getElementById('audit-ledger')?.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className={`modern-card p-8 group overflow-hidden relative cursor-pointer transition-all ${stat.filter && bucketFilter === stat.filter ? 'ring-2 ring-indigo-500 shadow-xl scale-[1.02]' : 'hover:-translate-y-1'}`}
+                        className={`modern-card p-6 lg:p-8 group overflow-hidden relative cursor-pointer transition-all ${stat.filter && bucketFilter === stat.filter ? 'ring-2 ring-indigo-500 shadow-xl scale-[1.02]' : 'hover:-translate-y-1'}`}
                     >
                         <div className={`absolute top-0 right-0 w-24 h-24 blur-3xl opacity-10 rounded-full translate-x-12 -translate-y-12 bg-${stat.color}-500 group-hover:scale-150 transition-transform duration-700`} />
                         <div className="relative">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-slate-100 mb-8 bg-${stat.color}-50 text-${stat.color}-600`}>
-                                <stat.icon className="w-7 h-7" />
+                            <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center border border-slate-100 mb-6 lg:mb-8 bg-${stat.color}-50 text-${stat.color}-600`}>
+                                <stat.icon className="w-6 h-6 lg:w-7 lg:h-7" />
                             </div>
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                            <h3 className="text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</h3>
+                            <p className="text-[9px] lg:text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                            <h3 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</h3>
                         </div>
                     </div>
                 ))}
@@ -182,9 +182,9 @@ export default function InventoryPage() {
             {/* Asset Control Bay */}
             <div className="space-y-10">
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-                    <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm w-full lg:w-fit">
+                    <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm w-full lg:w-fit overflow-x-auto no-scrollbar">
                         {['All', 'Manufacturing', 'Marketing', 'Operational'].map(cat => (
-                            <button key={cat} onClick={() => setActiveTab(cat)} className={`flex-1 lg:flex-none px-8 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === cat ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>
+                            <button key={cat} onClick={() => setActiveTab(cat)} className={`flex-1 lg:flex-none px-4 lg:px-8 py-2.5 lg:py-3 text-[9px] lg:text-[11px] font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap ${activeTab === cat ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>
                                 {cat}
                             </button>
                         ))}
@@ -246,43 +246,43 @@ export default function InventoryPage() {
                             <table className="w-full text-left">
                                 <thead className="bg-slate-50/80 border-b border-slate-100">
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Name</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Classification</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Stock</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Operational Status</th>
+                                        <th className="px-4 lg:px-8 py-4 lg:py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset</th>
+                                        <th className="px-4 lg:px-8 py-4 lg:py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Classification</th>
+                                        <th className="px-4 lg:px-8 py-4 lg:py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Stock</th>
+                                        <th className="px-4 lg:px-8 py-4 lg:py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right hidden sm:table-cell">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {filteredComponents.map(comp => (
                                         <tr key={comp.id} className="group hover:bg-slate-50/50 transition-colors">
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                                                        <Package className="w-5 h-5" />
+                                            <td className="px-4 lg:px-8 py-4 lg:py-6">
+                                                <div className="flex items-center gap-3 lg:gap-4">
+                                                    <div className="w-8 h-8 lg:w-10 lg:h-10 bg-slate-100 rounded-lg lg:rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shrink-0">
+                                                        <Package className="w-4 h-4 lg:w-5 lg:h-5" />
                                                     </div>
-                                                    <div>
-                                                        <p className="font-black text-slate-900 text-sm">{comp.name}</p>
-                                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">UID: {comp.id.slice(0, 8)}</p>
+                                                    <div className="min-w-0">
+                                                        <p className="font-black text-slate-900 text-xs lg:text-sm truncate">{comp.name}</p>
+                                                        <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">UID: {comp.id.slice(0, 8)}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
-                                                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
+                                            <td className="px-4 lg:px-8 py-4 lg:py-6 hidden md:table-cell">
+                                                <span className="text-[9px] lg:text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
                                                     {comp.category}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-3">
-                                                    <p className="text-xl font-black text-slate-900 tracking-tighter">{comp.quantity}</p>
-                                                    <div className="h-1.5 w-12 bg-slate-100 rounded-full overflow-hidden">
+                                            <td className="px-4 lg:px-8 py-4 lg:py-6">
+                                                <div className="flex items-center gap-2 lg:gap-3">
+                                                    <p className="text-sm lg:text-xl font-black text-slate-900 tracking-tighter">{comp.quantity}</p>
+                                                    <div className="h-1 w-8 lg:h-1.5 lg:w-12 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
                                                         <div className={`h-full ${comp.quantity > 20 ? 'w-full bg-emerald-500' : comp.quantity > 5 ? 'w-1/2 bg-amber-500' : 'w-1/4 bg-rose-500'}`} />
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6 text-right">
+                                            <td className="px-4 lg:px-8 py-4 lg:py-6 text-right hidden sm:table-cell">
                                                 <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${comp.quantity > 5 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100 animation-pulse'}`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${comp.quantity > 5 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                                                    <span className="text-[9px] font-black uppercase tracking-widest">{comp.quantity > 5 ? 'Steady' : 'Critical Stock'}</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest">{comp.quantity > 5 ? 'Steady' : 'Critical'}</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -452,20 +452,20 @@ import ClientPortal from '@/components/ClientPortal'
 function Modal({ children, title, subtitle, onClose, color = 'slate' }: any) {
     return (
         <ClientPortal selector="body">
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6 animate-in fade-in duration-500">
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-4 lg:p-6 animate-in fade-in duration-500">
                 <div 
                     className="absolute inset-0 z-0" 
                     onClick={onClose}
                 />
-                <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden animate-slide-up border border-white/20 relative z-10 transition-all duration-500">
-                    <div className={`p-12 pb-8 flex items-center justify-between relative overflow-hidden ${color === 'emerald' ? 'bg-emerald-600' : 'bg-slate-900'} text-white`}>
+                <div className="bg-white rounded-[2rem] lg:rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden animate-slide-up border border-white/20 relative z-10 transition-all duration-500">
+                    <div className={`p-6 lg:p-12 pb-6 lg:pb-8 flex items-center justify-between relative overflow-hidden ${color === 'emerald' ? 'bg-emerald-600' : 'bg-slate-900'} text-white`}>
                         <div className="relative z-10 space-y-2">
-                            <h3 className="text-3xl font-black tracking-tightest uppercase">{title}</h3>
-                            <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">{subtitle}</p>
+                            <h3 className="text-xl lg:text-3xl font-black tracking-tightest uppercase">{title}</h3>
+                            <p className="text-white/60 text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em]">{subtitle}</p>
                         </div>
-                        <button onClick={onClose} className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5"><X className="w-6 h-6" /></button>
+                        <button onClick={onClose} className="w-10 h-10 lg:w-12 lg:h-12 bg-white/10 hover:bg-white/20 rounded-xl lg:rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5"><X className="w-5 h-5 lg:w-6 lg:h-6" /></button>
                     </div>
-                    <div className="p-12 pt-10">{children}</div>
+                    <div className="p-6 lg:p-12 pt-6 lg:pt-10">{children}</div>
                 </div>
             </div>
         </ClientPortal>

@@ -137,6 +137,14 @@
   }
 }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
 /* Sidebar Specific Styles */
 .nav-item {
   @apply flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 text-slate-400 font-semibold hover:text-white hover:bg-white/5;

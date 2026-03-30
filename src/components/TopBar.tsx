@@ -45,9 +45,9 @@ export default function TopBar({
     )
 
     return (
-        <div className="flex w-full px-6 pt-6 mb-2 animate-slide-down">
-            <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-[2rem] p-2 flex items-center justify-between shadow-2xl shadow-slate-200/40 w-full transition-all duration-700">
-                <div className="flex items-center gap-1">
+        <div className="flex w-full px-4 lg:px-6 pt-4 lg:pt-6 mb-2 animate-slide-down">
+            <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl lg:rounded-[2rem] p-1.5 lg:p-2 flex items-center justify-between shadow-2xl shadow-slate-200/40 w-full transition-all duration-700">
+                <div className="hidden lg:flex items-center gap-1">
                     {visibleCategories.map((cat) => {
                         const isActive = activeCategory === cat.name
                         return (
@@ -72,23 +72,23 @@ export default function TopBar({
                 </div>
 
                 <div className={`
-                    flex items-center relative flex-1 max-w-lg ml-8 transition-all duration-700
-                    ${isFocused ? 'scale-[1.02] translate-x-1' : 'opacity-80'}
+                    flex items-center relative flex-1 max-w-full lg:max-w-lg ml-2 lg:ml-8 transition-all duration-700
+                    ${isFocused ? 'scale-[1.01] lg:scale-[1.02] translate-x-1' : 'opacity-80'}
                 `}>
-                    <div className="absolute left-5 text-slate-400">
-                        <Search className={`w-4 h-4 transition-all duration-500 ${isFocused ? 'text-orange-600 rotate-90 scale-110' : ''}`} />
+                    <div className="absolute left-4 lg:left-5 text-slate-400">
+                        <Search className={`w-3.5 h-3.5 lg:w-4 lg:h-4 transition-all duration-500 ${isFocused ? 'text-orange-600 rotate-90 scale-110' : ''}`} />
                     </div>
                     <input 
                         type="text" 
-                        placeholder="Search AeroSky Hub... (⌘ K)" 
+                        placeholder="Search AeroSky..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setIsFocused(false)}
-                        className="w-full bg-slate-50/50 border border-slate-100/50 rounded-full py-3.5 pl-14 pr-6 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-slate-200 focus:ring-4 focus:ring-slate-100/50 transition-all shadow-inner"
+                        className="w-full bg-slate-50/50 border border-slate-100/50 rounded-full py-2.5 lg:py-3.5 pl-10 lg:pl-14 pr-4 lg:pr-6 text-[10px] lg:text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-slate-200 focus:ring-4 focus:ring-slate-100/50 transition-all shadow-inner"
                     />
                     <div className={`
-                        absolute right-5 flex items-center gap-1 px-2 py-1 bg-white border border-slate-100 rounded-lg text-[8px] font-black text-slate-400 select-none transition-all duration-500
+                        absolute right-5 hidden lg:flex items-center gap-1 px-2 py-1 bg-white border border-slate-100 rounded-lg text-[8px] font-black text-slate-400 select-none transition-all duration-500
                         ${isFocused ? 'opacity-0 scale-50' : 'opacity-100 scale-100'}
                     `}>
                         <Command className="w-2.5 h-2.5" />

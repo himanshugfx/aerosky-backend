@@ -128,14 +128,14 @@ export default function SubcontractorsPage() {
                         <div className="h-px w-8 bg-slate-200"></div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Partner Network</span>
                     </div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Subcontractor Registry</h1>
+                    <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Subcontractor Registry</h1>
                     <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-2xl">
                         Management of secondary manufacturing entities, design consultants, and external service agreements.
                     </p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="premium-btn-primary flex items-center gap-2 py-4 px-8"
+                    className="w-full md:w-auto premium-btn-primary flex items-center justify-center gap-2 py-3.5 lg:py-4 px-8 text-xs lg:text-sm"
                 >
                     <Plus className="w-5 h-5" />
                     Register Partnership
@@ -146,29 +146,29 @@ export default function SubcontractorsPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {subcontractors.map((sub) => (
                     <div key={sub.id} className="premium-card group overflow-hidden">
-                        <div className="p-8 pb-4">
-                            <div className="flex items-start justify-between mb-8">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500 ${sub.type === 'Design' ? 'bg-indigo-900' : 'bg-slate-900'
+                        <div className="p-6 lg:p-8 pb-4">
+                            <div className="flex items-start justify-between mb-6 lg:mb-8">
+                                <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500 ${sub.type === 'Design' ? 'bg-indigo-900' : 'bg-slate-900'
                                     } text-white`}>
-                                    <Building2 className="w-7 h-7" />
+                                    <Building2 className="w-6 h-6 lg:w-7 lg:h-7" />
                                 </div>
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handleDelete(sub.id)}
-                                        className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-90"
+                                        className="p-2.5 lg:p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-90"
                                         title="Terminate Partnership"
                                     >
-                                        <Trash2 className="w-5 h-5" />
+                                        <Trash2 className="w-4 h-4 lg:w-5 lg:h-5" />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="space-y-2 mb-8">
-                                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${sub.type === 'Design' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600'
+                            <div className="space-y-2 mb-6 lg:mb-8">
+                                <span className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${sub.type === 'Design' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600'
                                     }`}>
                                     {sub.type} Division
                                 </span>
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tight group-hover:text-slate-800 transition-colors">
+                                <h3 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight group-hover:text-slate-800 transition-colors">
                                     {sub.companyName}
                                 </h3>
                             </div>
@@ -195,15 +195,15 @@ export default function SubcontractorsPage() {
                             </div>
                         </div>
 
-                        <div className="mt-8 px-8 py-5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between group-hover:bg-slate-100/50 transition-colors">
+                        <div className="mt-6 lg:mt-8 px-6 lg:px-8 py-4 lg:py-5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between group-hover:bg-slate-100/50 transition-colors">
                             <div className="flex items-center gap-2 text-slate-400">
-                                <Calendar className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">
-                                    {sub.agreementDate ? `Agreement: ${new Date(sub.agreementDate).toLocaleDateString()}` : 'Date Pending'}
+                                <Calendar className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+                                <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-xs">
+                                    {sub.agreementDate ? `${new Date(sub.agreementDate).toLocaleDateString()}` : 'Date Pending'}
                                 </span>
                             </div>
-                            <button className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all shadow-sm">
-                                <FileText className="w-4 h-4" />
+                            <button className="p-2 lg:p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all shadow-sm">
+                                <FileText className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                             </button>
                         </div>
                     </div>
@@ -230,18 +230,18 @@ export default function SubcontractorsPage() {
             {showModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
                     <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
-                        <div className="px-12 py-10 bg-slate-900 flex items-center justify-between relative overflow-hidden">
+                        <div className="px-6 lg:px-12 py-6 lg:py-10 bg-slate-900 flex items-center justify-between relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                             <div className="relative z-10 space-y-1">
-                                <h2 className="text-3xl font-black text-white tracking-tight">Partner Induction</h2>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">External Asset registration</p>
+                                <h2 className="text-xl lg:text-3xl font-black text-white tracking-tight">Partner Induction</h2>
+                                <p className="text-slate-400 text-[8px] lg:text-[10px] font-black uppercase tracking-[0.2em]">External Asset registration</p>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="relative z-10 w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90 border border-white/10">
-                                <X className="w-7 h-7" />
+                            <button onClick={() => setShowModal(false)} className="relative z-10 w-10 h-10 lg:w-12 lg:h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90 border border-white/10">
+                                <X className="w-5 h-5 lg:w-7 lg:h-7" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-12 space-y-6 max-h-[75vh] overflow-y-auto scrollbar-hide">
+                        <form onSubmit={handleSubmit} className="p-6 lg:p-12 space-y-6 max-h-[75vh] overflow-y-auto no-scrollbar">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Company Entity *</label>
                                 <input
@@ -254,13 +254,13 @@ export default function SubcontractorsPage() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Partner Modality *</label>
                                     <select
                                         value={formData.type}
                                         onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                        className="input-premium py-4 cursor-pointer"
+                                        className="input-premium py-4 cursor-pointer !appearance-none"
                                         required
                                     >
                                         <option value="Design">Design Division</option>
@@ -289,7 +289,7 @@ export default function SubcontractorsPage() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Digital Mail</label>
                                     <input
