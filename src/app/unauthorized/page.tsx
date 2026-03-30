@@ -1,18 +1,14 @@
+"use client";
+
 import { WifiOff, ShieldAlert, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { Metadata } from "next";
+import { useSearchParams } from "next/navigation";
 
-export const metadata: Metadata = {
-    title: "Access Denied | AeroSky",
-    description: "You must be connected to the authorized WiFi network to access this page.",
-};
+import { Suspense } from "react";
 
-export default function UnauthorizedPage({
-    searchParams,
-}: {
-    searchParams: { [key: string]: string | string[] | undefined };
-}) {
-    const ip = searchParams.ip as string | undefined;
+function UnauthorizedContent() {
+    const searchParams = useSearchParams();
+    const ip = searchParams.get("ip");
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -60,13 +56,13 @@ export default function UnauthorizedPage({
                     </div>
 
                     <div className="space-y-3">
-                        <button 
-                            onClick={() => window.location.href = '/'} 
+                        <Link 
+                            href="/"
                             className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             Return to Homepage
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -75,5 +71,13 @@ export default function UnauthorizedPage({
                 AeroSky Secure Gateway &copy; {new Date().getFullYear()}
             </p>
         </div>
+    );
+}
+
+export default function UnauthorizedPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center font-mono text-gray-400">Verifying Network...</div>}>
+            <UnauthorizedContent />
+        </Suspense>
     );
 }
