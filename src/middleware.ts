@@ -11,13 +11,33 @@ export default withAuth(
         const clientIp = req.ip || realIp || (forwardedFor ? forwardedFor.split(',')[0].trim() : null) || 'unknown';
         
         if (!isAllowedIp(req)) {
-            // Rewrite rather than redirect so URL stays the same, or redirect if preferred.
-            // Let's redirect to /unauthorized with the IP in query param for debugging
+            // Check if it's an API request
+            if (req.nextUrl.pathname.startsWith("/api")) {
+                return NextResponse.json(
+                    { error: "Access Denied: Your IP is not authorized.", ip: clientIp },
+                    { 
+                        status: 403,
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                        }
+                    }
+                );
+            }
+            // For web pages, keep the beautiful redirect
             return NextResponse.redirect(new URL(`/unauthorized?ip=${encodeURIComponent(clientIp)}`, req.url));
         }
 
-        // 2. Auth Check
-        const token = req.nextauth.token;
+        // 2. Auth Check - Skip for mobile auth routes and other public APIs
+        const publicPaths = ["/api/mobile/auth", "/api/auth"];
+        const isPublicPath = publicPaths.some(path => req.nextUrl.pathname.startsWith(path));
+        
+        if (isPublicPath) {
+            return NextResponse.next();
+        }
+
+        const token = req.nextauth?.token;
         const isAuth = !!token;
         const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
 
@@ -29,7 +49,12 @@ export default withAuth(
     },
     {
         callbacks: {
-            authorized: ({ token }) => !!token,
+            authorized: ({ token, req }) => {
+                const publicPaths = ["/api/mobile/auth", "/api/auth", "/unauthorized"];
+                const isPublicPath = publicPaths.some(path => req.nextUrl.pathname.startsWith(path));
+                if (isPublicPath) return true;
+                return !!token;
+            },
         },
     }
 );
