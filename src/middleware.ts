@@ -28,7 +28,7 @@ const authMiddleware = withAuth(
     },
     {
         callbacks: {
-            authorized: ({ token, req }: { token: any, req: NextRequestWithAuth }) => {
+            authorized: ({ token, req }: { token: any, req: NextRequest }) => {
                 const publicPaths = ["/api/mobile/auth", "/api/auth", "/unauthorized"];
                 const isPublicPath = publicPaths.some(path => 
                     req.nextUrl.pathname === path || req.nextUrl.pathname.startsWith(`${path}/`)
