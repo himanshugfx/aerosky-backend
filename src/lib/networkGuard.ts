@@ -7,7 +7,8 @@ import { NextRequest } from "next/server";
 export function isAllowedIp(req: NextRequest): boolean {
     // fallback (Internal WiFi + Public WAN IP)
     const defaultSubnet = "192.168.29, 49.36.189.114"; 
-    const envSubnets = process.env.ALLOWED_SUBNET || defaultSubnet;
+    // Merge process.env setting with defaults to ensure WAN IP isn't overridden
+    const envSubnets = process.env.ALLOWED_SUBNET ? `${process.env.ALLOWED_SUBNET}, ${defaultSubnet}` : defaultSubnet;
     const allowedSubnets = envSubnets.split(',').map((s: string) => s.trim());
     
     // Get IP from headers or connection
