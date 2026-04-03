@@ -5,9 +5,10 @@ import { NextRequest } from "next/server";
  * Allows localhost (::1, 127.0.0.1) and the specified subnet (e.g., 192.168.29).
  */
 export function isAllowedIp(req: NextRequest): boolean {
-    const defaultSubnet = "192.168.29"; // fallback
+    // fallback (Internal WiFi + Public WAN IP)
+    const defaultSubnet = "192.168.29, 49.36.189.114"; 
     const envSubnets = process.env.ALLOWED_SUBNET || defaultSubnet;
-    const allowedSubnets = envSubnets.split(',').map(s => s.trim());
+    const allowedSubnets = envSubnets.split(',').map((s: string) => s.trim());
     
     // Get IP from headers or connection
     // Vercel uses x-real-ip or x-forwarded-for
