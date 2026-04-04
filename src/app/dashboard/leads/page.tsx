@@ -141,21 +141,13 @@ export default function LeadsPage() {
     return (
         <div className="space-y-12 animate-slide-up pb-20">
             {/* Header */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8">
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <span className="status-badge status-badge-success">Active Pipeline</span>
-                        <div className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Growth Engines Online</span>
-                    </div>
-                    <h1 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tightest">Lead <span className="text-slate-400 font-medium">Intelligence</span></h1>
-                    <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
-                        Strategic lead management and funnel optimization. Monitor acquisition velocity and conversion metrics across all segments.
-                    </p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Lead <span className="text-slate-400 font-medium">Intelligence</span></h1>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="w-full lg:w-auto btn-premium-primary !py-4 lg:!py-5 shadow-2xl shadow-orange-500/20 group"
+                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group"
                 >
                     <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
                     Initialize Lead

@@ -20,10 +20,8 @@ export function isAllowedIp(req: NextRequest): boolean {
     let clientIp = req.ip || realIp || (forwardedFor ? forwardedFor.split(',')[0].trim() : null);
 
     // If we can't determine the IP, default to allowing it in dev, blocking in prod
-    // However, for this specific requirement, we can assume local dev environment
     if (!clientIp) {
         // In local development, Next.js sometimes doesn't provide the IP easily on the Edge runtime.
-        // If we can't find it, we'll err on the side of caution or rely on typical local IP behaviors.
         return true; 
     }
 
@@ -38,7 +36,6 @@ export function isAllowedIp(req: NextRequest): boolean {
     }
 
     // Check if the IP starts with any of the allowed subnets
-    // Handle IPv4-mapped IPv6 address formatting if present (e.g., ::ffff:192.168.29.125)
     for (const subnet of allowedSubnets) {
         if (subnet && clientIp.includes(subnet)) {
             return true;
