@@ -116,28 +116,18 @@ export default function SupportPage() {
     }
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700">
-            {/* Elegant Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 bg-[#1e293b] text-white rounded-lg text-[10px] font-black uppercase tracking-widest">Support Channel</span>
-                        <div className="h-px w-8 bg-slate-200"></div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">SuperAdmin Direct</span>
-                    </div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Command Support Link</h1>
-                    <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-2xl">
-                        {isSuperAdmin
-                            ? 'Administration of direct assistance requests and platform operational support.'
-                            : 'Encrypted communication channel with the platform Super Admin for immediate operational assistance.'}
-                    </p>
+        <div className="space-y-8 animate-in fade-in duration-700">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Support <span className="text-slate-400 font-medium">Link</span></h1>
                 </div>
                 {!isSuperAdmin && (
                     <button
                         onClick={() => setShowModal(true)}
-                        className="premium-btn-primary flex items-center gap-2 py-4 px-8"
+                        className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex items-center justify-center gap-3"
                     >
-                        <MessageCircle className="w-5 h-5" />
+                        <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
                         Secure Chat Link
                     </button>
                 )}

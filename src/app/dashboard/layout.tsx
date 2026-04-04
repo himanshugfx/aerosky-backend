@@ -1,5 +1,6 @@
 'use client'
 
+import Sidebar from '@/components/Sidebar'
 import {
     Battery,
     Bell,
@@ -19,7 +20,9 @@ import {
     Search,
     Command,
     Target,
-    CreditCard
+    CreditCard,
+    Wallet,
+    ShieldCheck
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -33,22 +36,21 @@ const navigationItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, category: 'Dashboard' as Category },
     
     // Sales Category
-    { name: 'Lead Management', href: '/dashboard/leads', icon: Target, category: 'Sales' as Category },
+    { name: 'Enquiry Management', href: '/dashboard/leads', icon: Target, category: 'Sales' as Category },
     
     // Operations Category
-    { name: 'Inventory Management', href: '/dashboard/inventory', icon: ShoppingCart, category: 'Operations' as Category },
-    { name: 'Power Units', href: '/dashboard/batteries', icon: Battery, category: 'Operations' as Category },
-    { name: 'Flight Logs', href: '/dashboard/flights', icon: Send, category: 'Operations' as Category },
-    { name: 'Partners', href: '/dashboard/subcontractors', icon: Building2, category: 'Operations' as Category },
-    { name: 'Accounts / Reimbursements', href: '/dashboard/accounts', icon: CreditCard, category: 'Operations' as Category },
+    { name: 'Stock Management', href: '/dashboard/inventory', icon: ShoppingCart, category: 'Operations' as Category },
+    { name: 'Battery Packs', href: '/dashboard/batteries', icon: Battery, category: 'Operations' as Category },
+    { name: 'Flight Records', href: '/dashboard/flights', icon: Send, category: 'Operations' as Category },
+    { name: 'Vendor Partners', href: '/dashboard/subcontractors', icon: Building2, category: 'Operations' as Category },
+    { name: 'Reimbursements', href: '/dashboard/accounts', icon: Wallet, category: 'Operations' as Category },
     
     // Administration Category
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart, category: 'Administration' as Category },
-    { name: 'Fleet', href: '/dashboard/drones', icon: Plane, category: 'Administration' as Category },
-    { name: 'Personnel', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
-]
-
-import Sidebar from '@/components/Sidebar'
+    { name: 'Drone Fleet', href: '/dashboard/drones', icon: Plane, category: 'Administration' as Category },
+    { name: 'Staff Details', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
+    { name: 'Administrative Hub', href: '/dashboard/admin/reimbursements', icon: ShieldCheck, category: 'Administration' as Category },
+];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -88,7 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (status === 'loading') {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
-                <div className="w-16 h-16 border-4 border-slate-200 border-t-orange-600 rounded-full animate-spin" />
+                <div className="w-16 h-16 border-4 border-slate-200 border-t-orange-600 rounded-2xl animate-spin" />
                 <p className="mt-8 text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Initializing Flight Systems</p>
             </div>
         )
@@ -105,7 +107,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-orange-600 selection:text-white">
             {/* Desktop Sidebar - Premium Pill Design */}
             <div className="hidden lg:block">
-                <Sidebar items={filteredNavigation} />
+                <Sidebar items={filteredNavigation} activeCategory={currentCategory} />
             </div>
 
             {/* Mobile Navigation Drawer */}
@@ -119,7 +121,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 `} onClick={() => setIsMobileMenuOpen(false)} />
                 
                 <div className={`
-                    absolute left-0 top-0 bottom-0 w-80 bg-white shadow-2xl transition-transform duration-500 transform
+                    absolute left-0 top-0 bottom-0 w-72 bg-white shadow-2xl transition-transform duration-500 transform
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}>
                     <div className="p-8 flex flex-col h-full">

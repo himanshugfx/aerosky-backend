@@ -24,20 +24,20 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div>
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        <div className="space-y-8 pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">Drone Registry</h1>
-                    <p className="text-gray-500">
-                        {drones.length} drone{drones.length !== 1 ? "s" : ""} registered
+                    <h1 className="text-3xl lg:text-5xl font-black text-white tracking-tightest">Drone <span className="text-slate-400 font-medium">Registry</span></h1>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">
+                        {drones.length} ACTIVE ASSETS
                     </p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
+                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex items-center justify-center gap-3"
                 >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
                     Register New Drone
                 </button>
             </div>

@@ -23,7 +23,10 @@ module.exports = {
             boxShadow: {
                 'premium': '0 8px 30px rgba(0, 0, 0, 0.02)',
                 'premium-hover': '0 20px 40px rgba(0, 0, 0, 0.06)',
-            }
+            },
+            fontFamily: {
+                sans: ['Outfit', 'sans-serif'],
+            },
         },
     },
     plugins: [],

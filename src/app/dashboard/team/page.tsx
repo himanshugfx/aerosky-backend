@@ -121,15 +121,14 @@ export default function TeamPage() {
         <div className="space-y-8 animate-in">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div className="space-y-1">
-                    <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Organization Team</h2>
-                    <p className="text-slate-500 font-medium">Manage personnel access and operational roles</p>
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Organization <span className="text-slate-400 font-medium">Team</span></h1>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="premium-btn-primary flex items-center gap-3 py-3 px-6 text-sm"
+                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex items-center justify-center gap-3"
                 >
-                    <UserPlus className="w-5 h-5" />
+                    <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
                     Onboard Member
                 </button>
             </div>

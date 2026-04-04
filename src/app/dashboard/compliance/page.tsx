@@ -37,25 +37,17 @@ export default function CompliancePage() {
     )
 
     return (
-        <div className="space-y-12 animate-slide-up pb-20">
-            {/* Regulatory Briefing Header */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8">
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <span className="status-badge status-badge-success">Compliance Active</span>
-                        <div className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">DGCA / FAA Standard</span>
-                    </div>
-                    <h1 className="text-6xl font-black text-slate-900 tracking-tightest italic uppercase">Safety <span className="text-slate-400 font-medium">Vault</span></h1>
-                    <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
-                        Centralized regulatory oversight and safety protocol management. Ensure organizational integrity through continuous multi-layered compliance verification.
-                    </p>
+        <div className="space-y-8 animate-slide-up pb-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest italic uppercase">Safety <span className="text-slate-400 font-medium">Vault</span></h1>
                 </div>
-                <div className="flex flex-wrap gap-4">
-                    <button className="btn-premium-ghost border border-slate-200 !py-4 px-8 text-[11px] font-black uppercase tracking-widest flex items-center gap-3">
+                <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                    <button className="btn-premium-ghost border border-slate-200 !py-3.5 px-6 text-[11px] font-black uppercase tracking-widest flex items-center gap-3 flex-1 md:flex-none">
                         <FileText className="w-4.5 h-4.5" /> Regulatory Audit
                     </button>
-                    <button className="btn-premium-accent bg-blue-600 hover:bg-blue-700 !py-4 px-8 italic shadow-xl shadow-blue-500/20 flex items-center gap-3">
+                    <button className="btn-premium-accent bg-blue-600 hover:bg-blue-700 !py-3.5 px-6 italic shadow-xl shadow-blue-500/10 flex items-center gap-3 flex-1 md:flex-none">
                         <ShieldCheck className="w-5 h-5" /> Safety Declaration
                     </button>
                 </div>

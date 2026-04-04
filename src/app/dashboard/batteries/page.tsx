@@ -109,17 +109,16 @@ export default function BatteriesPage() {
 
     return (
         <div className="space-y-8 animate-in">
-            {/* Header */}
+            {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div className="space-y-1">
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Energy Manifest</h2>
-                    <p className="text-slate-500 font-medium">Monitoring and management of propulsion power systems</p>
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Energy <span className="text-slate-400 font-medium">Manifest</span></h1>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="premium-btn-primary flex items-center gap-2 py-4 px-8"
+                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex items-center justify-center gap-3"
                 >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
                     Initialize Power Cell
                 </button>
             </div>

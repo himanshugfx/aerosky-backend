@@ -49,7 +49,6 @@ interface Reimbursement {
 
 export default function AccountsPage() {
     const { data: session } = useSession()
-    const [activeTab, setActiveTab] = useState<'my' | 'admin'>('my')
     const [reimbursements, setReimbursements] = useState<Reimbursement[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
@@ -138,7 +137,7 @@ export default function AccountsPage() {
             'Valuation (INR)': r.amount,
             'Date': new Date(r.date).toLocaleDateString(),
             'Status': r.status,
-            'Field Agent': r.user?.fullName || r.user?.username
+            'Agent': r.user?.fullName || r.user?.username
         }))
 
         const ws = XLSX.utils.json_to_sheet(dataToExport)
@@ -191,39 +190,22 @@ export default function AccountsPage() {
 
     return (
         <div className="space-y-8 animate-in">
-            {/* Header Area */}
+            {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div className="space-y-1">
-                    <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Accounts & Disbursements</h2>
-                    <p className="text-slate-500 font-medium">Enterprise financial tracking and disbursements</p>
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Self <span className="text-slate-400 font-medium">Reimbursements</span></h1>
                 </div>
                 {!showForm && (
                     <button
                         onClick={() => setShowForm(true)}
-                        className="premium-btn-primary flex items-center gap-2 py-3 px-6"
+                        className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex items-center justify-center gap-3"
                     >
-                        <Plus className="w-5 h-5" />
-                        {activeTab === 'admin' ? 'Add Expense' : 'New Submission'}
+                        <Plus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
+                        New Submission
                     </button>
                 )}
             </div>
 
-            {isAdmin && (
-                <div className="flex p-1.5 bg-slate-100 rounded-[1.25rem] w-fit">
-                    <button
-                        onClick={() => setActiveTab('my')}
-                        className={`px-8 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 ${activeTab === 'my' ? 'bg-white text-slate-900 shadow-xl shadow-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        Personnel Ledger
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('admin')}
-                        className={`px-8 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 ${activeTab === 'admin' ? 'bg-white text-slate-900 shadow-xl shadow-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        Administrative Hub
-                    </button>
-                </div>
-            )}
 
             {showForm ? (
                 <div className="premium-card p-10 max-w-3xl animate-in slide-in-from-bottom-4 duration-500">
@@ -334,7 +316,7 @@ export default function AccountsPage() {
                                     <Receipt className="w-4 h-4" />
                                 </div>
                                 <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                                    {activeTab === 'my' ? 'Submission History' : 'Enterprise Ledger'}
+                                    Submission History
                                 </h3>
                             </div>
                             <div className="relative group">
@@ -353,8 +335,7 @@ export default function AccountsPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {reimbursements
                                     .filter(item => {
-                                        const isMine = String(item.userId) === String(session?.user?.id)
-                                        return activeTab === 'admin' || isMine
+                                        return String(item.userId) === String(session?.user?.id)
                                     })
                                     .map((item) => (
                                         <div key={item.id} className="premium-card p-6 flex flex-col group hover:-translate-y-1 transition-all duration-300">
@@ -375,27 +356,9 @@ export default function AccountsPage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                {isAdmin && activeTab === 'admin' ? (
-                                                    <div className="relative">
-                                                        {updatingId === item.id && (
-                                                            <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400 absolute -left-5 top-1/2 -translate-y-1/2" />
-                                                        )}
-                                                        <select
-                                                            value={item.status}
-                                                            onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                                                            disabled={updatingId === item.id}
-                                                            className={`text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider appearance-none cursor-pointer pr-6 outline-none ${getStatusStyles(item.status)} disabled:opacity-50`}
-                                                        >
-                                                            <option value="Pending">Pending</option>
-                                                            <option value="Approved">Approved</option>
-                                                            <option value="Completed">Completed</option>
-                                                        </select>
-                                                    </div>
-                                                ) : (
                                                     <div className={`text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider ${getStatusStyles(item.status)}`}>
                                                         {item.status}
                                                     </div>
-                                                )}
                                             </div>
 
                                             <div className="mt-auto pt-5 border-t border-slate-50 flex items-center justify-between">
@@ -419,12 +382,6 @@ export default function AccountsPage() {
                                                         >
                                                             <ImageIcon className="w-5 h-5" />
                                                         </button>
-                                                    )}
-                                                    {activeTab === 'admin' && (
-                                                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                                                            <User className="w-3 h-3 text-slate-400" />
-                                                            {item.user?.fullName?.split(' ')[0]}
-                                                        </div>
                                                     )}
                                                 </div>
                                             </div>

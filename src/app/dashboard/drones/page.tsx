@@ -32,7 +32,7 @@ interface Drone {
 }
 
 export default function DronesPage() {
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
     const [drones, setDrones] = useState<Drone[]>([])
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
@@ -97,25 +97,18 @@ export default function DronesPage() {
             <p className="mt-8 text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Fleet Data</p>
         </div>
     )
+    if (status === 'unauthenticated') return null
 
     return (
-        <div className="space-y-12 animate-slide-up pb-20">
-            {/* Mission Briefing Header */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8">
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <span className="status-badge status-badge-success">Operational Fleet</span>
-                        <div className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SkyControl Active</span>
-                    </div>
-                    <h1 className="text-6xl font-black text-slate-900 tracking-tightest">Aerial <span className="text-slate-400 font-medium">Assets</span></h1>
-                    <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
-                        Precision management of the AeroSky aerial fleet. Monitor specifications, deployment readiness, and technical compliance for all registered UAV units.
-                    </p>
+        <div className="space-y-12 animate-slide-up pb-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Aerial <span className="text-slate-400 font-medium">Assets</span></h1>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="btn-premium-primary !py-5 shadow-2xl shadow-orange-500/20 group"
+                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group"
                 >
                     <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
                     Register Unit

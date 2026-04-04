@@ -266,30 +266,31 @@ export default function DroneProfilePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-0">
             <div className="print:hidden">
                 {/* Back Button & Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8">
+                <div className="flex flex-col md:flex-row items-center gap-6 mb-10">
                     <button
                         onClick={() => router.back()}
-                        className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center transition-colors"
+                        className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-lg"
                     >
-                        <ArrowLeft className="w-5 h-5 text-gray-400" />
+                        <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <div className="flex items-center gap-4 flex-1">
+                    <div className="flex items-center gap-5 flex-1">
                         {drone.image ? (
                             <img
                                 src={drone.image}
                                 alt={drone.modelName}
-                                className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl object-cover"
+                                className="w-16 h-16 rounded-2xl object-cover shadow-2xl ring-4 ring-white"
                             />
                         ) : (
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/5 rounded-2xl flex items-center justify-center">
-                                <Plane className="w-6 h-6 sm:w-8 sm:h-8 text-gray-600" />
+                            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center ring-4 ring-white shadow-xl">
+                                <Plane className="w-8 h-8 text-slate-400" />
                             </div>
                         )}
                         <div>
-                            <h1 className="text-xl sm:text-2xl font-bold text-white">{drone.modelName}</h1>
-                            <p className="text-[10px] sm:text-sm text-gray-500 uppercase font-bold tracking-widest">
-                                DGCA Type Certified
-                            </p>
+                             <div className="flex items-center gap-2 mb-1">
+                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-[8px] font-black uppercase tracking-widest border border-emerald-100">Certified</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{drone.id.slice(0, 8)}</span>
+                            </div>
+                            <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tightest">{drone.modelName}</h1>
                         </div>
                     </div>
                 </div>
@@ -493,12 +494,16 @@ export default function DroneProfilePage() {
                                     </div>
                                     <FileUploader
                                         onUpload={(files) => {
-                                            if (otherLabel && files.length > 0) {
-                                                updateDroneUploads(droneId, "infrastructure_others", files[0], otherLabel);
-                                                setOtherLabel("");
+                                            if (files.length > 0) {
+                                                if (otherLabel.trim()) {
+                                                    updateDroneUploads(droneId, "infrastructure_others", files[0], otherLabel);
+                                                    setOtherLabel("");
+                                                } else {
+                                                    alert("Please enter a category name (e.g. Warehouse) before uploading.");
+                                                }
                                             }
                                         }}
-                                        label="Upload with Label"
+                                        label="Upload with Category Name"
                                     />
                                     {uploads.infrastructureOthers.length > 0 && (
                                         <div className="mt-4 space-y-2">
@@ -530,7 +535,8 @@ export default function DroneProfilePage() {
                                 existingFiles={uploads.regulatoryDisplay}
                                 multiple
                                 maxFiles={5}
-                                label="Upload TC Display & Fireproof Plate Photos"
+                                accept="image/*,application/pdf"
+                                label="Upload TC Display & Fireproof Plate Photos/PDFs"
                             />
                         </ChecklistItem>
 

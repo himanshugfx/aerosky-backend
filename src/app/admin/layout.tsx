@@ -55,7 +55,7 @@ export default function AdminLayout({
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed inset-y-0 left-0 w-72 bg-[#0a0a0c] border-r border-white/5 flex flex-col z-[50] transition-transform duration-300 lg:translate-x-0 lg:static lg:h-screen
+                    fixed inset-y-0 left-0 w-64 bg-[#0a0a0c] border-r border-white/5 flex flex-col z-[50] transition-transform duration-300 lg:translate-x-0 lg:static lg:h-screen
                     ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
                 `}
             >
@@ -144,7 +144,7 @@ export default function AdminLayout({
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all relative">
+                        <button className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all relative">
                             <Bell className="w-5 h-5 text-gray-400" />
                         </button>
                         <div className="h-8 w-[1px] bg-white/5 mx-2 hidden sm:block"></div>
@@ -153,7 +153,7 @@ export default function AdminLayout({
                                 System Status
                             </p>
                             <p className="text-xs text-green-500 font-bold flex items-center gap-1.5 justify-end">
-                                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                <span className="w-1.5 h-1.5 bg-green-500 rounded-sm animate-pulse"></span>
                                 Operational
                             </p>
                         </div>

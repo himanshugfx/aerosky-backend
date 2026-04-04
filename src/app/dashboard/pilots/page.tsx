@@ -84,25 +84,17 @@ export default function PilotsPage() {
     ]
 
     return (
-        <div className="space-y-12 animate-slide-up pb-20">
-            {/* Command Briefing Header */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8">
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <span className="status-badge status-badge-info">Personnel Core</span>
-                        <div className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest uppercase">Aviator Command</span>
-                    </div>
-                    <h1 className="text-6xl font-black text-slate-900 tracking-tightest italic uppercase">Personnel <span className="text-slate-400 font-medium">Registry</span></h1>
-                    <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
-                        Precision management of certified remote pilots, operational authorizations, and regulatory flight credentials for the AeroSky enterprise.
-                    </p>
+        <div className="space-y-8 animate-slide-up pb-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest italic uppercase">Personnel <span className="text-slate-400 font-medium">Registry</span></h1>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="btn-premium-primary !py-5 shadow-2xl shadow-blue-500/20 group uppercase italic tracking-widest"
+                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-blue-500/10 group uppercase italic tracking-widest"
                 >
-                    <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
                     Induct Aviator
                 </button>
             </div>

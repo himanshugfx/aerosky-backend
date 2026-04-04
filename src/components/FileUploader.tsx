@@ -24,11 +24,21 @@ export function FileUploader({
     const [isDragging, setIsDragging] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    // Sync state with props when they change (e.g. after a refetch)
+    React.useEffect(() => {
+        setFiles(existingFiles);
+    }, [existingFiles]);
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = e.target.files;
         if (!selectedFiles) return;
 
         await processFiles(Array.from(selectedFiles));
+        
+        // Reset input value so the same file can be selected again if deleted
+        if (inputRef.current) {
+            inputRef.current.value = '';
+        }
     };
 
     const processFiles = async (fileList: File[]) => {

@@ -213,22 +213,17 @@ export default function OrdersPage() {
     }
 
     return (
-        <div className="space-y-10 animate-slide-up pb-20">
-            {/* Contextual Navigation */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
-                <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                        <span className="status-badge status-badge-info">Manufacturing Hub</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Pipeline</span>
-                    </div>
-                    <h1 className="text-5xl font-black text-slate-900 tracking-tighter">Manufacturing <span className="text-slate-400">Ledger</span></h1>
-                    <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-xl">
-                        Monitor high-precision airframe production, contract fulfillment, and real-time manufacturing telemetry.
-                    </p>
+        <div className="space-y-8 animate-slide-up pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Manufacturing <span className="text-slate-400">Ledger</span></h1>
                 </div>
-                <button onClick={() => setShowModal(true)} className="btn-premium-accent !py-4 shadow-2xl shadow-indigo-600/20 group">
-                    <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="w-full md:w-auto btn-premium-accent !py-3.5 lg:!py-4 shadow-2xl shadow-indigo-600/10 group flex items-center justify-center gap-3"
+                >
+                    <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
                     Initialize Production
                 </button>
             </div>

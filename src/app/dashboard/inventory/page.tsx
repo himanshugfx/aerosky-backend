@@ -122,29 +122,21 @@ export default function InventoryPage() {
     )
 
     return (
-        <div className="space-y-12 animate-slide-up pb-20">
-            {/* Sector Header */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8">
-                <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                        <span className="status-badge status-badge-success">Logistics Core</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AeroSky Assets</span>
-                    </div>
-                    <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter">Inventory <span className="text-slate-400">Logistics</span></h1>
-                    <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
-                        Precision tracking of aerospace components, manufacturing consumables, and operational hardware across the AeroSky network.
-                    </p>
+        <div className="space-y-8 animate-slide-up pb-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Inventory <span className="text-slate-400">Logistics</span></h1>
                 </div>
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3 lg:gap-4 w-full xl:w-auto">
-                    <button onClick={() => setModals({ ...modals, add: true })} className="w-full sm:w-auto btn-premium-ghost border border-slate-200 !py-3.5 lg:!py-4 px-6 text-[10px] lg:text-[11px] font-black uppercase tracking-widest order-3 sm:order-1">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 lg:gap-4 w-full md:w-auto">
+                    <button onClick={() => setModals({ ...modals, add: true })} className="w-full sm:w-auto btn-premium-ghost border border-slate-200 !py-3.5 px-6 text-[11px] font-black uppercase tracking-widest order-3 sm:order-1">
                         <Plus className="w-4 h-4" /> New Category
                     </button>
-                    <button onClick={() => setModals({ ...modals, in: true })} className="w-full sm:w-auto btn-premium-accent bg-emerald-600 hover:bg-emerald-700 !py-3.5 lg:!py-4 shadow-xl shadow-emerald-500/20 group order-1 sm:order-2">
+                    <button onClick={() => setModals({ ...modals, in: true })} className="w-full sm:w-auto btn-premium-accent bg-emerald-600 hover:bg-emerald-700 !py-3.5 shadow-xl shadow-emerald-500/10 group order-1 sm:order-2">
                         <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                         Arrival
                     </button>
-                    <button onClick={() => setModals({ ...modals, out: true })} className="w-full sm:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-xl shadow-slate-900/20 group order-2 sm:order-3">
+                    <button onClick={() => setModals({ ...modals, out: true })} className="w-full sm:w-auto btn-premium-primary !py-3.5 shadow-xl shadow-slate-900/10 group order-2 sm:order-3">
                         <ArrowDownRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform" />
                         Usage
                     </button>

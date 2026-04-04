@@ -256,30 +256,30 @@ export default function OrdersPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+        <div className="space-y-8 pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Order Book</h1>
-                    <p className="text-sm text-gray-500">
-                        {orders.length} order{orders.length !== 1 ? "s" : ""} in the system
+                    <h1 className="text-3xl lg:text-5xl font-black text-white tracking-tightest">Order <span className="text-slate-400 font-medium">Book</span></h1>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">
+                        {orders.length} ACTIVE CONTRACTS
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     {orders.length > 0 && (
                         <button
                             onClick={() => handleDownload("all")}
-                            className="flex items-center gap-2 bg-green-600/20 hover:bg-green-600/30 text-green-400 font-medium px-4 py-2.5 rounded-xl transition-colors border border-green-500/20"
+                            className="flex items-center justify-center gap-2 bg-emerald-50 text-emerald-600 font-bold px-4 py-2.5 lg:py-3 rounded-xl transition-all border border-emerald-100 hover:bg-emerald-100/50 text-[10px] uppercase tracking-widest"
                         >
                             <FileSpreadsheet className="w-4 h-4" />
-                            Export All
+                            Export Data
                         </button>
                     )}
                     <button
                         onClick={() => handleOpenForm()}
-                        className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold px-5 py-3 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
+                        className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex items-center justify-center gap-3"
                     >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
                         Add Order
                     </button>
                 </div>

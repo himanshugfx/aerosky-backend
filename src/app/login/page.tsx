@@ -61,21 +61,16 @@ export default function LoginPage() {
                 {/* Thematic Content */}
                 <div className="absolute bottom-20 left-20 right-20 z-10">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-600/40">
-                            <Shield className="w-7 h-7 text-white" />
+                        <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center shadow-2xl shadow-orange-600/30">
+                            <Shield className="w-6 h-6 text-white" />
                         </div>
-                        <span className="text-sm font-black text-orange-500 uppercase tracking-[0.3em]">Operational Security</span>
+                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em]">Proprietary System</span>
                     </div>
                     
-                    <h1 className="text-6xl font-black text-white tracking-tighter leading-none mb-6">
+                    <h1 className="text-6xl font-black text-white tracking-tightest leading-none">
                         AEROSKY<br/>
-                        <span className="text-orange-500 italic">PRECISION</span>
+                        <span className="text-orange-500">CONTROL</span>
                     </h1>
-                    
-                    <p className="max-w-md text-slate-300 font-medium text-lg leading-relaxed">
-                        The ultimate command terminal for drone manufacturing, flight operations, and fleet logistics. 
-                        Experience unparalleled aviation intelligence.
-                    </p>
                 </div>
 
                 {/* Corner Accreditation */}
@@ -96,9 +91,9 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form Header */}
-                <div className="mb-12">
-                    <h2 className="text-4xl font-black text-slate-900 tracking-tightest mb-3">Hi Commander</h2>
-                    <p className="text-slate-500 font-semibold">Initiate secure system authentication</p>
+                <div className="mb-10">
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tightest">Sign In</h2>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 px-1">SECURITY CLEARANCE REQUIRED</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">

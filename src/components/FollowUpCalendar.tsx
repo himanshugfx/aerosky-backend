@@ -55,9 +55,9 @@ export default function FollowUpCalendar() {
     const renderHeader = () => {
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
         return (
-            <div className="flex items-center justify-between mb-10 px-4">
+            <div className="flex items-center justify-between mb-4 px-4">
                 <div className="space-y-2">
-                    <h2 className="text-4xl font-black text-slate-900 tracking-tightest uppercase italic">
+                    <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tightest uppercase italic">
                         {monthNames[currentDate.getMonth()]} <span className="text-slate-300 font-medium">{currentDate.getFullYear()}</span>
                     </h2>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -65,11 +65,11 @@ export default function FollowUpCalendar() {
                     </p>
                 </div>
                 <div className="flex gap-4">
-                    <button onClick={prevMonth} className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-orange-600 hover:border-orange-100 transition-all shadow-sm">
-                        <ChevronLeft className="w-6 h-6" />
+                    <button onClick={prevMonth} className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-orange-600 hover:border-orange-100 transition-all shadow-sm">
+                        <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <button onClick={nextMonth} className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-orange-600 hover:border-orange-100 transition-all shadow-sm">
-                        <ChevronRight className="w-6 h-6" />
+                    <button onClick={nextMonth} className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-orange-600 hover:border-orange-100 transition-all shadow-sm">
+                        <ChevronRight className="w-5 h-5" />
                     </button>
                 </div>
             </div>
@@ -79,9 +79,9 @@ export default function FollowUpCalendar() {
     const renderDays = () => {
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
         return (
-            <div className="grid grid-cols-7 mb-4">
+            <div className="grid grid-cols-7 mb-2">
                 {days.map(day => (
-                    <div key={day} className="text-center text-[10px] font-black text-slate-300 uppercase tracking-widest py-4">
+                    <div key={day} className="text-center text-[9px] font-black text-slate-300 uppercase tracking-widest py-2">
                         {day}
                     </div>
                 ))}
@@ -98,7 +98,7 @@ export default function FollowUpCalendar() {
 
         // Empty cells for alignment
         for (let i = 0; i < startDay; i++) {
-            cells.push(<div key={`empty-${i}`} className="min-h-[160px] border border-slate-50 opacity-20" />)
+            cells.push(<div key={`empty-${i}`} className="min-h-[85px] border border-slate-50 opacity-20" />)
         }
 
         for (let d = 1; d <= totalDays; d++) {
@@ -107,16 +107,16 @@ export default function FollowUpCalendar() {
             const isToday = new Date().toDateString() === dateStr
 
             cells.push(
-                <div key={d} className={`min-h-[160px] p-4 border border-slate-50 hover:bg-slate-50/50 transition-colors group relative ${isToday ? 'bg-orange-50/20' : ''}`}>
-                    <div className="flex justify-between items-start mb-4">
-                        <span className={`text-lg font-black tracking-tighter ${isToday ? 'text-orange-600' : 'text-slate-900 group-hover:scale-110 transition-transform'}`}>
+                <div key={d} className={`min-h-[85px] p-2 border border-slate-50 hover:bg-slate-50/50 transition-colors group relative ${isToday ? 'bg-orange-50/20' : ''}`}>
+                    <div className="flex justify-between items-start mb-2">
+                        <span className={`text-sm font-black tracking-tighter ${isToday ? 'text-orange-600' : 'text-slate-900 group-hover:scale-110 transition-transform'}`}>
                             {d.toString().padStart(2, '0')}
                         </span>
                         {isToday && <div className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />}
                     </div>
-                    <div className="space-y-2 max-h-[100px] overflow-y-auto no-scrollbar">
+                    <div className="space-y-1.5 max-h-[60px] overflow-y-auto no-scrollbar">
                         {dayFollowUps.map(f => (
-                            <div key={f.id} className="p-2.5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-orange-200 transition-all hover:-translate-y-0.5">
+                            <div key={f.id} className="p-1.5 bg-white border border-slate-100 rounded-lg shadow-sm hover:border-orange-200 transition-all hover:-translate-y-0.5">
                                 <p className="text-[10px] font-black text-slate-900 leading-tight line-clamp-1">{f.title}</p>
                                 <div className="flex items-center justify-between mt-1">
                                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1">
@@ -142,7 +142,7 @@ export default function FollowUpCalendar() {
     )
 
     return (
-        <div className="modern-card p-10 animate-slide-up">
+        <div className="modern-card p-6 animate-slide-up">
             {renderHeader()}
             {renderDays()}
             {renderCells()}

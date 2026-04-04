@@ -63,137 +63,120 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700 pb-20">
-            {/* Elegant Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest">Configuration Core</span>
-                        <div className="h-px w-8 bg-slate-200"></div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Parameters</span>
-                    </div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Account Control</h1>
-                    <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-2xl">
-                        Management of personal identity, security protocols, and platform integration preferences.
+        <div className="space-y-8 animate-in fade-in duration-700 pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">General <span className="text-slate-400 font-medium">Settings</span></h1>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">
+                        SYSTEM CONFIGURATION & SECURITY
                     </p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Profile Section */}
-                <div className="lg:col-span-2 space-y-12">
+                <div className="lg:col-span-3 space-y-8">
                     <div className="premium-card overflow-hidden">
-                        <div className="px-10 py-8 bg-slate-900 flex items-center justify-between relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                            <div className="relative z-10 space-y-1">
-                                <h2 className="text-2xl font-black text-white tracking-tight">Identity Profile</h2>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Personnel verification node</p>
-                            </div>
-                            <div className="relative z-10 p-3 bg-white/10 rounded-2xl border border-white/10">
-                                <User className="w-6 h-6 text-white" />
-                            </div>
-                        </div>
-
-                        <div className="p-10">
-                            <div className="flex flex-col md:flex-row items-center gap-10 mb-12">
+                        <div className="p-8">
+                            <div className="flex flex-col md:flex-row items-center gap-8 mb-10">
                                 <div className="relative group">
-                                    <div className="w-32 h-32 bg-slate-100 rounded-[2.5rem] flex items-center justify-center border-4 border-white shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-500">
-                                        <span className="text-slate-900 font-black text-5xl">
+                                    <div className="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center border-2 border-white shadow-xl overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                                        <span className="text-slate-900 font-black text-3xl">
                                             {user?.name?.charAt(0) || 'U'}
                                         </span>
                                     </div>
-                                    <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-xl border-2 border-white hover:bg-slate-800 transition-colors">
-                                        <Fingerprint className="w-5 h-5" />
+                                    <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center shadow-lg border-2 border-white hover:bg-slate-800 transition-colors">
+                                        <Fingerprint className="w-4 h-4" />
                                     </button>
                                 </div>
-                                <div className="text-center md:text-left space-y-2">
-                                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">{user?.name || 'Personnel Identity Unverified'}</h3>
-                                    <div className="flex items-center gap-4 text-slate-500 font-medium">
+                                <div className="text-center md:text-left space-y-1">
+                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">{user?.name || 'Incomplete Profile'}</h3>
+                                    <div className="flex items-center gap-3 text-slate-600 font-bold text-xs">
                                         <div className="flex items-center gap-1.5">
-                                            <Mail className="w-4 h-4" />
+                                            <Mail className="w-3.5 h-3.5" />
                                             <span>{user?.email}</span>
                                         </div>
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                        <div className="w-1 h-1 rounded-sm bg-slate-400"></div>
                                         <div className="flex items-center gap-1.5">
-                                            <Shield className="w-4 h-4 text-emerald-500" />
-                                            <span className="text-emerald-600 font-bold uppercase text-[10px] tracking-widest">{user?.role}</span>
+                                            <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                                            <span className="text-emerald-700 uppercase tracking-widest text-[9px]">{user?.role?.replace('_', ' ')} Staff</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <form className="grid grid-cols-1 md:grid-cols-2 gap-8" onSubmit={(e) => e.preventDefault()}>
+                            <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Personnel Legal Name</label>
+                                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest pl-1">Full Name</label>
                                     <input
                                         type="text"
                                         defaultValue={user?.name || ''}
-                                        className="input-premium py-4"
-                                        placeholder="Enter Full Name"
+                                        className="input-premium py-3.5"
+                                        placeholder="Enter your name"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Identification Mail</label>
+                                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest pl-1">Email ID</label>
                                     <input
                                         type="email"
                                         defaultValue={user?.email || ''}
-                                        className="input-premium py-4 bg-slate-50 opacity-60"
+                                        className="input-premium py-3.5 bg-slate-50/50"
                                         disabled
                                     />
                                 </div>
                             </form>
 
-                            <div className="mt-10 flex justify-end">
-                                <button className="premium-btn-primary px-10 py-4 flex items-center gap-2">
-                                    <Settings className="w-5 h-5" />
-                                    Synchronize Profile
+                            <div className="mt-8 flex justify-end">
+                                <button className="btn-premium-primary !px-8 !py-3.5 text-[10px] font-black uppercase tracking-widest">
+                                    Save Profile Details
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* Security Vault - Change Password Form */}
-                    <div className="premium-card p-10 space-y-10">
-                        <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-                            <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-2xl">
-                                <Lock className="w-6 h-6" />
+                    {/* Security Vault */}
+                    <div className="premium-card p-8 space-y-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-lg">
+                                <Lock className="w-5 h-5" />
                             </div>
                             <div className="space-y-1">
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Security Access Update</h2>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Credential rotating protocol</p>
+                                <h2 className="text-xl font-black text-slate-900 tracking-tight">Security Check</h2>
+                                <p className="text-slate-600 text-[9px] font-black uppercase tracking-[0.2em]">Change your login password</p>
                             </div>
                         </div>
 
-                        <form onSubmit={handlePasswordUpdate} className="space-y-8 max-w-xl">
+                        <form onSubmit={handlePasswordUpdate} className="space-y-6 max-w-xl">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 text-slate-500">Current Security Key *</label>
+                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest pl-1">Old Password</label>
                                 <input
                                     type="password"
-                                    className="input-premium py-5"
-                                    placeholder="••••••••••••"
+                                    className="input-premium py-3.5"
+                                    placeholder="Enter old password"
                                     value={passwords.current}
                                     onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
                                     required
                                 />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 text-slate-500">New Protocol Key *</label>
+                                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest pl-1">New Password</label>
                                     <input
                                         type="password"
-                                        className="input-premium py-5"
-                                        placeholder="Min. 6 characters"
+                                        className="input-premium py-3.5"
+                                        placeholder="Min. 6 digits"
                                         value={passwords.new}
                                         onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
                                         required
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 text-slate-500">Confirm Rotation *</label>
+                                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest pl-1">Re-enter New</label>
                                     <input
                                         type="password"
-                                        className="input-premium py-5"
-                                        placeholder="Re-enter new key"
+                                        className="input-premium py-3.5"
+                                        placeholder="Type again"
                                         value={passwords.confirm}
                                         onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
                                         required
@@ -202,11 +185,11 @@ export default function SettingsPage() {
                             </div>
 
                             {passwordStatus && (
-                                <div className={`p-4 rounded-2xl font-bold text-xs flex items-center gap-3 transition-all ${
-                                    passwordStatus.type === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'
+                                <div className={`p-4 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-all ${
+                                    passwordStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'
                                 }`}>
                                     {passwordStatus.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
-                                    {passwordStatus.message}
+                                    <span className="uppercase tracking-wider">{passwordStatus.message}</span>
                                 </div>
                             )}
 
@@ -214,17 +197,17 @@ export default function SettingsPage() {
                                 <button
                                     type="submit"
                                     disabled={submittingPassword}
-                                    className="w-full md:w-auto px-10 py-5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-3xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                    className="w-full md:w-auto px-8 py-3.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                 >
                                     {submittingPassword ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                            Processing Rotation
+                                            Updating...
                                         </>
                                     ) : (
                                         <>
                                             <Shield className="w-4 h-4" />
-                                            Finalize Security Rotation
+                                            Update Password
                                         </>
                                     )}
                                 </button>
@@ -232,62 +215,29 @@ export default function SettingsPage() {
                         </form>
                     </div>
                 </div>
-
-                {/* Secondary Configs */}
-                <div className="space-y-8">
-                    <div className="modern-card p-10 space-y-8">
-                        <div className="p-4 bg-orange-50 text-orange-600 rounded-3xl w-fit">
-                            <Bell className="w-8 h-8" />
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-black text-slate-900">Communication Nodes</h3>
-                            <p className="text-slate-500 font-medium text-sm leading-relaxed">Configure how the system communicates mission critical telemetry and flight logs.</p>
-                        </div>
-                        <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors" type="button">
-                            Manage Alerts <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    <div className="modern-card p-10 space-y-8">
-                        <div className="p-4 bg-emerald-50 text-emerald-600 rounded-3xl w-fit">
-                            <Cpu className="w-8 h-8" />
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-black text-slate-900">Platform Integrations</h3>
-                            <p className="text-slate-500 font-medium text-sm leading-relaxed">Manage system-to-system interfaces and external telemetry datasets via API.</p>
-                        </div>
-                        <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors" type="button">
-                            API Console <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
             </div>
 
-            {/* System Status Footer */}
-            <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-8">
+            {/* Footer */}
+            <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="flex items-center gap-6">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-slate-50 rounded-lg">
-                            <Activity className="w-4 h-4 text-slate-400" />
-                        </div>
-                        <div className="space-y-0.5">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Version</p>
-                            <p className="text-xs font-bold text-slate-900">v4.2.0-Production</p>
+                        <Activity className="w-4 h-4 text-slate-400" />
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">App Version</p>
+                            <p className="text-[10px] font-black text-slate-900">4.2.0-STABLE</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-slate-50 rounded-lg">
-                            <Globe className="w-4 h-4 text-slate-400" />
-                        </div>
-                        <div className="space-y-0.5">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Central Server</p>
-                            <p className="text-xs font-bold text-slate-900">AWS / Asia Pacific</p>
+                        <Globe className="w-4 h-4 text-slate-400" />
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Office Server</p>
+                            <p className="text-[10px] font-black text-slate-900">AP-SOUTH-1 (Mumbai)</p>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 px-6 py-3 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[10px] font-black uppercase tracking-widest">Systems Nominal & Secure</span>
+                <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
+                    <div className="w-1.5 h-1.5 rounded-sm bg-emerald-500"></div>
+                    <span className="text-[9px] font-black uppercase tracking-widest">Fully Secured</span>
                 </div>
             </div>
         </div>

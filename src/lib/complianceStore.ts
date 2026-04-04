@@ -358,15 +358,32 @@ export const useComplianceStore = create<ComplianceState>((set, get) => ({
     },
     updateDroneUploads: async (droneId, uploadType, files, label) => {
         try {
-            await fetch(`/api/drones/${droneId}/uploads`, {
+            const formData = new FormData();
+            formData.append('uploadType', uploadType);
+            if (label) formData.append('label', label);
+            
+            if (Array.isArray(files)) {
+                files.forEach(f => formData.append('files', f));
+            } else {
+                formData.append('files', files);
+            }
+
+            const res = await fetch(`/api/drones/${droneId}/uploads`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uploadType, files, label }),
+                body: formData,
             });
+            
+            if (!res.ok) {
+                const err = await res.json();
+                alert(err.error || "Upload failed");
+                return;
+            }
+
             // Refresh drones to get updated uploads
             await get().fetchDrones();
         } catch (error) {
             console.error('Failed to upload files:', error);
+            alert("Network error: Check file size and database status.");
         }
     },
 

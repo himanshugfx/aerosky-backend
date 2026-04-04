@@ -194,48 +194,35 @@ export default function FlightsPage() {
         return (
             <div className="flex flex-col items-center justify-center py-24 animate-in">
                 <div className="relative">
-                    <div className="w-16 h-16 border-4 border-slate-100 rounded-full animate-pulse"></div>
-                    <Loader2 className="w-16 h-16 animate-spin text-slate-900 absolute top-0 left-0 border-t-4 border-transparent rounded-full" />
+                    <div className="w-16 h-16 border-4 border-slate-100 rounded-2xl animate-pulse"></div>
+                    <Loader2 className="w-16 h-16 animate-spin text-slate-900 absolute top-0 left-0 border-t-4 border-transparent rounded-2xl" />
                 </div>
                 <p className="mt-6 text-slate-500 font-bold uppercase tracking-widest text-xs">Aeronautical Sync In Progress</p>
             </div>
         )
     }
-
     return (
-        <div className="space-y-8 animate-in">
-            {/* Operations Header */}
-            <div className="grid lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-3 premium-card p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 bg-white relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 group-hover:scale-110 transition-transform duration-700"></div>
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-2xl">
-                                <Compass className="w-5 h-5" />
-                            </div>
-                            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Mission Operations</h2>
+        <div className="space-y-8 animate-in fade-in duration-700 pb-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Mission <span className="text-slate-400 font-medium">Operations</span></h1>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                    <div className="modern-card px-6 py-3 flex items-center gap-4 bg-slate-900 text-white min-w-[160px]">
+                        <Activity className="w-5 h-5 text-orange-500" />
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Sorties</p>
+                            <p className="text-xl font-black tracking-tighter">{logs.length}</p>
                         </div>
-                        <p className="text-slate-500 font-medium max-w-md">Enterprise-grade flight logging and fleet telemetry tracking for regulatory compliance.</p>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="premium-btn-primary group flex items-center gap-3 py-4 px-8 relative z-10"
+                        className="btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex-1 md:flex-none"
                     >
-                        <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                        Log Flight Mission
+                        <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+                        Log Mission
                     </button>
-                </div>
-                <div className="premium-card p-8 bg-slate-900 text-white shadow-2xl shadow-slate-900/10 flex flex-col justify-between">
-                    <div className="flex justify-between items-start">
-                        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white/60">
-                            <Activity className="w-6 h-6" />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Monthly Cycle</span>
-                    </div>
-                    <div>
-                        <p className="text-5xl font-black text-white tracking-tighter">{logs.length}</p>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Active Sorties Logged</p>
-                    </div>
                 </div>
             </div>
 

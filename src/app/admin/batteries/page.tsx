@@ -47,20 +47,20 @@ export default function BatteriesPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+        <div className="space-y-8 pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Battery Management</h1>
-                    <p className="text-sm text-gray-500">
-                        Manage battery pairs used for drone operations
+                    <h1 className="text-3xl lg:text-5xl font-black text-white tracking-tightest">Power <span className="text-slate-400 font-medium">Modules</span></h1>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">
+                        {batteries.length} REGISTERED PAIRS
                     </p>
                 </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold px-5 py-3 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
+                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group flex items-center justify-center gap-3"
                 >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
                     Add Battery Pair
                 </button>
             </div>

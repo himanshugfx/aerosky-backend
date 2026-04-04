@@ -96,41 +96,34 @@ export default function DashboardPage() {
     }
 
     const statCards = isSuperAdmin ? [
-        { name: 'Managed Entities', value: stats.organizations, icon: Building2, trend: '+4', label: 'Organizations', color: 'orange' },
-        { name: 'Active Inquiries', value: stats.tickets, icon: HelpCircle, trend: '-2', label: 'Support Tickets', color: 'slate' },
-        { name: 'Core Volume', value: stats.orders, icon: ShoppingCart, trend: '+12%', label: 'Platform Transactions', color: 'orange-alt' },
-        { name: 'Global Network', value: stats.team, icon: Users, trend: '+8', label: 'Registered Users', color: 'emerald' },
+        { name: 'Managed Offices', value: stats.organizations, icon: Building2, trend: '+4', label: 'Registered Units', color: 'orange' },
+        { name: 'Pending Enquiries', value: stats.tickets, icon: HelpCircle, trend: '-2', label: 'Help Requests', color: 'slate' },
+        { name: 'Total Business', value: stats.orders, icon: ShoppingCart, trend: '+12%', label: 'Orders Processed', color: 'orange-alt' },
+        { name: 'Staff Network', value: stats.team, icon: Users, trend: '+8', label: 'Onboarded Team', color: 'emerald' },
     ] : [
-        { name: 'Mission Fleet', value: stats.drones, icon: Plane, trend: 'Active', label: 'Current Airframes', color: 'orange' },
-        { name: 'Operational Crew', value: stats.team, icon: Users, trend: 'Vetted', label: 'Active Personnel', color: 'slate' },
-        { name: 'Supply Units', value: stats.batteries, icon: Battery, trend: '98%', label: 'Power Modules', color: 'emerald' },
-        { name: 'Contract Flow', value: stats.orders, icon: ShoppingCart, trend: '+14%', label: 'Active Orders', color: 'orange-alt' },
+        { name: 'Drone Fleet', value: stats.drones, icon: Plane, trend: 'Active', label: 'Total Drones', color: 'orange' },
+        { name: 'Active Staff', value: stats.team, icon: Users, trend: 'Vetted', label: 'Team Members', color: 'slate' },
+        { name: 'Battery Stock', value: stats.batteries, icon: Battery, trend: '98%', label: 'Battery Packs', color: 'emerald' },
+        { name: 'Project Flow', value: stats.orders, icon: ShoppingCart, trend: '+14%', label: 'Active Orders', color: 'orange-alt' },
     ]
 
     return (
-        <div className="space-y-10 animate-slide-up pb-20">
+        <div className="space-y-8 animate-slide-up pb-10">
             {/* Contextual Greeting */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-                <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                        <span className="status-badge status-badge-info">System Online</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <div className="flex items-center gap-3 mb-2">
+                        <span className="status-badge status-badge-info !px-2 !py-0.5 text-[8px]">System Online</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                     </div>
-                    <h1 className="text-5xl font-black text-slate-900 tracking-tighter">
+                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">
                         Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, <span className="bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">{session?.user?.name?.split(' ')[0]}</span>
                     </h1>
-                    <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-xl">
-                        {isSuperAdmin
-                            ? "Overview of global infrastructure performance and operational metrics."
-                            : "Fleet configuration remains optimal. All mission-critical systems ready."
-                        }
-                    </p>
                 </div>
 
                 {/* Quick Actions Bar */}
-                <div className="flex items-center gap-3 p-2 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                    <button className="btn-premium-primary text-xs !px-5 !py-2.5 text-nowrap">
+                <div className="flex items-center gap-3">
+                    <button className="w-full md:w-auto btn-premium-primary text-[10px] !px-4 !py-3 tracking-widest uppercase font-black">
                         <Activity className="w-4 h-4" />
                         Quick Report
                     </button>
@@ -160,7 +153,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
 
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                            <p className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-1">{stat.label}</p>
                             <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{typeof stat.value === 'number' ? stat.value.toLocaleString('en-IN') : stat.value}</h3>
                         </div>
                     </div>
@@ -172,10 +165,10 @@ export default function DashboardPage() {
                 {/* Operational Shortcuts */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
-                        { label: 'Register Drone', icon: Plus, href: '/dashboard/drones', sub: 'Fleet Expansion' },
-                        { label: 'Process Inventory', icon: Boxes, href: '/dashboard/inventory', sub: 'Asset Management' },
-                        { label: 'Review Logistics', icon: ShoppingCart, href: '/dashboard/orders', sub: 'Orders/Contracts' },
-                        { label: 'Squad Management', icon: Users, href: '/dashboard/team', sub: 'Human Resources' },
+                        { label: 'Add New Drone', icon: Plus, href: '/dashboard/drones', sub: 'Fleet Expansion' },
+                        { label: 'Update Stock', icon: Boxes, href: '/dashboard/inventory', sub: 'Stock Management' },
+                        { label: 'Check Orders', icon: ShoppingCart, href: '/dashboard/orders', sub: 'Project Details' },
+                        { label: 'Manage Staff', icon: Users, href: '/dashboard/team', sub: 'Team Records' },
                     ].map((act, i) => (
                         <Link key={i} href={act.href} className="modern-card p-8 flex flex-col items-center text-center gap-6 group hover:bg-orange-600 transition-all duration-500">
                             <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-white/20 group-hover:rotate-12 transition-all duration-500 shadow-sm border border-slate-100">
@@ -183,7 +176,7 @@ export default function DashboardPage() {
                             </div>
                             <div>
                                 <p className="font-bold text-slate-900 group-hover:text-white text-lg">{act.label}</p>
-                                <p className="text-[10px] text-slate-400 group-hover:text-white/60 font-black uppercase tracking-widest mt-2">{act.sub}</p>
+                                <p className="text-[10px] text-slate-600 group-hover:text-white/80 font-black uppercase tracking-widest mt-2">{act.sub}</p>
                             </div>
                         </Link>
                     ))}

@@ -139,7 +139,7 @@ export default function LeadsPage() {
     )
 
     return (
-        <div className="space-y-12 animate-slide-up pb-20">
+        <div className="space-y-8 animate-slide-up pb-10">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
@@ -174,7 +174,7 @@ export default function LeadsPage() {
                 <>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
                 <MetricCard 
                     label="Total Acquisition" 
                     value={stats?.totalLeads || 0} 
@@ -434,7 +434,7 @@ export default function LeadsPage() {
 
 function MetricCard({ label, value, icon: Icon, color }: any) {
     return (
-        <div className="modern-card p-6 lg:p-10 group relative overflow-hidden">
+        <div className="modern-card p-4 lg:p-6 group relative overflow-hidden">
             <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl opacity-5 rounded-full translate-x-12 -translate-y-12 bg-${color}-600 group-hover:scale-150 transition-transform duration-700`} />
             <div className="relative flex items-center gap-4 lg:gap-8">
                 <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-[2rem] border border-${color}-100 flex items-center justify-center bg-${color}-50 text-${color}-600 shadow-sm transition-all duration-500 group-hover:bg-${color}-600 group-hover:text-white shrink-0`}>
