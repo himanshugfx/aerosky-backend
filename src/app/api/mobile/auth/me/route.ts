@@ -38,12 +38,16 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Return user data
+        // Return user data with CORS headers
         return NextResponse.json({
             id: user.id,
             email: user.email,
             fullName: user.fullName || user.username,
             role: user.role,
+        }, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            }
         });
 
     } catch (error) {

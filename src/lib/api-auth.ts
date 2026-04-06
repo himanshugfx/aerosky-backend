@@ -75,7 +75,8 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                 const userId = decoded.userId || decoded.id || decoded.sub;
 
                 let user = null;
-                if (userId) {
+            if (userId) {
+                    console.log('JWT decoded userId:', userId);
                     user = await prisma.user.findUnique({
                         where: { id: userId },
                         select: { id: true, username: true, email: true, role: true }
@@ -83,6 +84,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                 }
 
                 if (!user && decoded.username) {
+                    console.log('Finding user by username:', decoded.username);
                     user = await prisma.user.findUnique({
                         where: { username: decoded.username },
                         select: { id: true, username: true, email: true, role: true }
@@ -90,7 +92,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                 }
 
                 if (user) {
-                    // console.log('Authenticated user:', user.username, 'Role:', user.role); // Removed as per instruction
+                    console.log('Authenticated user:', user.username, 'Role:', user.role);
                     return {
                         user: {
                             id: user.id,
@@ -101,14 +103,14 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                         type: 'jwt'
                     };
                 } else {
-                    // console.log('No user found for decoded token:', userId || decoded.username); // Removed as per instruction
+                    console.log('No user found for decoded token:', userId || decoded.username);
                 }
             } else {
-                // console.log('JWT decode failed'); // Removed as per instruction
+                console.log('JWT decode failed');
             }
         }
 
-        // console.log('Authentication failed: No valid session or JWT'); // Removed as per instruction
+        console.log('Authentication failed: No valid session or JWT');
     } catch (error) {
         console.error('Authentication error:', error);
     }
