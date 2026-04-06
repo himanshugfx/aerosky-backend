@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
             email: user.email,
             fullName: user.fullName || user.username,
             role: user.role,
-            organizationId: user.organizationId,
         });
 
     } catch (error) {
