@@ -262,7 +262,7 @@ export default function DronesPage() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Manufacturer Telemetry Portal</label>
+                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Web Portal</label>
                                     <div className="relative">
                                         <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                                         <input
