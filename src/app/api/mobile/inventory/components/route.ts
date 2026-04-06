@@ -12,9 +12,7 @@ export async function GET(request: NextRequest) {
 
     try {
         const where: any = {};
-        if (auth.user.role !== 'SUPER_ADMIN') {
-            where.organizationId = auth.user.organizationId;
-        }
+        // Organization scoping - removed
 
         const components = await prisma.component.findMany({
             where,
@@ -43,7 +41,6 @@ export async function POST(request: NextRequest) {
                 name,
                 description,
                 category: category || "Operational",
-                organizationId: auth.user.organizationId!,
             },
         });
 

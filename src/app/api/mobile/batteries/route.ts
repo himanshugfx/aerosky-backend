@@ -12,9 +12,7 @@ export async function GET(request: NextRequest) {
 
     try {
         const where: any = {};
-        if (auth.user.role !== 'SUPER_ADMIN') {
-            where.organizationId = auth.user.organizationId;
-        }
+        // Organization scoping - removed
 
         const items = await prisma.battery.findMany({
             where,
@@ -35,16 +33,11 @@ export async function POST(request: NextRequest) {
     if (permCheck !== true) return permCheck;
 
     try {
-        const body = await request.json();
-        const { organizationId, ...data } = body;
-
-        // Use provided organizationId if super admin, else use current user's org
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
+        const data = await request.json();
 
         const item = await prisma.battery.create({
             data: {
                 ...data,
-                organizationId: targetOrgId
             }
         });
         return NextResponse.json(item, { status: 201 });

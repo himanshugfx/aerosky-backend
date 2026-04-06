@@ -10,9 +10,7 @@ export async function GET(request: NextRequest) {
 
     try {
         const flightLogs = await prisma.flightLog.findMany({
-            where: {
-                organizationId: auth.user.role === 'SUPER_ADMIN' ? undefined : auth.user.organizationId
-            },
+            where: {},
             include: {
                 drone: true,
                 pic: true,
@@ -75,7 +73,6 @@ export async function POST(request: NextRequest) {
                 uin,
                 technicalFeedback,
                 batteryId: batteryId || null,
-                organizationId: auth.user.organizationId
             },
             include: {
                 drone: true,

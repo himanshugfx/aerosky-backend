@@ -116,6 +116,10 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         PERMISSIONS.COMPLIANCE_VIEW,
         PERMISSIONS.SETTINGS_VIEW,
     ],
+
+    SUPER_ADMIN: Object.values(PERMISSIONS),
+
+    ADMIN: Object.values(PERMISSIONS),
 };
 
 // ============================================

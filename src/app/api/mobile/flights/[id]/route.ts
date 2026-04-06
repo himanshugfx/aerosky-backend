@@ -29,10 +29,7 @@ export async function GET(
         }
 
         // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && flightLog.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        // Scoping check removed
         return NextResponse.json(flightLog);
     } catch (error) {
         console.error("Error fetching flight log:", error);
@@ -54,7 +51,6 @@ export async function DELETE(
     try {
         const flightLog = await prisma.flightLog.findUnique({
             where: { id },
-            select: { organizationId: true }
         });
 
         if (!flightLog) {
@@ -62,10 +58,7 @@ export async function DELETE(
         }
 
         // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && flightLog.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        // Scoping check removed
         await prisma.flightLog.delete({
             where: { id }
         });

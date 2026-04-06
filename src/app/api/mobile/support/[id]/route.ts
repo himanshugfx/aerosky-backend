@@ -25,12 +25,6 @@ export async function GET(
                         role: true
                     }
                 },
-                organization: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                },
                 messages: {
                     orderBy: { createdAt: 'asc' }
                 }

@@ -14,9 +14,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search');
 
-        const where: any = {
-            organizationId: auth.user.role !== 'SUPER_ADMIN' ? auth.user.organizationId : undefined,
-        };
+        const where: any = {};
 
         if (search) {
             where.OR = [
@@ -65,7 +63,6 @@ export async function POST(request: NextRequest) {
                     userId: auth.user.id,
                     takenOutFor,
                     date: date ? new Date(date) : new Date(),
-                    organizationId: auth.user.organizationId!,
                 }
             });
 

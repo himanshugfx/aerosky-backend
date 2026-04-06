@@ -31,12 +31,6 @@ export async function GET(request: NextRequest) {
                             role: true
                         }
                     },
-                    organization: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
                     messages: {
                         take: 1,
                         orderBy: { createdAt: 'desc' }
@@ -113,7 +107,6 @@ export async function POST(request: NextRequest) {
                     subject,
                     priority: priority || 'NORMAL',
                     userId: auth.user.id,
-                    organizationId: auth.user.organizationId
                 }
             });
 

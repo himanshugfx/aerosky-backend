@@ -22,10 +22,7 @@ export async function GET(request: Request) {
 
         const where: any = {};
 
-        // Security filter: Non-SUPER_ADMINs only see their own organization's orders
-        if ((session.user as any).role !== 'SUPER_ADMIN') {
-            where.organizationId = (session.user as any).organizationId;
-        }
+        // Security filter - removed
 
         if (ids && ids !== 'all') {
             where.id = { in: ids.split(',') };

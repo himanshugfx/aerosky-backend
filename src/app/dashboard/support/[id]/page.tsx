@@ -33,11 +33,9 @@ interface Ticket {
     status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'
     priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'
     userId: string
-    organizationId: string
     createdAt: string
     updatedAt: string
-    user?: { fullName: string; email: string }
-    organization?: { name: string }
+    user?: { fullName: string; email: string; role: string }
     messages: Message[]
 }
 
@@ -193,7 +191,7 @@ export default function TicketChatPage() {
                 <div className="flex items-center gap-4 pl-12 sm:pl-0 relative z-10">
                     <div className="text-right">
                         <p className="text-sm font-black text-slate-900 leading-tight">{ticket.user?.fullName}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{ticket.organization?.name || 'External Link'}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{ticket.user?.role || 'Support Technical'}</p>
                     </div>
                     <div className="w-12 h-12 bg-slate-900 rounded-[1.25rem] flex items-center justify-center text-white font-black text-lg">
                         {ticket.user?.fullName?.charAt(0)}

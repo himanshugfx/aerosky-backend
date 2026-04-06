@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     try {
         const where: any = {};
         if (auth.user.role !== 'SUPER_ADMIN') {
-            where.organizationId = auth.user.organizationId;
+            // Organization scoping - removed
         }
 
         const drones = await prisma.drone.findMany({
@@ -59,7 +59,6 @@ export async function GET(request: NextRequest) {
                 modelName: drone.modelName,
                 image: drone.image,
                 accountableManagerId: drone.accountableManagerId,
-                organizationId: drone.organizationId,
                 createdAt: drone.createdAt.toISOString(),
                 uploads,
                 manufacturedUnits: drone.manufacturedUnits.map((u: any) => ({
@@ -89,17 +88,13 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { modelName, image, manufacturedUnits, organizationId, isDgcaCertified } = body;
-
-        // Use provided organizationId if super admin, else use current user's org
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
+        const { modelName, image, manufacturedUnits, isDgcaCertified } = body;
 
         const drone = await prisma.drone.create({
             data: {
                 modelName,
                 image,
                 isDgcaCertified: (isDgcaCertified || false) as any,
-                organizationId: targetOrgId,
                 manufacturedUnits: {
                     create: (manufacturedUnits || []).map((unit: any) => ({
                         serialNumber: unit.serialNumber,

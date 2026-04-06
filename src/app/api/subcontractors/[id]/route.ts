@@ -23,10 +23,7 @@ export async function PUT(
         const existing = await prisma.subcontractor.findUnique({ where: { id } });
         if (!existing) return NextResponse.json({ error: "Subcontractor not found" }, { status: 404 });
 
-        if (auth.user.role !== 'SUPER_ADMIN' && existing.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        // Scoping check removed
         const subcontractor = await prisma.subcontractor.update({
             where: { id },
             data: { companyName, type, contactPerson, contactEmail, contactPhone, agreementDate },
@@ -56,10 +53,7 @@ export async function DELETE(
         const existing = await prisma.subcontractor.findUnique({ where: { id } });
         if (!existing) return NextResponse.json({ error: "Subcontractor not found" }, { status: 404 });
 
-        if (auth.user.role !== 'SUPER_ADMIN' && existing.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        // Scoping check removed
         await prisma.subcontractor.delete({ where: { id } });
         return NextResponse.json({ success: true });
     } catch (error) {

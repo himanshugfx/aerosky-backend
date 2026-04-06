@@ -13,9 +13,7 @@ export async function GET(request: NextRequest) {
 
     try {
         const where: any = {};
-        if (auth.user.role !== 'SUPER_ADMIN') {
-            where.organizationId = auth.user.organizationId;
-        }
+        // Organization scoping - removed
 
         const subcontractors = await prisma.subcontractor.findMany({
             where,
@@ -38,10 +36,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { companyName, type, contactPerson, contactEmail, contactPhone, agreementDate, organizationId } = body;
-
-        // Use provided organizationId or the user's own
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
+        const { companyName, type, contactPerson, contactEmail, contactPhone, agreementDate } = body;
 
         const subcontractor = await prisma.subcontractor.create({
             data: {
@@ -51,8 +46,7 @@ export async function POST(request: NextRequest) {
                 contactEmail,
                 contactPhone,
                 agreementDate,
-                organizationId: targetOrgId,
-            },
+            }
         });
 
         return NextResponse.json(subcontractor, { status: 201 });
