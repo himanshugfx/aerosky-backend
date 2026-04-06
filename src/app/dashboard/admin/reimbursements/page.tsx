@@ -43,7 +43,7 @@ export default function AdminReimbursementsPage() {
     const [updatingId, setUpdatingId] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
 
-    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN'
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMINISTRATION'
 
     const fetchReimbursements = async () => {
         try {
