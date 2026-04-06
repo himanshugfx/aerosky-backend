@@ -1653,7 +1653,7 @@ export default function DroneProfilePage() {
                     <>
                         <div className="text-center mb-8 border-b-2 border-black pb-4">
                             <h1 className="text-3xl font-bold uppercase tracking-wider">{drone.modelName}</h1>
-                            <p className="text-sm font-bold text-gray-800">AeroSky Aviation India - DGCA Compliance Checklist Report</p>
+                            <p className="text-sm font-bold text-gray-800">AeroSys Aviation India - DGCA Compliance Checklist Report</p>
                             <p className="text-xs text-gray-400 mt-1">Generated: {new Date().toLocaleDateString()}</p>
                         </div>
 
@@ -1797,7 +1797,7 @@ export default function DroneProfilePage() {
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-8 border-b-2 border-black pb-4">
                             <h1 className="text-3xl font-bold uppercase tracking-wider">{drone.modelName}</h1>
-                            <p className="text-sm font-bold text-gray-800">AeroSky Aviation India - Recurring Compliance Report</p>
+                            <p className="text-sm font-bold text-gray-800">AeroSys Aviation India - Recurring Compliance Report</p>
                             <p className="text-xs text-gray-400 mt-1">Generated: {new Date().toLocaleDateString()}</p>
                         </div>
 

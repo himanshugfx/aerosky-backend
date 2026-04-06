@@ -38,7 +38,7 @@ export default function TopBar({
     searchQuery, 
     setSearchQuery,
 }: TopBarProps) {
-    const isAdmin = userRole === 'SUPER_ADMIN' || userRole === 'ADMIN'
+    const isAdmin = userRole === 'ADMINISTRATION'
     const [isFocused, setIsFocused] = React.useState(false)
     const pathname = usePathname()
     
@@ -82,7 +82,7 @@ export default function TopBar({
                     </div>
                     <input 
                         type="text" 
-                        placeholder="Search AeroSky..." 
+                        placeholder="Search AeroSys..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onFocus={() => setIsFocused(true)}

@@ -12,14 +12,7 @@ export async function GET(request: NextRequest) {
     if (permCheck !== true) return permCheck;
 
     try {
-        // Enforce organization scoping
-        const where: any = {};
-        if (auth.user.role !== 'SUPER_ADMIN') {
-            where.organizationId = auth.user.organizationId;
-        }
-
         const items = await prisma.teamMember.findMany({
-            where,
             include: { user: { select: { role: true, username: true } } },
             orderBy: { createdAt: "desc" },
         });
@@ -39,10 +32,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { name, accessId, position, email, phone, role, organizationId } = body;
-
-        // Use provided organizationId or the user's own
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
+        const { name, accessId, position, email, phone, role } = body;
 
         // Create team member
         const teamMember = await prisma.teamMember.create({
@@ -52,7 +42,6 @@ export async function POST(request: NextRequest) {
                 position,
                 email,
                 phone,
-                organizationId: targetOrgId,
             }
         });
 
@@ -73,8 +62,7 @@ export async function POST(request: NextRequest) {
                         email,
                         fullName: name,
                         passwordHash,
-                        role: role || 'VIEWER',
-                        organizationId: targetOrgId,
+                        role: role || 'SOFTWARE', // Default to SOFTWARE or something safe
                         teamMemberId: teamMember.id,
                     }
                 });

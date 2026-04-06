@@ -7,180 +7,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Role enum for RBAC
-enum Role {
-  SUPER_ADMIN
-  ADMIN
-  OPERATIONS_MANAGER
-  QA_MANAGER
-  PILOT
-  TECHNICIAN
-  VIEWER
-}
-
-// Support ticket status
-enum TicketStatus {
-  OPEN
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
-}
-
-// Support ticket priority
-enum TicketPriority {
-  LOW
-  NORMAL
-  HIGH
-  URGENT
-}
-
-// Organization model for multi-tenant support
-model Organization {
-  id          String   @id @default(uuid())
-  name        String
-  email       String?
-  phone       String?
-  address     String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  users          User[]
-  teamMembers    TeamMember[]
-  subcontractors Subcontractor[]
-  drones         Drone[]
-  batteries      Battery[]
-  orders         Order[]
-  auditLogs      AuditLog[]
-  supportTickets SupportTicket[]
-  flightLogs     FlightLog[]
-  components     Component[]
-  inventoryTransactions InventoryTransaction[]
-  reimbursements Reimbursement[]
-
-  @@map("organizations")
-}
-
 model User {
-  id             String        @id @default(uuid())
-  username       String        @unique
-  email          String?       @unique
-  fullName       String?       @map("full_name")
-  phone          String?
-  passwordHash   String        @map("password_hash")
-  role           Role          @default(VIEWER)
-  isActive       Boolean       @default(true) @map("is_active")
-  organizationId String?       @map("organization_id")
-  teamMemberId   String?       @unique @map("team_member_id")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
-
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
-  supportTickets SupportTicket[]
+  id                    String                 @id @default(uuid())
+  username              String                 @unique
+  email                 String?                @unique
+  fullName              String?                @map("full_name")
+  phone                 String?
+  passwordHash          String                 @map("password_hash")
+  role                  Role                   @default(ADMINISTRATION)
+  isActive              Boolean                @default(true) @map("is_active")
+  teamMemberId          String?                @unique @map("team_member_id")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
   inventoryTransactions InventoryTransaction[]
-  reimbursements Reimbursement[]
+  reimbursements        Reimbursement[]
+  supportTickets        SupportTicket[]
+  teamMember            TeamMember?            @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
 
   @@map("users")
 }
 
-// Permission model for granular control
 model Permission {
-  id          String   @id @default(uuid())
-  name        String   @unique  // e.g., "drone:create"
-  description String?
-  category    String   // e.g., "drones", "orders"
-  createdAt   DateTime @default(now()) @map("created_at")
-
+  id              String           @id @default(uuid())
+  name            String           @unique
+  description     String?
+  category        String
+  createdAt       DateTime         @default(now()) @map("created_at")
   rolePermissions RolePermission[]
 
   @@map("permissions")
 }
 
-// Role-Permission mapping
 model RolePermission {
-  id           String   @id @default(uuid())
+  id           String     @id @default(uuid())
   role         Role
-  permissionId String   @map("permission_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-
+  permissionId String     @map("permission_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@unique([role, permissionId])
   @@map("role_permissions")
 }
 
-// Audit log for compliance
 model AuditLog {
-  id             String   @id @default(uuid())
-  userId         String   @map("user_id")
-  organizationId String?  @map("organization_id")
-  action         String   // e.g., "drone:create"
-  resource       String   // e.g., "Drone"
-  resourceId     String?  @map("resource_id")
-  details        Json?
-  ipAddress      String?  @map("ip_address")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  action     String
+  resource   String
+  resourceId String?  @map("resource_id")
+  details    Json?
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   @@index([userId])
-  @@index([organizationId])
   @@index([createdAt])
   @@map("audit_logs")
 }
 
 model TeamMember {
-  id             String   @id @default(uuid())
-  accessId       String   @unique @map("access_id")
-  name           String
-  phone          String?
-  email          String?
-  position       String?
-  organizationId String?  @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  drones       Drone[]       @relation("AccountableManager")
-  picFlights   FlightLog[]   @relation("PIC")
-  voFlights    FlightLog[]   @relation("VO")
-  user         User?
+  id         String      @id @default(uuid())
+  accessId   String      @unique @map("access_id")
+  name       String
+  phone      String?
+  email      String?
+  position   String?
+  createdAt  DateTime    @default(now()) @map("created_at")
+  drones     Drone[]     @relation("AccountableManager")
+  picFlights FlightLog[] @relation("PIC")
+  voFlights  FlightLog[] @relation("VO")
+  user       User?
 
   @@map("team_members")
 }
 
 model Subcontractor {
-  id             String   @id @default(uuid())
-  companyName    String   @map("company_name")
-  type           String   // 'Design' or 'Manufacturing'
-  contactPerson  String?  @map("contact_person")
-  contactEmail   String?  @map("contact_email")
-  contactPhone   String?  @map("contact_phone")
-  agreementDate  String?  @map("agreement_date")
-  organizationId String?  @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                    String                 @id @default(uuid())
+  companyName           String                 @map("company_name")
+  type                  String
+  contactPerson         String?                @map("contact_person")
+  contactEmail          String?                @map("contact_email")
+  contactPhone          String?                @map("contact_phone")
+  agreementDate         String?                @map("agreement_date")
+  createdAt             DateTime               @default(now()) @map("created_at")
   inventoryTransactions InventoryTransaction[]
 
   @@map("subcontractors")
 }
 
 model Drone {
-  id                   String   @id @default(uuid())
-  modelName            String   @map("model_name")
-  image                String?  @db.Text
-  accountableManagerId String?  @map("accountable_manager_id")
-  webPortalLink        String?  @map("web_portal_link")
-  isDgcaCertified      Boolean  @default(false) @map("is_dgca_certified")
-  organizationId       String?  @map("organization_id")
-  createdAt            DateTime @default(now()) @map("created_at")
-
-  organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  accountableManager TeamMember?        @relation("AccountableManager", fields: [accountableManagerId], references: [id])
-  uploads            DroneUpload[]
-  manufacturedUnits  ManufacturedUnit[]
-  flightLogs         FlightLog[]
-  recurringData      Json?              @map("recurring_data")
+  id                   String             @id @default(uuid())
+  modelName            String             @map("model_name")
+  image                String?
+  accountableManagerId String?            @map("accountable_manager_id")
+  webPortalLink        String?            @map("web_portal_link")
+  isDgcaCertified      Boolean            @default(false) @map("is_dgca_certified")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  recurringData        Json?              @map("recurring_data")
+  uploads              DroneUpload[]
+  accountableManager   TeamMember?        @relation("AccountableManager", fields: [accountableManagerId], references: [id])
+  flightLogs           FlightLog[]
+  manufacturedUnits    ManufacturedUnit[]
 
   @@map("drones")
 }
@@ -191,8 +117,7 @@ model ManufacturedUnit {
   serialNumber String   @map("serial_number")
   uin          String   @map("uin")
   createdAt    DateTime @default(now()) @map("created_at")
-
-  drone Drone @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  drone        Drone    @relation(fields: [droneId], references: [id], onDelete: Cascade)
 
   @@map("manufactured_units")
 }
@@ -200,178 +125,143 @@ model ManufacturedUnit {
 model DroneUpload {
   id         String   @id @default(uuid())
   droneId    String   @map("drone_id")
-  uploadType String   @map("upload_type") // training_manual, infrastructure_manufacturing, etc.
-  fileData   String   @db.Text @map("file_data")
-  label      String?  // For 'others' category
+  uploadType String   @map("upload_type")
+  fileData   String   @map("file_data")
+  label      String?
   createdAt  DateTime @default(now()) @map("created_at")
-
-  drone Drone @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  drone      Drone    @relation(fields: [droneId], references: [id], onDelete: Cascade)
 
   @@map("drone_uploads")
 }
 
 model Battery {
-  id             String   @id @default(uuid())
+  id             String      @id @default(uuid())
   model          String
-  ratedCapacity  String   @map("rated_capacity")
-  batteryNumberA String   @map("battery_number_a")
-  batteryNumberB String   @map("battery_number_b")
-  organizationId String?  @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  flightLogs   FlightLog[]
+  ratedCapacity  String      @map("rated_capacity")
+  batteryNumberA String      @map("battery_number_a")
+  batteryNumberB String      @map("battery_number_b")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  flightLogs     FlightLog[]
 
   @@map("batteries")
 }
 
 model FlightLog {
-  id                String   @id @default(uuid())
-  organizationId    String?  @map("organization_id")
-  
-  // Pilot Flight Log
-  date             DateTime
-  takeoffTime      String   @map("takeoff_time")
-  duration         String
-  locationCoords   String?  @map("location_coords")
-  locationName     String?  @map("location_name")
-  picId            String?  @map("pic_id")
-  voId             String?  @map("vo_id")
-  missionType      String   @map("mission_type") // Training, Commercial, Testing
-  
-  // Aircraft Log
-  droneId          String   @map("drone_id")
-  serialNumber     String?  @map("serial_number")
-  uin              String?  @map("uin")
-  technicalFeedback String? @db.Text @map("technical_feedback")
-  
-  // Battery management
-  batteryId        String?  @map("battery_id")
-
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-
-  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  drone            Drone         @relation(fields: [droneId], references: [id], onDelete: Cascade)
-  pic              TeamMember?   @relation("PIC", fields: [picId], references: [id])
-  vo               TeamMember?   @relation("VO", fields: [voId], references: [id])
-  battery          Battery?      @relation(fields: [batteryId], references: [id])
+  id                String      @id @default(uuid())
+  date              DateTime
+  takeoffTime       String      @map("takeoff_time")
+  duration          String
+  locationCoords    String?     @map("location_coords")
+  locationName      String?     @map("location_name")
+  picId             String?     @map("pic_id")
+  voId              String?     @map("vo_id")
+  missionType       String      @map("mission_type")
+  droneId           String      @map("drone_id")
+  serialNumber      String?     @map("serial_number")
+  uin               String?     @map("uin")
+  technicalFeedback String?     @map("technical_feedback")
+  batteryId         String?     @map("battery_id")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+  battery           Battery?    @relation(fields: [batteryId], references: [id])
+  drone             Drone       @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  pic               TeamMember? @relation("PIC", fields: [picId], references: [id])
+  vo                TeamMember? @relation("VO", fields: [voId], references: [id])
 
   @@map("flight_logs")
 }
 
 model Order {
-  id                          String   @id @default(uuid())
-  
-  // 1. Core Order & Financial Information
-  contractNumber              String   @unique @map("contract_number")
-  clientName                  String   @map("client_name")
-  clientSegment               String   @map("client_segment")
-  orderDate                   DateTime @map("order_date")
-  estimatedCompletionDate     DateTime? @map("estimated_completion_date")
-  contractValue               Float    @map("contract_value")
-  currency                    String   @default("INR")
-  revenueRecognitionStatus    String   @default("Pending") @map("revenue_recognition_status")
-  quantity                    Int      @default(1)
-  unitPrice                   Float?   @map("unit_price")
-  deliveryAddress             String?  @db.Text @map("delivery_address")
-  contactPerson               String?  @map("contact_person")
-  contactPhone                String?  @map("contact_phone")
-  contactEmail                String?  @map("contact_email")
-  paymentTerms                String?  @map("payment_terms")
-  paymentStatus               String   @default("Unpaid") @map("payment_status")
-  
-  // 2. Technical & Configuration Details
-  droneModel                  String   @map("drone_model")
-  droneType                   String   @map("drone_type")
-  weightClass                 String   @map("weight_class")
-  payloadConfiguration        String?  @map("payload_configuration")
-  flightEnduranceRequirements String?  @map("flight_endurance_requirements")
-  softwareAiTier              String?  @map("software_ai_tier")
-  
-  // 3. Regulatory & Compliance Tracking
-  dgcaFaaCertificationStatus  String   @default("Pending") @map("dgca_faa_certification_status")
+  id                          String        @id @default(uuid())
+  contractNumber              String        @unique @map("contract_number")
+  clientName                  String        @map("client_name")
+  clientSegment               String        @map("client_segment")
+  orderDate                   DateTime      @map("order_date")
+  estimatedCompletionDate     DateTime?     @map("estimated_completion_date")
+  contractValue               Float         @map("contract_value")
+  currency                    String        @default("INR")
+  revenueRecognitionStatus    String        @default("Pending") @map("revenue_recognition_status")
+  quantity                    Int           @default(1)
+  unitPrice                   Float?        @map("unit_price")
+  deliveryAddress             String?       @map("delivery_address")
+  contactPerson               String?       @map("contact_person")
+  contactPhone                String?       @map("contact_phone")
+  contactEmail                String?       @map("contact_email")
+  paymentTerms                String?       @map("payment_terms")
+  paymentStatus               String        @default("Unpaid") @map("payment_status")
+  droneModel                  String        @map("drone_model")
+  droneType                   String        @map("drone_type")
+  weightClass                 String        @map("weight_class")
+  payloadConfiguration        String?       @map("payload_configuration")
+  flightEnduranceRequirements String?       @map("flight_endurance_requirements")
+  softwareAiTier              String?       @map("software_ai_tier")
+  dgcaFaaCertificationStatus  String        @default("Pending") @map("dgca_faa_certification_status")
   uin                         String?
-  exportLicenseStatus         String?  @map("export_license_status")
-  geofencingRequirements      String?  @map("geofencing_requirements")
-  
-  // 4. Operational & Delivery Status
-  bomReadiness                String   @default("Not Ready") @map("bom_readiness")
-  manufacturingStage          String   @default("In Design") @map("manufacturing_stage")
-  calibrationTestLogs         String?  @db.Text @map("calibration_test_logs")
-  afterSalesAmc               String?  @map("after_sales_amc")
-  manufacturingNotes          String?  @db.Text @map("manufacturing_notes")
-  cocData                     String?  @db.Text @map("coc_data")
-  priorityLevel               String   @default("Normal") @map("priority_level")
-  qualityCheckStatus          String   @default("Pending") @map("quality_check_status")
-  warrantyTerms               String?  @db.Text @map("warranty_terms")
-  specialRequirements         String?  @db.Text @map("special_requirements")
-  internalOrderNotes          String?  @db.Text @map("internal_order_notes")
-  
-  organizationId              String?  @map("organization_id")
-  createdAt                   DateTime @default(now()) @map("created_at")
-  updatedAt                   DateTime @updatedAt @map("updated_at")
-
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  uploads      OrderUpload[]
+  exportLicenseStatus         String?       @map("export_license_status")
+  geofencingRequirements      String?       @map("geofencing_requirements")
+  bomReadiness                String        @default("Not Ready") @map("bom_readiness")
+  manufacturingStage          String        @default("In Design") @map("manufacturing_stage")
+  calibrationTestLogs         String?       @map("calibration_test_logs")
+  afterSalesAmc               String?       @map("after_sales_amc")
+  manufacturingNotes          String?       @map("manufacturing_notes")
+  cocData                     String?       @map("coc_data")
+  priorityLevel               String        @default("Normal") @map("priority_level")
+  qualityCheckStatus          String        @default("Pending") @map("quality_check_status")
+  warrantyTerms               String?       @map("warranty_terms")
+  specialRequirements         String?       @map("special_requirements")
+  internalOrderNotes          String?       @map("internal_order_notes")
+  createdAt                   DateTime      @default(now()) @map("created_at")
+  updatedAt                   DateTime      @updatedAt @map("updated_at")
+  uploads                     OrderUpload[]
 
   @@map("orders")
 }
 
 model OrderUpload {
-  id         String   @id @default(uuid())
-  orderId    String   @map("order_id")
-  fileData   String   @db.Text @map("file_data")
-  fileName   String?  @map("file_name")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  fileData  String   @map("file_data")
+  fileName  String?  @map("file_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("order_uploads")
 }
 
-// Support Ticket model
 model SupportTicket {
-  id             String         @id @default(uuid())
-  subject        String
-  status         TicketStatus   @default(OPEN)
-  priority       TicketPriority @default(NORMAL)
-  userId         String         @map("user_id")
-  organizationId String?        @map("organization_id")
-  hasNewReply    Boolean       @default(false) @map("has_new_reply")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  messages     SupportMessage[]
+  id          String           @id @default(uuid())
+  subject     String
+  status      TicketStatus     @default(OPEN)
+  priority    TicketPriority   @default(NORMAL)
+  userId      String           @map("user_id")
+  hasNewReply Boolean          @default(false) @map("has_new_reply")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  messages    SupportMessage[]
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([organizationId])
   @@index([status])
   @@map("support_tickets")
 }
 
-// Support Message model (chat messages)
 model SupportMessage {
-  id        String   @id @default(uuid())
-  ticketId  String   @map("ticket_id")
-  senderId  String   @map("sender_id")
-  message   String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-
-  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  id        String        @id @default(uuid())
+  ticketId  String        @map("ticket_id")
+  senderId  String        @map("sender_id")
+  message   String
+  createdAt DateTime      @default(now()) @map("created_at")
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 
   @@index([ticketId])
   @@map("support_messages")
 }
 
-// OTP Verification for password change/forgot password
 model OtpVerification {
   id        String   @id @default(uuid())
   email     String
   otp       String
-  purpose   String   // "CHANGE_PASSWORD" or "FORGOT_PASSWORD"
+  purpose   String
   expiresAt DateTime @map("expires_at")
   verified  Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
@@ -381,24 +271,16 @@ model OtpVerification {
 }
 
 model Component {
-  id             String   @id @default(uuid())
-  name           String
-  description    String?
-  quantity       Int      @default(0)
-  category       String   @default("Operational")
-  organizationId String   @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id           String                 @id @default(uuid())
+  name         String
+  description  String?
+  quantity     Int                    @default(0)
+  category     String                 @default("Operational")
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
   transactions InventoryTransaction[]
 
   @@map("components")
-}
-
-enum TransactionType {
-  IN
-  OUT
 }
 
 model InventoryTransaction {
@@ -408,46 +290,40 @@ model InventoryTransaction {
   quantity        Int
   date            DateTime        @default(now())
   subcontractorId String?         @map("subcontractor_id")
-  userId          String?          @map("user_id")
+  userId          String?         @map("user_id")
   takenOutFor     String?         @map("taken_out_for")
-  organizationId  String          @map("organization_id")
   createdAt       DateTime        @default(now()) @map("created_at")
-
-  component     Component      @relation(fields: [componentId], references: [id], onDelete: Cascade)
-  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  subcontractor Subcontractor? @relation(fields: [subcontractorId], references: [id], onDelete: SetNull)
-  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  component       Component       @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  subcontractor   Subcontractor?  @relation(fields: [subcontractorId], references: [id])
+  user            User?           @relation(fields: [userId], references: [id])
 
   @@map("inventory_transactions")
 }
 
 model Reimbursement {
-  id             String   @id @default(uuid())
-  name           String
-  category       String?  @default("Other")
-  amount         Float
-  date           DateTime
-  billData       String   @db.Text @map("bill_data") // Base64 image or pdf
-  status         String   @default("Pending") // Pending, Approved, Rejected
-  userId         String   @map("user_id")
-  organizationId String   @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  name      String
+  category  String?  @default("Other")
+  amount    Float
+  date      DateTime
+  billData  String   @map("bill_data")
+  status    String   @default("Pending")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("reimbursements")
 }
 
 model FunnelStage {
   id        String   @id @default(uuid())
-  name      String   // NEW, CONTACTED, QUALIFIED, PROPOSAL, WON, LOST
+  name      String
   order     Int
   color     String
-  leads     Lead[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  leads     Lead[]
 
   @@map("funnel_stages")
 }
@@ -458,16 +334,16 @@ model Lead {
   email       String?
   phone       String?
   company     String?
-  source      String?        // WEBSITE, IMPORT, MANUAL
+  source      String?
   stageId     String?        @map("stage_id")
-  stage       FunnelStage?   @relation(fields: [stageId], references: [id])
   value       Float?
   notes       String?
-  activities  LeadActivity[]
   convertedAt DateTime?      @map("converted_at")
-  followUps   FollowUp[]
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
+  followUps   FollowUp[]
+  activities  LeadActivity[]
+  stage       FunnelStage?   @relation(fields: [stageId], references: [id])
 
   @@map("leads")
 }
@@ -475,10 +351,10 @@ model Lead {
 model LeadActivity {
   id        String   @id @default(uuid())
   leadId    String   @map("lead_id")
-  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  type      String   // NOTE, CALL, EMAIL, STAGE_CHANGE
+  type      String
   content   String
   createdAt DateTime @default(now()) @map("created_at")
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
   @@map("lead_activities")
 }
@@ -486,13 +362,40 @@ model LeadActivity {
 model FollowUp {
   id          String    @id @default(uuid())
   leadId      String    @map("lead_id")
-  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
   title       String?
   description String?
   scheduledAt DateTime? @map("scheduled_at")
-  status      String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
   @@map("follow_ups")
+}
+
+enum Role {
+  MANUFACTURING
+  DESIGN
+  SALES
+  SOFTWARE
+  ADMINISTRATION
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TransactionType {
+  IN
+  OUT
 }

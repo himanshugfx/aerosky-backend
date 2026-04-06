@@ -10,10 +10,7 @@ export async function GET() {
     }
 
     try {
-        const organizationId = session.user.organizationId;
-        const isSuperAdmin = session.user.role === 'SUPER_ADMIN';
-
-        const whereClause = isSuperAdmin ? {} : { organizationId };
+        const whereClause = {};
 
         // 1. Fetch Recent Flight Logs (Last 3)
         const recentFlights = await prisma.flightLog.findMany({
@@ -55,7 +52,7 @@ export async function GET() {
             notifications.push({
                 id: `flight-${flight.id}`,
                 title: 'Mission Status',
-                message: `${flight.missionType} mission with ${flight.drone.modelName} logged.`,
+                message: `${flight.missionType} mission logged.`,
                 time: formatTimeAgo(flight.createdAt),
                 type: 'success'
             });
@@ -83,7 +80,6 @@ export async function GET() {
             });
         });
 
-        // Sort all by combined "freshness" (not strictly possible without a unified timestamp, but we'll return them grouped)
         return NextResponse.json(notifications);
 
     } catch (error) {

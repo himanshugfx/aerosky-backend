@@ -135,7 +135,7 @@ export default function CompliancePage() {
 
                     <h3 className="text-4xl font-black text-slate-900 tracking-tightest uppercase italic mb-4">Integrity Level: Maximum</h3>
                     <p className="text-slate-500 text-lg max-w-2xl leading-relaxed font-medium">
-                        Analytical verification complete. All compliance parameters for the <span className="text-slate-900 font-bold italic">AeroSky Aviation Fleet</span> and personnel have been meticulously cross-referenced with international aviation safety standards.
+                        Analytical verification complete. All compliance parameters for the <span className="text-slate-900 font-bold italic">AeroSys Aviation Fleet</span> and personnel have been meticulously cross-referenced with international aviation safety standards.
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-16 w-full max-w-2xl text-left">

@@ -15,9 +15,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search');
 
-        const where: any = {
-            organizationId: auth.user.role !== 'SUPER_ADMIN' ? auth.user.organizationId : undefined,
-        };
+        const where: any = {};
 
         if (search) {
             where.OR = [
@@ -54,43 +52,27 @@ export async function POST(request: NextRequest) {
         const { componentId, type, quantity, subcontractorId, takenOutFor, date } = body;
 
         // Permission check based on type
-        const permAction = type === 'IN' ? 'edit' : 'delete'; // Mapping 'edit' to IN and 'delete' to OUT for simplicity in RBAC
+        const permAction = type === 'IN' ? 'edit' : 'delete';
         const permCheck = checkResourceAccess(auth.user, 'inventory', permAction as any);
         if (permCheck !== true) return permCheck;
 
-        // Get target organization ID
-        let targetOrgId = auth.user.organizationId;
-
-        if (!targetOrgId) {
-            // If user (SUPER_ADMIN) has no org, get it from the component
-            const component = await prisma.component.findUnique({
-                where: { id: componentId },
-                select: { organizationId: true }
-            });
-            if (!component) {
-                return NextResponse.json({ error: "Component not found" }, { status: 404 });
-            }
-            targetOrgId = component.organizationId;
-        }
-
-        // 1. Record the transaction and 2. Update the component quantity in a transaction
+        // Record the transaction and update the component quantity in a transaction
         const result = await prisma.$transaction(async (tx) => {
             // Record transaction
             const transaction = await tx.inventoryTransaction.create({
                 data: {
                     componentId,
                     type,
-                    quantity,
+                    quantity: parseInt(quantity),
                     subcontractorId: subcontractorId || null,
                     userId: auth.user.id,
                     takenOutFor: takenOutFor || null,
                     date: date ? new Date(date) : new Date(),
-                    organizationId: targetOrgId!,
                 }
             });
 
             // Update component stock
-            const quantityChange = type === 'IN' ? quantity : -quantity;
+            const quantityChange = type === 'IN' ? parseInt(quantity) : -parseInt(quantity);
             await tx.component.update({
                 where: { id: componentId },
                 data: {

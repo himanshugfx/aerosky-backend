@@ -8,31 +8,20 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     try {
         const existingMember = await prisma.teamMember.findUnique({
-            where: { id: params.id },
-            select: { organizationId: true }
+            where: { id: params.id }
         });
 
         if (!existingMember) {
             return NextResponse.json({ error: "Team member not found" }, { status: 404 });
         }
 
-        // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && existingMember.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
         const body = await request.json();
-        const { id, createdAt, organizationId, ...data } = body;
-
-        // Super admin can change organization, others cannot
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' && organizationId !== undefined ? organizationId : undefined;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, createdAt, ...data } = body;
 
         const item = await prisma.teamMember.update({
             where: { id: params.id },
-            data: {
-                ...data,
-                organizationId: targetOrgId
-            },
+            data: data,
         });
         return NextResponse.json(item);
     } catch (error) {
@@ -47,19 +36,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     try {
         const existingMember = await prisma.teamMember.findUnique({
-            where: { id: params.id },
-            select: { organizationId: true }
+            where: { id: params.id }
         });
 
         if (!existingMember) {
             return NextResponse.json({ error: "Team member not found" }, { status: 404 });
         }
 
-        // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && existingMember.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        // The schema handles cascading delete for the User record if it exists
         await prisma.teamMember.delete({ where: { id: params.id } });
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -6,7 +6,7 @@ import { Providers } from './providers'
 const outfit = Outfit({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-    title: 'AeroSky Aviation India - Drone Compliance Platform',
+    title: 'AeroSys Aviation India - Drone Compliance Platform',
     description: 'DGCA Regulatory Compliance Engine for Drone Operations',
 }
 
