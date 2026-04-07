@@ -392,11 +392,11 @@ model Component {
   description    String?
   quantity       Int      @default(0)
   category       String   @default("Operational")
-  organizationId String   @map("organization_id")
+  organizationId String?   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   transactions InventoryTransaction[]
 
   @@map("components")
@@ -416,11 +416,11 @@ model InventoryTransaction {
   subcontractorId String?         @map("subcontractor_id")
   userId          String?          @map("user_id")
   takenOutFor     String?         @map("taken_out_for")
-  organizationId  String          @map("organization_id")
+  organizationId  String?          @map("organization_id")
   createdAt       DateTime        @default(now()) @map("created_at")
 
   component     Component      @relation(fields: [componentId], references: [id], onDelete: Cascade)
-  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization  Organization?   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   subcontractor Subcontractor? @relation(fields: [subcontractorId], references: [id], onDelete: SetNull)
   user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
 
@@ -436,12 +436,12 @@ model Reimbursement {
   billData       String   @db.Text @map("bill_data") // Base64 image or pdf
   status         String   @default("Pending") // Pending, Approved, Rejected
   userId         String   @map("user_id")
-  organizationId String   @map("organization_id")
+  organizationId String?   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("reimbursements")
 }
