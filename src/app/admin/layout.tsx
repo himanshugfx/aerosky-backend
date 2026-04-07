@@ -13,6 +13,7 @@ import {
     Users,
     Wrench,
     X,
+    Receipt,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -25,6 +26,7 @@ const menuItems = [
     { href: "/admin/subcontractors", label: "Sub-contractors", icon: Wrench },
     { href: "/admin/batteries", label: "Batteries", icon: BatteryCharging },
     { href: "/admin/orders", label: "Order Book", icon: ClipboardList },
+    { href: "/admin/expenses", label: "Expense Tracker", icon: Receipt },
 ];
 
 export default function AdminLayout({
