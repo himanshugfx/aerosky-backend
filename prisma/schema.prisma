@@ -392,6 +392,7 @@ model Component {
   description    String?
   quantity       Int      @default(0)
   category       String   @default("Operational")
+  unitPrice      Float?   @map("unit_price")
   organizationId String?   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")

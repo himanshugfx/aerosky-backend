@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authenticateRequest } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { sendWelcomeEmail } from '@/lib/email';
-import { authService } from '@/lib/auth-service';
 import { createTeamMemberSchema, validateRequest } from '@/lib/schemas';
 import { handleError, errors } from '@/lib/error-handler';
 import bcrypt from 'bcryptjs';
@@ -53,20 +53,13 @@ export async function GET(request: NextRequest) {
 // POST create team member
 export async function POST(request: NextRequest) {
     try {
-        // Authenticate user (assuming session-based for web)
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
+        const auth = await authenticateRequest(request);
+        if (!auth) {
             throw errors.unauthorized();
         }
 
-        // Get authenticated user details
-        const authUser = await authService.authenticateWithCredentials(
-            session.user.email || session.user.name || '',
-            '' // Password not needed for session auth
-        );
-
-        if (!authUser) {
-            throw errors.unauthorized();
+        if (!auth.user.organizationId) {
+            throw errors.validationError({ organizationId: ['User must be associated with an organization'] });
         }
 
         const body = await request.json();
@@ -88,13 +81,13 @@ export async function POST(request: NextRequest) {
                 phone: validated.phone,
                 email: validated.email,
                 position: validated.position,
-                organizationId: authUser.organizationId, // Add organization scoping
+                organizationId: auth.user.organizationId, // Add organization scoping
             },
         });
 
         // Create a User account for the team member if email and phone are provided
         if (validated.email && validated.phone) {
-            const passwordHash = await authService.hashPassword(validated.phone);
+            const passwordHash = await bcrypt.hash(validated.phone, 10);
 
             // Check if user with this email already exists
             const existingUser = await prisma.user.findFirst({
@@ -110,7 +103,7 @@ export async function POST(request: NextRequest) {
                         passwordHash,
                         role: validated.role || 'ADMINISTRATION',
                         teamMemberId: teamMember.id,
-                        organizationId: authUser.organizationId, // Add organization scoping
+                        organizationId: auth.user.organizationId, // Add organization scoping
                     }
                 });
                 console.log(`Created user account for staff: ${validated.email} (password: phone number)`);

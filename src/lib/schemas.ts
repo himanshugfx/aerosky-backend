@@ -14,7 +14,19 @@ export const createTeamMemberSchema = z.object({
   accessId: z.string().min(1).max(50),
   position: z.string().max(100),
   phone: z.string().max(20),
-  role: z.enum(['ADMIN', 'USER', 'MANUFACTURING', 'DESIGN', 'SALES']),
+  role: z.enum([
+    'ADMIN',
+    'ADMINISTRATION',
+    'MANUFACTURING',
+    'DESIGN',
+    'SALES',
+    'SOFTWARE',
+    'TECHNICIAN',
+    'PILOT',
+    'QA_MANAGER',
+    'OPERATIONS_MANAGER',
+    'VIEWER'
+  ]).optional(),
 });
 
 export const createDroneSchema = z.object({
