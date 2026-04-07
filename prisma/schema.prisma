@@ -16,6 +16,11 @@ enum Role {
   PILOT
   TECHNICIAN
   VIEWER
+  MANUFACTURING
+  DESIGN
+  SALES
+  SOFTWARE
+  ADMINISTRATION
 }
 
 // Support ticket status

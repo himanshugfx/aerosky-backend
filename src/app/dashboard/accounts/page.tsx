@@ -62,7 +62,7 @@ export default function AccountsPage() {
         billData: ''
     })
 
-    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN'
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMINISTRATION'
 
     const fetchReimbursements = async () => {
         try {
@@ -143,7 +143,7 @@ export default function AccountsPage() {
         const ws = XLSX.utils.json_to_sheet(dataToExport)
         const wb = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(wb, ws, 'Financial_Entries')
-        XLSX.writeFile(wb, `AeroSky_FinLedger_${new Date().toISOString().split('T')[0]}.xlsx`)
+        XLSX.writeFile(wb, `AeroSys_FinLedger_${new Date().toISOString().split('T')[0]}.xlsx`)
     }
 
     const getStatusStyles = (status: string) => {

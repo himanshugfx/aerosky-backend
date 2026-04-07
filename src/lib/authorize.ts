@@ -16,14 +16,24 @@ export interface AuthenticatedUser {
  * Create a response for unauthorized access
  */
 export function unauthorizedResponse(message = 'Unauthorized'): NextResponse {
-    return NextResponse.json({ error: message }, { status: 401 });
+    return NextResponse.json({ error: message }, {
+        status: 401,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        }
+    });
 }
 
 /**
  * Create a response for forbidden access
  */
 export function forbiddenResponse(message = 'Forbidden: Insufficient permissions'): NextResponse {
-    return NextResponse.json({ error: message }, { status: 403 });
+    return NextResponse.json({ error: message }, {
+        status: 403,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        }
+    });
 }
 
 /**

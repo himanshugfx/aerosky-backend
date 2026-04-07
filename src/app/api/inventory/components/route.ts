@@ -8,17 +8,11 @@ export async function GET(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const permCheck = checkResourceAccess(auth.user, 'component', 'view' as any); // Use any if rbac.ts doesn't have it yet, but I added it
+    const permCheck = checkResourceAccess(auth.user, 'component', 'view' as any);
     if (permCheck !== true) return permCheck;
 
     try {
-        const where: any = {};
-        if (auth.user.role !== 'SUPER_ADMIN') {
-            where.organizationId = auth.user.organizationId;
-        }
-
         const components = await prisma.component.findMany({
-            where,
             orderBy: { name: "asc" },
         });
         return NextResponse.json(components);
@@ -38,21 +32,13 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { name, description, category, organizationId } = body;
-
-        // Use provided organizationId or the user's own
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
-
-        if (!targetOrgId) {
-            return NextResponse.json({ error: "Organization ID is required" }, { status: 400 });
-        }
+        const { name, description, category } = body;
 
         const component = await prisma.component.create({
             data: {
                 name,
                 description,
                 category: category || "Operational",
-                organizationId: targetOrgId,
             },
         });
 

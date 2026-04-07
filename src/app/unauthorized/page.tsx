@@ -32,7 +32,7 @@ function UnauthorizedContent() {
                     
                     <h1 className="text-2xl font-bold text-gray-900 mb-3">Access Restricted</h1>
                     <p className="text-gray-600 mb-8 leading-relaxed">
-                        To protect AeroSky systems, access is restricted to devices securely connected to the designated organization WiFi network. 
+                        To protect AeroSys systems, access is restricted to devices securely connected to the designated organization WiFi network. 
                     </p>
 
                     <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-8 text-left">
@@ -68,7 +68,7 @@ function UnauthorizedContent() {
             </div>
             
             <p className="mt-8 text-sm text-gray-400">
-                AeroSky Secure Gateway &copy; {new Date().getFullYear()}
+                AeroSys Secure Gateway &copy; {new Date().getFullYear()}
             </p>
         </div>
     );

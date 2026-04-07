@@ -4,9 +4,8 @@ import axios from 'axios'
 const MOCK_USER = {
     id: 'user-123',
     email: 'admin@aerosky.com',
-    full_name: 'AeroSky Admin',
-    role: 'System_Admin',
-    organization_id: 'org-123',
+    full_name: 'AeroSys Admin',
+    role: 'ADMINISTRATION',
     is_active: true
 }
 

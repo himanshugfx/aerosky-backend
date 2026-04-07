@@ -17,23 +17,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Valid purpose is required' }, { status: 400 });
         }
 
-        // Verify the email belongs to an organization
-        const organization = await prisma.organization.findFirst({
+        // Verify the email belongs to a user
+        const user = await prisma.user.findFirst({
             where: { email },
         });
 
-        if (!organization) {
-            // Also check if it's a user email
-            const user = await prisma.user.findFirst({
-                where: { email },
-            });
-
-            if (!user) {
-                return NextResponse.json(
-                    { error: 'No account found with this email' },
-                    { status: 404 }
-                );
-            }
+        if (!user) {
+            return NextResponse.json(
+                { error: 'No account found with this email' },
+                { status: 404 }
+            );
         }
 
         // Delete any existing unused OTPs for this email/purpose

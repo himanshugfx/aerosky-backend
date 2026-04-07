@@ -43,7 +43,7 @@ export default function AdminReimbursementsPage() {
     const [updatingId, setUpdatingId] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
 
-    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN'
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMINISTRATION'
 
     const fetchReimbursements = async () => {
         try {
@@ -77,7 +77,7 @@ export default function AdminReimbursementsPage() {
         const ws = XLSX.utils.json_to_sheet(dataToExport)
         const wb = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(wb, ws, 'Enterprise_Ledger')
-        XLSX.writeFile(wb, `AeroSky_Enterprise_Audit_${new Date().toISOString().split('T')[0]}.xlsx`)
+        XLSX.writeFile(wb, `AeroSys_Enterprise_Audit_${new Date().toISOString().split('T')[0]}.xlsx`)
     }
 
     const getStatusStyles = (status: string) => {

@@ -379,7 +379,7 @@ export default function PilotsPage() {
                                 <div className="relative z-10 space-y-3">
                                     <p className="text-md font-black text-blue-900 uppercase italic tracking-tight italic">Organizational Compliance Declaration</p>
                                     <p className="text-xs font-medium text-blue-700/80 leading-relaxed italic">
-                                        By authorizing this induction, you verify that the personnel has completed the AeroSky flight safety curriculum and holds a valid RPC issued by the appropriate civil aviation authority. Operational logs will be auto-synchronized to this profile.
+                                        By authorizing this induction, you verify that the personnel has completed the AeroSys flight safety curriculum and holds a valid RPC issued by the appropriate civil aviation authority. Operational logs will be auto-synchronized to this profile.
                                     </p>
                                 </div>
                             </div>

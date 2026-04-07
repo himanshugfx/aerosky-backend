@@ -77,114 +77,49 @@ const ALL_VIEW_PERMISSIONS: Permission[] = [
 ];
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-    SUPER_ADMIN: Object.values(PERMISSIONS),
+    ADMINISTRATION: Object.values(PERMISSIONS),
 
-    ADMIN: [
-        // Full CRUD on all resources except admin settings
-        ...Object.values(PERMISSIONS).filter((p) => p !== PERMISSIONS.SETTINGS_ADMIN),
-    ],
-
-    OPERATIONS_MANAGER: [
-        // Drones - full CRUD
+    MANUFACTURING: [
         PERMISSIONS.DRONE_VIEW,
         PERMISSIONS.DRONE_CREATE,
         PERMISSIONS.DRONE_EDIT,
-        // Orders - full CRUD
-        PERMISSIONS.ORDER_VIEW,
-        PERMISSIONS.ORDER_CREATE,
-        PERMISSIONS.ORDER_EDIT,
-        // Team - full CRUD
-        PERMISSIONS.TEAM_VIEW,
-        PERMISSIONS.TEAM_CREATE,
-        PERMISSIONS.TEAM_EDIT,
-        // Subcontractors - full CRUD
-        PERMISSIONS.SUBCONTRACTOR_VIEW,
-        PERMISSIONS.SUBCONTRACTOR_CREATE,
-        PERMISSIONS.SUBCONTRACTOR_EDIT,
-        // Batteries - full CRUD
         PERMISSIONS.BATTERY_VIEW,
         PERMISSIONS.BATTERY_CREATE,
         PERMISSIONS.BATTERY_EDIT,
-        // Inventory - full access
         PERMISSIONS.INVENTORY_VIEW,
         PERMISSIONS.INVENTORY_IN,
         PERMISSIONS.INVENTORY_OUT,
         PERMISSIONS.INVENTORY_MANAGE,
-        // Compliance
         PERMISSIONS.COMPLIANCE_VIEW,
         PERMISSIONS.COMPLIANCE_UPLOAD,
-        // Reports
+    ],
+
+    DESIGN: [
+        PERMISSIONS.DRONE_VIEW,
+        PERMISSIONS.DRONE_EDIT,
+        PERMISSIONS.SUBCONTRACTOR_VIEW,
+        PERMISSIONS.COMPLIANCE_VIEW,
+        PERMISSIONS.REPORT_VIEW,
+    ],
+
+    SALES: [
+        PERMISSIONS.ORDER_VIEW,
+        PERMISSIONS.ORDER_CREATE,
+        PERMISSIONS.ORDER_EDIT,
         PERMISSIONS.REPORT_VIEW,
         PERMISSIONS.REPORT_EXPORT,
-        // Settings - view only
+    ],
+
+    SOFTWARE: [
+        PERMISSIONS.DRONE_VIEW,
+        PERMISSIONS.DRONE_EDIT,
+        PERMISSIONS.COMPLIANCE_VIEW,
         PERMISSIONS.SETTINGS_VIEW,
     ],
 
-    QA_MANAGER: [
-        // View permissions
-        PERMISSIONS.DRONE_VIEW,
-        PERMISSIONS.DRONE_EDIT, // Can edit compliance fields
-        PERMISSIONS.ORDER_VIEW,
-        PERMISSIONS.TEAM_VIEW,
-        PERMISSIONS.SUBCONTRACTOR_VIEW,
-        PERMISSIONS.BATTERY_VIEW,
-        // Compliance - full access
-        PERMISSIONS.COMPLIANCE_VIEW,
-        PERMISSIONS.COMPLIANCE_UPLOAD,
-        PERMISSIONS.COMPLIANCE_APPROVE, // Key permission
-        // Reports
-        PERMISSIONS.REPORT_VIEW,
-        PERMISSIONS.REPORT_EXPORT,
-        // Inventory - View only
-        PERMISSIONS.INVENTORY_VIEW,
-    ],
+    SUPER_ADMIN: Object.values(PERMISSIONS),
 
-    PILOT: [
-        // View permissions for relevant resources
-        PERMISSIONS.DRONE_VIEW,
-        PERMISSIONS.TEAM_VIEW,
-        PERMISSIONS.BATTERY_VIEW,
-        // Compliance
-        PERMISSIONS.COMPLIANCE_VIEW,
-        PERMISSIONS.COMPLIANCE_UPLOAD, // Can upload flight logs
-        // Inventory - View only
-        PERMISSIONS.INVENTORY_VIEW,
-        // Operational Visibility
-        PERMISSIONS.SUBCONTRACTOR_VIEW,
-        PERMISSIONS.REPORT_VIEW,
-    ],
-
-    TECHNICIAN: [
-        // Drones - view
-        PERMISSIONS.DRONE_VIEW,
-        // Batteries - can manage
-        PERMISSIONS.BATTERY_VIEW,
-        PERMISSIONS.BATTERY_CREATE,
-        PERMISSIONS.BATTERY_EDIT,
-        // Team - view
-        PERMISSIONS.TEAM_VIEW,
-        // Compliance
-        PERMISSIONS.COMPLIANCE_VIEW,
-        PERMISSIONS.COMPLIANCE_UPLOAD,
-        // Inventory - Full technician access
-        PERMISSIONS.INVENTORY_VIEW,
-        PERMISSIONS.INVENTORY_IN,
-        PERMISSIONS.INVENTORY_OUT,
-        // Operational Visibility
-        PERMISSIONS.SUBCONTRACTOR_VIEW,
-        PERMISSIONS.REPORT_VIEW,
-    ],
-
-    VIEWER: [
-        // Read-only access to most resources
-        PERMISSIONS.DRONE_VIEW,
-        PERMISSIONS.ORDER_VIEW,
-        PERMISSIONS.TEAM_VIEW,
-        PERMISSIONS.SUBCONTRACTOR_VIEW,
-        PERMISSIONS.BATTERY_VIEW,
-        PERMISSIONS.COMPLIANCE_VIEW,
-        PERMISSIONS.REPORT_VIEW,
-    ],
+    ADMIN: Object.values(PERMISSIONS),
 };
 
 // ============================================

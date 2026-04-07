@@ -22,10 +22,7 @@ export async function GET(request: Request) {
 
         const where: any = {};
 
-        // Security filter: Non-SUPER_ADMINs only see their own organization's orders
-        if ((session.user as any).role !== 'SUPER_ADMIN') {
-            where.organizationId = (session.user as any).organizationId;
-        }
+        // Security filter - removed
 
         if (ids && ids !== 'all') {
             where.id = { in: ids.split(',') };
@@ -58,7 +55,7 @@ export async function GET(request: Request) {
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(18);
                 doc.setFont('helvetica', 'bold');
-                doc.text('AeroSky Aviaiton India Private Limited', 15, 22);
+                doc.text('AeroSys Aviaiton India Private Limited', 15, 22);
 
                 doc.setFontSize(9);
                 doc.setFont('helvetica', 'italic');
@@ -193,7 +190,7 @@ export async function GET(request: Request) {
                     doc.setFontSize(8);
                     doc.setTextColor(150, 150, 150);
                     doc.text(`Generated on ${new Date().toLocaleString()} | Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
-                    doc.text('AeroSky Aviation India - Official Technical Document', 105, 290, { align: 'center' });
+                    doc.text('AeroSys Aviation India - Official Technical Document', 105, 290, { align: 'center' });
                 }
 
                 const specSheetBuffer = doc.output('arraybuffer');

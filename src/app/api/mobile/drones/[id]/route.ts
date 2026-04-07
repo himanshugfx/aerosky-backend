@@ -27,10 +27,7 @@ export async function GET(
             return NextResponse.json({ error: "Drone not found" }, { status: 404 });
         }
 
-        // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && drone.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden: You do not have access to this resource" }, { status: 403 });
-        }
+        // Organization scoping check - removed
 
         const uploads = {
             trainingManual: drone.uploads.find((u: any) => u.uploadType === "training_manual")?.fileData,
@@ -61,7 +58,6 @@ export async function GET(
             modelName: drone.modelName,
             image: drone.image,
             accountableManagerId: drone.accountableManagerId,
-            organizationId: drone.organizationId,
             createdAt: drone.createdAt.toISOString(),
             uploads,
             manufacturedUnits: drone.manufacturedUnits.map((u: any) => ({
@@ -92,7 +88,7 @@ export async function PUT(
     try {
         const existingDrone = await prisma.drone.findUnique({
             where: { id },
-            select: { organizationId: true }
+            /* select: { organizationId: true } removed */
         });
 
         if (!existingDrone) {
@@ -100,15 +96,10 @@ export async function PUT(
         }
 
         // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && existingDrone.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
+        // Scoping check removed
 
         const body = await request.json();
-        const { modelName, image, accountableManagerId, webPortalLink, manufacturedUnits, recurringData, organizationId } = body;
-
-        // Super admin can change organization, others cannot
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' && organizationId !== undefined ? organizationId : undefined;
+        const { modelName, image, accountableManagerId, webPortalLink, manufacturedUnits, recurringData } = body;
 
         // Start transaction for updates
         const updatedDrone = await prisma.$transaction(async (tx) => {
@@ -121,7 +112,6 @@ export async function PUT(
                     accountableManagerId: accountableManagerId !== undefined ? accountableManagerId : undefined,
                     webPortalLink: webPortalLink !== undefined ? webPortalLink : undefined,
                     recurringData: recurringData !== undefined ? recurringData : undefined,
-                    organizationId: targetOrgId,
                 },
                 include: {
                     uploads: true,
@@ -172,7 +162,7 @@ export async function DELETE(
     try {
         const existingDrone = await prisma.drone.findUnique({
             where: { id },
-            select: { organizationId: true }
+            /* select: { organizationId: true } removed */
         });
 
         if (!existingDrone) {
@@ -180,9 +170,7 @@ export async function DELETE(
         }
 
         // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && existingDrone.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
+        // Scoping check removed
 
         await prisma.drone.delete({
             where: { id }

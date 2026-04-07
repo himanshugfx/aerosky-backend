@@ -7,7 +7,7 @@ import { isAllowedIp } from "@/lib/networkGuard";
 const authMiddleware = withAuth(
     function middleware(req: NextRequestWithAuth) {
         // Auth Check - Skip for mobile auth routes and other public APIs
-        const publicPaths = ["/api/mobile/auth", "/api/auth", "/unauthorized"];
+        const publicPaths = ["/api/mobile/auth", "/api/auth", "/unauthorized", "/login", "/register", "/forgot-password"];
         const isPublicPath = publicPaths.some(path => 
             req.nextUrl.pathname === path || req.nextUrl.pathname.startsWith(`${path}/`)
         );
@@ -29,7 +29,7 @@ const authMiddleware = withAuth(
     {
         callbacks: {
             authorized: ({ token, req }: { token: any, req: NextRequest }) => {
-                const publicPaths = ["/api/mobile/auth", "/api/auth", "/unauthorized"];
+                const publicPaths = ["/api/mobile/auth", "/api/auth", "/unauthorized", "/login", "/register", "/forgot-password"];
                 const isPublicPath = publicPaths.some(path => 
                     req.nextUrl.pathname === path || req.nextUrl.pathname.startsWith(`${path}/`)
                 );

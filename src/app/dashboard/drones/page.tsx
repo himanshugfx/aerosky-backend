@@ -100,8 +100,9 @@ export default function DronesPage() {
     if (status === 'unauthenticated') return null
 
     return (
-        <div className="space-y-12 animate-slide-up pb-10">
-            {/* Header */}
+        <>
+            <div className="space-y-12 animate-slide-up pb-10">
+                {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Aerial <span className="text-slate-400 font-medium">Assets</span></h1>
@@ -227,100 +228,102 @@ export default function DronesPage() {
                     <p className="text-slate-500 font-medium max-w-sm mx-auto mt-3">Register new aircraft units to expand your organization's aerial capabilities.</p>
                 </div>
             )}
+        </div>
 
-            {showModal && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6 animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden animate-slide-up border border-white/20">
-                        <div className="p-12 pb-8 flex items-center justify-between relative overflow-hidden bg-[#1e293b] text-white">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/20 blur-[80px] rounded-full translate-x-32 -translate-y-32" />
-                            <div className="relative z-10 space-y-2">
-                                <h3 className="text-4xl font-black tracking-tightest uppercase italic">Fleet Entry</h3>
-                                <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
-                                    Aircraft Specification Registry <ShieldCheck className="w-4 h-4 text-orange-400" />
-                                </p>
+        {showModal && (
+            <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-md flex items-center justify-center z-[110] p-6 animate-in fade-in duration-500">
+                <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden animate-slide-up border border-white/20">
+                    <div className="p-12 pb-8 flex items-center justify-between relative overflow-hidden bg-[#1e293b] text-white">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/20 blur-[80px] rounded-full translate-x-32 -translate-y-32" />
+                        <div className="relative z-10 space-y-2">
+                            <h3 className="text-4xl font-black tracking-tightest uppercase italic">Fleet Entry</h3>
+                            <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
+                                Aircraft Specification Registry <ShieldCheck className="w-4 h-4 text-orange-400" />
+                            </p>
+                        </div>
+                        <button onClick={() => setShowModal(false)} className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5">
+                            <X className="w-7 h-7" />
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="p-12 space-y-10">
+                        <div className="grid gap-10">
+                            <div className="space-y-3">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Aircraft Model Designation *</label>
+                                <div className="relative">
+                                    <Plane className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. AeroX Phantom X1"
+                                        value={formData.modelName}
+                                        onChange={(e) => setFormData({ ...formData, modelName: e.target.value })}
+                                        className="input-modern !pl-16 shadow-sm"
+                                        required
+                                    />
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5">
-                                <X className="w-7 h-7" />
-                            </button>
+
+                            <div className="space-y-3">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Web Portal</label>
+                                <div className="relative">
+                                    <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                                    <input
+                                        type="url"
+                                        placeholder="https://telemetry.manufacturer.com"
+                                        value={formData.webPortalLink}
+                                        onChange={(e) => setFormData({ ...formData, webPortalLink: e.target.value })}
+                                        className="input-modern !pl-16 shadow-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 p-6 rounded-3xl group cursor-pointer" onClick={() => setFormData({ ...formData, isDgcaCertified: !formData.isDgcaCertified })}>
+                                <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all ${formData.isDgcaCertified ? 'bg-orange-600 border-orange-600 text-white' : 'border-slate-200 bg-white'}`}>
+                                    {formData.isDgcaCertified && <ShieldCheck className="w-5 h-5" />}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-black text-slate-900 uppercase tracking-tight">DGCA Type Certified</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verify regulatory compliance state</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-12 space-y-10">
-                            <div className="grid gap-10">
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Aircraft Model Designation *</label>
-                                    <div className="relative">
-                                        <Plane className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                                        <input
-                                            type="text"
-                                            placeholder="e.g. AeroX Phantom X1"
-                                            value={formData.modelName}
-                                            onChange={(e) => setFormData({ ...formData, modelName: e.target.value })}
-                                            className="input-modern !pl-16 shadow-sm"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Manufacturer Telemetry Portal</label>
-                                    <div className="relative">
-                                        <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                                        <input
-                                            type="url"
-                                            placeholder="https://telemetry.manufacturer.com"
-                                            value={formData.webPortalLink}
-                                            onChange={(e) => setFormData({ ...formData, webPortalLink: e.target.value })}
-                                            className="input-modern !pl-16 shadow-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 p-6 rounded-3xl group cursor-pointer" onClick={() => setFormData({ ...formData, isDgcaCertified: !formData.isDgcaCertified })}>
-                                    <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all ${formData.isDgcaCertified ? 'bg-orange-600 border-orange-600 text-white' : 'border-slate-200 bg-white'}`}>
-                                        {formData.isDgcaCertified && <ShieldCheck className="w-5 h-5" />}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-black text-slate-900 uppercase tracking-tight">DGCA Type Certified</span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verify regulatory compliance state</span>
-                                    </div>
-                                </div>
+                        <div className="bg-orange-50/40 border border-orange-100 p-8 rounded-[2.5rem] flex items-start gap-6 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 blur-2xl rounded-full" />
+                            <ShieldCheck className="w-8 h-8 text-orange-600 shrink-0 mt-1 relative z-10" />
+                            <div className="relative z-10">
+                                <p className="text-sm font-black text-orange-900 mb-2 uppercase tracking-tight">Compliance Authentication</p>
+                                <p className="text-xs font-medium text-orange-700/80 leading-relaxed uppercase tracking-tighter">
+                                    Registration initializes the digital twin protocol. All maintenance logs and structural inspections will be synchronized with this identifier.
+                                </p>
                             </div>
+                        </div>
 
-                            <div className="bg-orange-50/40 border border-orange-100 p-8 rounded-[2.5rem] flex items-start gap-6 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 blur-2xl rounded-full" />
-                                <ShieldCheck className="w-8 h-8 text-orange-600 shrink-0 mt-1 relative z-10" />
-                                <div className="relative z-10">
-                                    <p className="text-sm font-black text-orange-900 mb-2 uppercase tracking-tight">Compliance Authentication</p>
-                                    <p className="text-xs font-medium text-orange-700/80 leading-relaxed uppercase tracking-tighter">
-                                        Registration initializes the digital twin protocol. All maintenance logs and structural inspections will be synchronized with this identifier.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-6">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                    className="px-10 py-5 text-slate-400 font-black uppercase tracking-widest text-[11px] hover:text-slate-900 transition-colors"
-                                >
-                                    Abort
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="flex-1 btn-premium-primary !py-5 shadow-2xl shadow-orange-500/20"
-                                >
-                                    {submitting ? (
-                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                                    ) : (
-                                        <span className="flex items-center gap-3">Authorize Registry <ChevronRight className="w-5 h-5" /></span>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div className="flex gap-6">
+                            <button
+                                type="button"
+                                onClick={() => setShowModal(false)}
+                                className="px-10 py-5 text-slate-400 font-black uppercase tracking-widest text-[11px] hover:text-slate-900 transition-colors"
+                            >
+                                Abort
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="flex-1 btn-premium-primary !py-5 shadow-2xl shadow-orange-500/20"
+                            >
+                                {submitting ? (
+                                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                                ) : (
+                                    <span className="flex items-center gap-3">Authorize Registry <ChevronRight className="w-5 h-5" /></span>
+                                )}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            )}
-        </div>
+            </div>
+        )}
+        </>
     )
 }
+

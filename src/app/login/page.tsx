@@ -68,7 +68,7 @@ export default function LoginPage() {
                     </div>
                     
                     <h1 className="text-6xl font-black text-white tracking-tightest leading-none">
-                        AEROSKY<br/>
+                        AEROSYS<br/>
                         <span className="text-orange-500">CONTROL</span>
                     </h1>
                 </div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
                 {/* Bottom Accreditation */}
                 <div className="absolute bottom-12 left-8 md:left-16 lg:left-24 flex flex-col gap-2 opacity-30 hover:opacity-100 transition-opacity">
                     <p className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">
-                        &copy; 2026 AeroSky Precision
+                        &copy; 2026 AeroSys Precision
                     </p>
                     <div className="flex gap-4">
                         <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />

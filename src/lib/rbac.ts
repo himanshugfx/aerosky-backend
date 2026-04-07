@@ -142,14 +142,12 @@ export async function createAuditLog(data: AuditLogData): Promise<void> {
  * Get human-readable role name
  */
 export function getRoleDisplayName(role: Role): string {
-    const displayNames: Record<Role, string> = {
-        SUPER_ADMIN: 'Super Administrator',
-        ADMIN: 'Administrator',
-        OPERATIONS_MANAGER: 'Operations Manager',
-        QA_MANAGER: 'QA Manager',
-        PILOT: 'Remote Pilot',
-        TECHNICIAN: 'Technician',
-        VIEWER: 'Viewer',
+    const displayNames: any = {
+        ADMINISTRATION: 'Administration',
+        MANUFACTURING: 'Manufacturing',
+        DESIGN: 'Design',
+        SALES: 'Sales',
+        SOFTWARE: 'Software',
     };
     return displayNames[role] || role;
 }
@@ -158,14 +156,12 @@ export function getRoleDisplayName(role: Role): string {
  * Get role hierarchy level (higher = more permissions)
  */
 export function getRoleLevel(role: Role): number {
-    const levels: Record<Role, number> = {
-        SUPER_ADMIN: 100,
-        ADMIN: 90,
-        OPERATIONS_MANAGER: 70,
-        QA_MANAGER: 60,
-        PILOT: 40,
-        TECHNICIAN: 40,
-        VIEWER: 10,
+    const levels: any = {
+        ADMINISTRATION: 100,
+        MANUFACTURING: 50,
+        DESIGN: 50,
+        SALES: 50,
+        SOFTWARE: 50,
     };
     return levels[role] || 0;
 }

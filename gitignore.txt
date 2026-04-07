@@ -1,0 +1,52 @@
+# AeroSky India - Global Gitignore
+
+# Dependencies
+node_modules/
+.npm
+dist/
+build/
+.next/
+out/
+venv/
+env/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.sqlite
+*.db
+
+# Keys & Secrets
+backend/keys/*.pem
+backend/keys/*.pub
+backend/keys/*.key
+*.key
+*.pem
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+.gemini/
+.antigravityignore
+task_boundary_history.txt
+package-lock.json
+*.log
+
+/src/generated/prisma

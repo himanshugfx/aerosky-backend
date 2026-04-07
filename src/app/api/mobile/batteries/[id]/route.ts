@@ -9,17 +9,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     try {
         const existingBattery = await prisma.battery.findUnique({
             where: { id: params.id },
-            select: { organizationId: true }
         });
 
         if (!existingBattery) {
             return NextResponse.json({ error: "Battery not found" }, { status: 404 });
         }
 
-        // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && existingBattery.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
+        // Organization scoping check - removed
 
         await prisma.battery.delete({ where: { id: params.id } });
         return NextResponse.json({ success: true });

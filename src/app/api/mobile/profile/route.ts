@@ -22,13 +22,7 @@ export async function GET(request: NextRequest) {
                 phone: true,
                 role: true,
                 isActive: true,
-                organizationId: true,
                 createdAt: true,
-                organization: {
-                    select: {
-                        name: true
-                    }
-                },
                 teamMember: {
                     select: {
                         name: true,
@@ -50,8 +44,6 @@ export async function GET(request: NextRequest) {
             fullName: user.fullName || user.teamMember?.name || user.username,
             phone: user.phone || user.teamMember?.phone,
             role: user.role,
-            organizationId: user.organizationId,
-            organizationName: user.organization?.name,
             position: user.teamMember?.position,
             createdAt: user.createdAt,
         });

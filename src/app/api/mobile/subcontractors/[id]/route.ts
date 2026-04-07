@@ -9,7 +9,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     try {
         const existingSub = await prisma.subcontractor.findUnique({
             where: { id: params.id },
-            select: { organizationId: true }
+            /* select: { organizationId: true } removed */
         });
 
         if (!existingSub) {
@@ -17,21 +17,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         }
 
         // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && existingSub.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        // Scoping check removed
         const body = await request.json();
         const { id, createdAt, organizationId, ...data } = body;
-
-        // Super admin can change organization, others cannot
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' && organizationId !== undefined ? organizationId : undefined;
 
         const item = await prisma.subcontractor.update({
             where: { id: params.id },
             data: {
                 ...data,
-                organizationId: targetOrgId
             },
         });
         return NextResponse.json(item);
@@ -48,7 +41,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     try {
         const existingSub = await prisma.subcontractor.findUnique({
             where: { id: params.id },
-            select: { organizationId: true }
+            /* select: { organizationId: true } removed */
         });
 
         if (!existingSub) {
@@ -56,10 +49,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         }
 
         // Organization scoping check
-        if (auth.user.role !== 'SUPER_ADMIN' && existingSub.organizationId !== auth.user.organizationId) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        // Scoping check removed
         await prisma.subcontractor.delete({ where: { id: params.id } });
         return NextResponse.json({ success: true });
     } catch (error) {

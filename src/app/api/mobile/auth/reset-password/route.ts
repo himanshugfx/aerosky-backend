@@ -82,14 +82,6 @@ export async function POST(request: NextRequest) {
                 data: { passwordHash },
             });
 
-            // Also update the organization phone field (which acts as the password reference)
-            if (user.organizationId) {
-                await tx.organization.update({
-                    where: { id: user.organizationId },
-                    data: { phone: newPassword },
-                });
-            }
-
             // Delete all OTP records for this email
             await tx.otpVerification.deleteMany({
                 where: { email },

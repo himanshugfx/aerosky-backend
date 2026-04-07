@@ -13,9 +13,7 @@ export async function GET(request: NextRequest) {
 
     try {
         const where: any = {};
-        if (auth.user.role !== 'SUPER_ADMIN') {
-            where.organizationId = auth.user.organizationId;
-        }
+        // Organization scoping - removed
 
         const items = await prisma.order.findMany({
             where,
@@ -40,14 +38,9 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const { organizationId, uploads, ...data } = body;
-
-        // Use provided organizationId if super admin, else use current user's org
-        const targetOrgId = auth.user.role === 'SUPER_ADMIN' ? organizationId : auth.user.organizationId;
-
         const item = await prisma.order.create({
             data: {
                 ...data,
-                organizationId: targetOrgId,
                 uploads: uploads && uploads.length > 0 ? {
                     create: uploads.map((u: any) => ({
                         fileData: u.fileData,

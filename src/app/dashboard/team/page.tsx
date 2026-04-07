@@ -32,13 +32,11 @@ interface TeamMember {
 }
 
 const roleBadgeConfig: Record<string, string> = {
-    'ADMIN': 'badge-primary',
-    'SUPER_ADMIN': 'badge-primary',
-    'OPERATIONS_MANAGER': 'badge-secondary',
-    'QA_MANAGER': 'badge-warning',
-    'PILOT': 'badge-success',
-    'TECHNICIAN': 'badge-secondary',
-    'VIEWER': 'badge-secondary',
+    'ADMINISTRATION': 'badge-primary',
+    'MANUFACTURING': 'badge-success',
+    'DESIGN': 'badge-warning',
+    'SOFTWARE': 'badge-info',
+    'SALES': 'badge-secondary',
 }
 
 export default function TeamPage() {
@@ -47,7 +45,7 @@ export default function TeamPage() {
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', position: '', accessId: '', role: 'VIEWER' })
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '', position: '', accessId: '', role: 'SOFTWARE' })
     const [submitting, setSubmitting] = useState(false)
 
     const fetchTeam = async () => {
@@ -321,12 +319,11 @@ export default function TeamPage() {
                                     className="input-premium"
                                     required
                                 >
-                                    <option value="ADMIN">Administrator</option>
-                                    <option value="OPERATIONS_MANAGER">Operations Manager</option>
-                                    <option value="QA_MANAGER">QA Manager</option>
-                                    <option value="PILOT">Remote Pilot</option>
-                                    <option value="TECHNICIAN">Technician</option>
-                                    <option value="VIEWER">Viewer</option>
+                                    <option value="ADMINISTRATION">Administration</option>
+                                    <option value="MANUFACTURING">Manufacturing</option>
+                                    <option value="DESIGN">Design</option>
+                                    <option value="SOFTWARE">Software</option>
+                                    <option value="SALES">Sales</option>
                                 </select>
                             </div>
 
