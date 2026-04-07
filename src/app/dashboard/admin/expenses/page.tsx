@@ -570,14 +570,24 @@ export default function ExpensesPage() {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Expense Date *</label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                                    <input
-                                        type="date"
-                                        className="input-premium pl-12 py-4"
-                                        value={formData.date}
-                                        onChange={e => setFormData({ ...formData, date: e.target.value })}
-                                        required
-                                    />
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
+                                    <div className="relative">
+                                        {/* Display formatted date */}
+                                        <div className="absolute inset-0 pl-12 py-4 flex items-center bg-white rounded-2xl border border-slate-200 pointer-events-none">
+                                            {formData.date ? (() => {
+                                                const [year, month, day] = formData.date.split('-');
+                                                return `${day}/${month}/${year}`;
+                                            })() : 'DD/MM/YYYY'}
+                                        </div>
+                                        {/* Invisible native picker on top */}
+                                        <input
+                                            type="date"
+                                            className="input-premium pl-12 py-4 w-full opacity-0 cursor-pointer"
+                                            value={formData.date}
+                                            onChange={e => setFormData({ ...formData, date: e.target.value })}
+                                            required
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
