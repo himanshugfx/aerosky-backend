@@ -12,8 +12,10 @@ export async function GET(request: NextRequest) {
     if (permCheck !== true) return permCheck;
 
     try {
-        const where: any = {};
-        // Organization scoping - removed
+        // Organization scoping
+        if (auth.user.role !== 'SUPER_ADMIN') {
+            where.organizationId = auth.user.organizationId;
+        }
 
         const items = await prisma.order.findMany({
             where,
@@ -41,6 +43,7 @@ export async function POST(request: NextRequest) {
         const item = await prisma.order.create({
             data: {
                 ...data,
+                organizationId: auth.user.organizationId as string,
                 uploads: uploads && uploads.length > 0 ? {
                     create: uploads.map((u: any) => ({
                         fileData: u.fileData,

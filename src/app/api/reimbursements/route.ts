@@ -13,9 +13,13 @@ export async function GET(request: NextRequest) {
 
         const where: any = {};
 
+        // Organization scoping
+        if (auth.user.role !== 'SUPER_ADMIN') {
+            where.organizationId = auth.user.organizationId;
+        }
+
         // Filtering for regular users (only their own)
-        // Only ADMINISTRATION can see all reimbursements
-        if (auth.user.role !== 'ADMINISTRATION') {
+        if (!['SUPER_ADMIN', 'ADMIN', 'OPERATIONS_MANAGER', 'ADMINISTRATION'].includes(auth.user.role)) {
             where.userId = auth.user.id;
         }
 
@@ -67,6 +71,7 @@ export async function POST(request: NextRequest) {
                 date: new Date(date),
                 billData,
                 userId: auth.user.id,
+                organizationId: auth.user.organizationId as string,
             }
         });
 
@@ -103,10 +108,20 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` }, { status: 400 });
         }
 
-        const reimbursement = await prisma.reimbursement.update({
-            where: { id },
+        // Ensure reimbursement belongs to the same organization
+        const where: any = { id };
+        if (auth.user.role !== 'SUPER_ADMIN') {
+            where.organizationId = auth.user.organizationId;
+        }
+
+        const reimbursement = await prisma.reimbursement.updateMany({
+            where,
             data: { status }
         });
+
+        if (reimbursement.count === 0) {
+            return NextResponse.json({ error: 'Reimbursement not found' }, { status: 404 });
+        }
 
         return NextResponse.json({ success: true, status: reimbursement.status });
     } catch (error: any) {
