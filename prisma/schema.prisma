@@ -511,7 +511,8 @@ model Expense {
   date           DateTime
   category       String
   paymentMethod  String?  @map("payment_method")
-  status         String   @default("Paid") // Paid, Pending
+  status         String   @default("pending") // pending, approved, rejected
+  paymentStatus  String   @default("unpaid") @map("payment_status") // paid, unpaid
   attachment     String?  @db.Text // Base64 or URL
   organizationId String   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")

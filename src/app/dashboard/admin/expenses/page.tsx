@@ -44,6 +44,7 @@ interface Expense {
     category: string
     paymentMethod?: string
     status: string
+    paymentStatus: string
     attachment?: string
     createdAt: string
     updatedAt: string
@@ -55,6 +56,7 @@ interface ExpenseFormData {
     date: string
     category: string
     paymentMethod: string
+    paymentStatus: string
     attachment: string
 }
 
@@ -106,6 +108,7 @@ export default function ExpensesPage() {
         date: new Date().toISOString().split('T')[0],
         category: 'Office Supplies',
         paymentMethod: 'Credit Card',
+        paymentStatus: 'unpaid',
         attachment: ''
     })
 
@@ -151,12 +154,14 @@ export default function ExpensesPage() {
 
         try {
             const method = editingExpense ? 'PUT' : 'POST'
-            const url = editingExpense ? `/api/expenses/${editingExpense.id}` : '/api/expenses'
+            const payload = editingExpense
+                ? { ...formData, id: editingExpense.id }
+                : formData
 
-            const res = await fetch(url, {
+            const res = await fetch('/api/expenses', {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             })
 
             if (res.ok) {
@@ -176,7 +181,7 @@ export default function ExpensesPage() {
         if (!confirm('Are you sure you want to delete this expense?')) return
 
         try {
-            const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' })
+            const res = await fetch(`/api/expenses?id=${id}`, { method: 'DELETE' })
             if (res.ok) {
                 fetchExpenses(currentPage)
             }
@@ -192,6 +197,7 @@ export default function ExpensesPage() {
             date: new Date().toISOString().split('T')[0],
             category: 'Office Supplies',
             paymentMethod: 'Credit Card',
+            paymentStatus: 'unpaid',
             attachment: ''
         })
     }
@@ -204,6 +210,7 @@ export default function ExpensesPage() {
             date: expense.date.split('T')[0],
             category: expense.category,
             paymentMethod: expense.paymentMethod || 'Credit Card',
+            paymentStatus: expense.paymentStatus || 'unpaid',
             attachment: expense.attachment || ''
         })
         setShowForm(true)
@@ -387,6 +394,7 @@ export default function ExpensesPage() {
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Category</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Date</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Payment</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Actions</th>
                                 </tr>
                             </thead>
@@ -414,6 +422,13 @@ export default function ExpensesPage() {
                                                 'status-badge-warning'
                                             }`}>
                                                 {expense.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <span className={`status-badge ${
+                                                expense.paymentStatus === 'paid' ? 'status-badge-success' : 'status-badge-error'
+                                            }`}>
+                                                {expense.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
@@ -536,6 +551,18 @@ export default function ExpensesPage() {
                                         {PAYMENT_METHODS.map(method => (
                                             <option key={method} value={method}>{method}</option>
                                         ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Payment Status *</label>
+                                    <select
+                                        className="input-premium py-4 bg-white"
+                                        value={formData.paymentStatus}
+                                        onChange={e => setFormData({ ...formData, paymentStatus: e.target.value })}
+                                        required
+                                    >
+                                        <option value="unpaid">Unpaid</option>
+                                        <option value="paid">Paid</option>
                                     </select>
                                 </div>
                             </div>

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { description, amount, date, category, paymentMethod, attachment } = body;
+        const { description, amount, date, category, paymentMethod, attachment, paymentStatus } = body;
 
         if (!description || !amount || !date || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
                 date: new Date(date),
                 category,
                 paymentMethod: paymentMethod || null,
+                paymentStatus: paymentStatus || 'unpaid',
                 attachment: attachment || null,
                 organizationId: auth.user.organizationId,
             }
@@ -117,7 +118,7 @@ export async function PUT(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { id, description, amount, date, category, paymentMethod, attachment, status } = body;
+        const { id, description, amount, date, category, paymentMethod, attachment, status, paymentStatus } = body;
 
         if (!id) {
             return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
@@ -131,6 +132,7 @@ export async function PUT(request: NextRequest) {
         if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod;
         if (attachment !== undefined) updateData.attachment = attachment;
         if (status !== undefined) updateData.status = status;
+        if (paymentStatus !== undefined) updateData.paymentStatus = paymentStatus;
 
         const expense = await prisma.expense.update({
             where: { id },
