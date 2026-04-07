@@ -49,6 +49,7 @@ const navigationItems = [
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart, category: 'Administration' as Category },
     { name: 'Drone Fleet', href: '/dashboard/drones', icon: Plane, category: 'Administration' as Category },
     { name: 'Staff Details', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
+    { name: 'Expense Tracker', href: '/dashboard/admin/expenses', icon: CreditCard, category: 'Administration' as Category },
     { name: 'Administrative Hub', href: '/dashboard/admin/reimbursements', icon: ShieldCheck, category: 'Administration' as Category },
 ];
 
@@ -142,7 +143,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Navigation Domain</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {(['Dashboard', 'Sales', 'Operations', 'Administration'] as Category[])
-                                        .filter(cat => cat !== 'Administration' || (session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMIN'))
+                                        .filter(cat => cat !== 'Administration' || (session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMIN' || session?.user?.role === 'ADMINISTRATION'))
                                         .map((cat) => (
                                         <button
                                             key={cat}

@@ -11,7 +11,7 @@ interface DroneCardProps {
 
 export function DroneCard({ drone }: DroneCardProps) {
     return (
-        <Link href={`/admin/drone/${drone.id}`}>
+        <Link href={`/dashboard/drones/${drone.id}`}>
             <div className="group bg-[#0f0f12] border border-white/5 rounded-3xl overflow-hidden hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
                 {/* Drone Image */}
                 <div className="relative h-48 bg-gradient-to-br from-gray-900 to-gray-800 overflow-hidden">

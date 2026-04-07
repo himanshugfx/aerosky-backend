@@ -18,11 +18,6 @@ const authMiddleware = withAuth(
 
         const token = req.nextauth?.token;
         const isAuth = !!token;
-        const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
-
-        if (isAdminPage && !isAuth) {
-            return NextResponse.redirect(new URL("/login", req.url));
-        }
 
         return NextResponse.next();
     },
@@ -77,5 +72,5 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
 
 export const config = {
     // Applied to login, register, reset links, and unauthorized as well to guarantee global coverage
-    matcher: ["/admin/:path*", "/dashboard/:path*", "/api/:path*", "/login", "/register", "/unauthorized"],
+    matcher: ["/dashboard/:path*", "/api/:path*", "/login", "/register", "/unauthorized"],
 };
