@@ -50,7 +50,6 @@ const navigationItems = [
     { name: 'Drone Fleet', href: '/dashboard/drones', icon: Plane, category: 'Administration' as Category },
     { name: 'Staff Details', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
     { name: 'Administrative Hub', href: '/dashboard/admin/reimbursements', icon: ShieldCheck, category: 'Administration' as Category },
-    { name: 'Expense Tracker', href: '/dashboard/admin/expenses', icon: Wallet, category: 'Administration' as Category },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -131,7 +130,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-600/20">
                                     <Plane className="w-6 h-6" />
                                 </div>
-                                <span className="text-xl font-black tracking-tighter text-slate-900">AeroSys</span>
+                                <span className="text-xl font-black tracking-tighter text-slate-900">AeroSky</span>
                             </div>
                             <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
                                 <X className="w-6 h-6 text-slate-400" />
@@ -143,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Navigation Domain</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {(['Dashboard', 'Sales', 'Operations', 'Administration'] as Category[])
-                                        .filter(cat => cat !== 'Administration' || (session?.user?.role === 'ADMINISTRATION'))
+                                        .filter(cat => cat !== 'Administration' || (session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMIN'))
                                         .map((cat) => (
                                         <button
                                             key={cat}
@@ -215,7 +214,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </button>
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center text-white text-xs font-black">AS</div>
-                            <span className="text-sm font-black tracking-tighter text-slate-900">AeroSys</span>
+                            <span className="text-sm font-black tracking-tighter text-slate-900">AeroSky</span>
                         </div>
                         <div className="w-10"></div> {/* Spacer for symmetry */}
                     </div>
