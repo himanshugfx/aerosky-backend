@@ -169,9 +169,13 @@ export default function ExpensesPage() {
                 setEditingExpense(null)
                 resetForm()
                 fetchExpenses(currentPage)
+            } else {
+                const data = await res.json().catch(() => null);
+                alert(`Error saving expense: ${data?.error || res.statusText}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to save expense:', error)
+            alert(`Failed to save expense: ${error.message}`);
         } finally {
             setSubmitting(false)
         }
