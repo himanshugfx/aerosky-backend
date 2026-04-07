@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION can create expenses
-    if (auth.user.role !== 'ADMINISTRATION') {
+    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can create expenses
+    if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
         return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
     }
 
@@ -111,8 +111,8 @@ export async function PUT(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION can update expenses
-    if (auth.user.role !== 'ADMINISTRATION') {
+    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can update expenses
+    if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
         return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
     }
 
@@ -154,8 +154,8 @@ export async function DELETE(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION can delete expenses
-    if (auth.user.role !== 'ADMINISTRATION') {
+    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can delete expenses
+    if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
         return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
     }
 
