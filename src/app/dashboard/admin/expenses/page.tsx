@@ -289,9 +289,9 @@ export default function ExpensesPage() {
                 </div>
                 <div className="premium-card p-8 flex items-center justify-between">
                     <div>
-                        <p className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest mb-2">Pending</p>
+                        <p className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest mb-2">Unpaid</p>
                         <p className="text-3xl font-black text-slate-900">
-                            {expenses.filter(e => e.status === 'pending').length}
+                            {expenses.filter(e => e.paymentStatus === 'unpaid').length}
                         </p>
                     </div>
                     <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center">
@@ -397,7 +397,6 @@ export default function ExpensesPage() {
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Amount</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Category</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Date</th>
-                                    <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Payment</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Actions</th>
                                 </tr>
@@ -421,18 +420,9 @@ export default function ExpensesPage() {
                                         </td>
                                         <td className="px-8 py-6">
                                             <span className={`status-badge ${
-                                                expense.status === 'approved' ? 'status-badge-success' :
-                                                expense.status === 'rejected' ? 'status-badge-error' :
-                                                'status-badge-warning'
+                                                expense.paymentStatus === 'paid' ? 'status-badge-success' : 'status-badge-warning'
                                             }`}>
-                                                {expense.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <span className={`status-badge ${
-                                                expense.paymentStatus === 'paid' ? 'status-badge-success' : 'status-badge-error'
-                                            }`}>
-                                                {expense.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
+                                                {expense.paymentStatus === 'paid' ? 'PAID' : 'UNPAID'}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
