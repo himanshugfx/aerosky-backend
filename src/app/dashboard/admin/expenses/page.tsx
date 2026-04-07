@@ -413,7 +413,7 @@ export default function ExpensesPage() {
                                             </span>
                                         </td>
                                         <td className="px-8 py-6 text-sm text-slate-600 font-medium">
-                                            {new Date(expense.date).toLocaleDateString()}
+                                            {new Date(expense.date).toLocaleDateString('en-GB')}
                                         </td>
                                         <td className="px-8 py-6">
                                             <span className={`status-badge ${
