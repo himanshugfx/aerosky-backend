@@ -42,6 +42,7 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true)
 
     const isSuperAdmin = (session?.user as any)?.role === 'SUPER_ADMIN'
+    const isAdmin = ['SUPER_ADMIN', 'ADMIN', 'OPERATIONS_MANAGER'].includes((session?.user as any)?.role)
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -169,7 +170,8 @@ export default function DashboardPage() {
                         { label: 'Update Stock', icon: Boxes, href: '/dashboard/inventory', sub: 'Stock Management' },
                         { label: 'Check Orders', icon: ShoppingCart, href: '/dashboard/orders', sub: 'Project Details' },
                         { label: 'Manage Staff', icon: Users, href: '/dashboard/team', sub: 'Team Records' },
-                    ].map((act, i) => (
+                        isAdmin && { label: 'Track Expenses', icon: Wallet, href: '/dashboard/admin/expenses', sub: 'Fiscal Streams' },
+                    ].filter(Boolean).map((act: any, i) => (
                         <Link key={i} href={act.href} className="modern-card p-8 flex flex-col items-center text-center gap-6 group hover:bg-orange-600 transition-all duration-500">
                             <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-white/20 group-hover:rotate-12 transition-all duration-500 shadow-sm border border-slate-100">
                                 <act.icon className="w-8 h-8 text-slate-900 group-hover:text-white" />

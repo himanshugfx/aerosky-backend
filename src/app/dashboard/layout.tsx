@@ -50,6 +50,7 @@ const navigationItems = [
     { name: 'Drone Fleet', href: '/dashboard/drones', icon: Plane, category: 'Administration' as Category },
     { name: 'Staff Details', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
     { name: 'Administrative Hub', href: '/dashboard/admin/reimbursements', icon: ShieldCheck, category: 'Administration' as Category },
+    { name: 'Expense Tracker', href: '/dashboard/admin/expenses', icon: Wallet, category: 'Administration' as Category },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

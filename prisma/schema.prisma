@@ -56,6 +56,7 @@ model Organization {
   components     Component[]
   inventoryTransactions InventoryTransaction[]
   reimbursements Reimbursement[]
+  expenses       Expense[]
 
   @@map("organizations")
 }
@@ -495,4 +496,22 @@ model FollowUp {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("follow_ups")
+}
+
+model Expense {
+  id             String   @id @default(uuid())
+  description    String
+  amount         Float
+  date           DateTime
+  category       String
+  paymentMethod  String?  @map("payment_method")
+  status         String   @default("Paid") // Paid, Pending
+  attachment     String?  @db.Text // Base64 or URL
+  organizationId String   @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("expenses")
 }
