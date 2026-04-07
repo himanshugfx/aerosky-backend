@@ -12,7 +12,19 @@ export async function GET(request: NextRequest) {
     if (permCheck !== true) return permCheck;
 
     try {
+        const where: any = {};
+        // Filter by organization if user is not SUPER_ADMIN
+        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.role !== 'ADMIN') {
+            if (auth.user.organizationId) {
+                where.organizationId = auth.user.organizationId;
+            } else {
+                // If no organization is set, return empty array for security
+                return NextResponse.json([]);
+            }
+        }
+
         const items = await prisma.teamMember.findMany({
+            where,
             include: { user: { select: { role: true, username: true } } },
             orderBy: { createdAt: "desc" },
         });

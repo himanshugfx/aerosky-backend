@@ -17,6 +17,16 @@ export async function GET(request: NextRequest) {
 
         const where: any = {};
 
+        // Add organization scoping
+        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.role !== 'ADMIN' && auth.user.role !== 'ADMINISTRATION') {
+            if (auth.user.organizationId) {
+                where.organizationId = auth.user.organizationId;
+            } else {
+                // If no organization is set, return empty array for security
+                return NextResponse.json([]);
+            }
+        }
+
         if (search) {
             where.OR = [
                 { component: { name: { contains: search, mode: 'insensitive' } } },
@@ -56,6 +66,11 @@ export async function POST(request: NextRequest) {
         const permCheck = checkResourceAccess(auth.user, 'inventory', permAction as any);
         if (permCheck !== true) return permCheck;
 
+        // User must be associated with an organization
+        if (!auth.user.organizationId) {
+            return NextResponse.json({ error: "User must be associated with an organization" }, { status: 400 });
+        }
+
         // Record the transaction and update the component quantity in a transaction
         const result = await prisma.$transaction(async (tx) => {
             // Record transaction
@@ -68,6 +83,7 @@ export async function POST(request: NextRequest) {
                     userId: auth.user.id,
                     takenOutFor: takenOutFor || null,
                     date: date ? new Date(date) : new Date(),
+                    organizationId: auth.user.organizationId!,
                 }
             });
 

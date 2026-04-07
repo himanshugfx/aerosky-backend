@@ -10,6 +10,7 @@ export interface AuthenticatedUser {
     username: string;
     role: Role;
     email?: string;
+    organizationId?: string;
 }
 
 /**
