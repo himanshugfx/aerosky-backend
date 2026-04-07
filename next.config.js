@@ -1,3 +1,17 @@
+const ALLOWED_ORIGINS = {
+  development: ['http://localhost:3000', 'http://localhost:3001'],
+  production: [
+    'https://app.aerosysaviation.in',
+    'https://mobile.aerosysaviation.in',
+    'https://dashboard.aerosysaviation.in',
+  ],
+};
+
+const getAllowedOrigins = () => {
+  const env = process.env.NODE_ENV || 'development';
+  return ALLOWED_ORIGINS[env] || ALLOWED_ORIGINS.development;
+};
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
@@ -13,20 +27,15 @@ const nextConfig = {
                 source: '/api/:path*',
                 headers: [
                     { key: 'Access-Control-Allow-Credentials', value: 'true' },
-                    // Restrict origin based on regex (Vercel edge handles this via middleware, but typically we allow local IPs + production domain)
-                    // We'll set a placeholder or use vary Origin. In Next.js headers(), value: '*' allows all.
-                    // To restrict, it's actually better done in middleware/API level if dynamic, 
-                    // but we can set it to the specific IP or keep '*' since middleware blocks IP anyway.
-                    // For strictness, if IP middleware is robust, '*' + middleware is safe. 
-                    // Let's keep '*' here because the middleware IP blocker will drop invalid IPs before they matter,
-                    // OR we can explicitly define it. Let's define the local subnet explicitly.
-                    { key: 'Access-Control-Allow-Origin', value: process.env.NEXT_PUBLIC_API_URL || '*' },
                     { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
                     { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+                    { key: 'Access-Control-Max-Age', value: '86400' },
                 ],
             },
         ];
     },
 }
+
+module.exports = nextConfig
 
 module.exports = nextConfig

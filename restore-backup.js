@@ -105,36 +105,51 @@ async function restoreBackup() {
         // 3. Restore Leads
         console.log('\n📥 Restoring Leads...');
         const leadsData = parseCSV(path.join(__dirname, 'databackup/leads.csv'));
-        
-        // First get or create funnel stages
+
+        // First get or create funnel stages with specific IDs from the backup
         let stages = await prisma.funnelStage.findMany();
+        console.log(`  Found ${stages.length} existing stages`);
+        if (stages.length > 0) {
+            // Delete existing stages to recreate with correct IDs
+            console.log('  Deleting existing stages to recreate with correct IDs...');
+            await prisma.funnelStage.deleteMany({});
+            console.log('  ✓ Deleted existing stages');
+            stages = [];
+        }
+        
         if (stages.length === 0) {
-            stages = await prisma.funnelStage.createMany({
-                data: [
-                    { name: 'NEW', order: 1, color: '#e0e0e0' },
-                    { name: 'CONTACTED', order: 2, color: '#fff3cd' },
-                    { name: 'QUALIFIED', order: 3, color: '#cfe2ff' },
-                    { name: 'PROPOSAL', order: 4, color: '#cff4fc' },
-                    { name: 'WON', order: 5, color: '#d1e7dd' },
-                    { name: 'LOST', order: 6, color: '#f8d7da' },
-                ],
-            });
-            console.log('  ✓ Created funnel stages');
+            // Create stages with IDs that match the backup data
+            console.log('  Creating funnel stages...');
+            try {
+                await prisma.funnelStage.create({
+                    data: {
+                        id: '7e41c3d5-b241-4f45-a27d-a78d261b565f',
+                        name: 'NEW',
+                        order: 1,
+                        color: '#e0e0e0'
+                    }
+                });
+                console.log('  ✓ Created NEW stage');
+
+                await prisma.funnelStage.create({
+                    data: {
+                        id: '8484982b-7f24-477f-9fb2-fb453cda2f6c',
+                        name: 'CONTACTED',
+                        order: 2,
+                        color: '#fff3cd'
+                    }
+                });
+                console.log('  ✓ Created CONTACTED stage');
+            } catch (error) {
+                console.log('  ✗ Error creating stages:', error.message);
+            }
+
             stages = await prisma.funnelStage.findMany();
+            console.log(`  Now have ${stages.length} stages:`, stages.map(s => `${s.id}: ${s.name}`));
         }
 
         for (const lead of leadsData) {
             try {
-                // Verify stage exists
-                const stage = await prisma.funnelStage.findUnique({
-                    where: { id: lead.stage_id }
-                });
-                
-                if (!stage) {
-                    console.log(`  ⚠ Skipping lead ${lead.name} - stage ${lead.stage_id} not found`);
-                    continue;
-                }
-
                 await prisma.lead.create({
                     data: {
                         id: lead.id,
