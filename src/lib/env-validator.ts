@@ -23,7 +23,9 @@ const envSchema = z.object({
   ALLOWED_IPS: z.string().optional(),
 });
 
-export const env = envSchema.parse(process.env);
+export function getValidatedEnv() {
+  return envSchema.parse(process.env);
+}
 
 export function validateEnvironment() {
   try {

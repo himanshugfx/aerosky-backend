@@ -2,14 +2,8 @@ import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
-import { validateEnvironment } from '@/lib/env-validator'
 
 const outfit = Outfit({ subsets: ['latin'] })
-
-// Validate environment on startup
-if (typeof window === 'undefined') {
-  validateEnvironment();
-}
 
 export const metadata: Metadata = {
     title: 'AeroSys Aviation India - Drone Compliance Platform',
