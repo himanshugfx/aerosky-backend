@@ -1,5 +1,5 @@
 const ALLOWED_ORIGINS = {
-  development: ['http://localhost:3000', 'http://localhost:3001'],
+  development: ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.29.125:3000'],
   production: [
     'https://app.aerosysaviation.in',
     'https://mobile.aerosysaviation.in',
@@ -19,7 +19,7 @@ const nextConfig = {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
         NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '',
     },
-    // CORS headers for mobile app API access
+    // Enhanced CORS headers with origin validation
     async headers() {
         return [
             {
@@ -30,6 +30,20 @@ const nextConfig = {
                     { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
                     { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
                     { key: 'Access-Control-Max-Age', value: '86400' },
+                    // Remove wildcard CORS - now restricted to allowed origins
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'X-Frame-Options', value: 'DENY' },
+                    { key: 'X-XSS-Protection', value: '1; mode=block' },
+                    { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+                ],
+            },
+            {
+                // Security headers for all routes
+                source: '/:path*',
+                headers: [
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+                    { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
                 ],
             },
         ];
@@ -38,4 +52,3 @@ const nextConfig = {
 
 module.exports = nextConfig
 
-module.exports = nextConfig

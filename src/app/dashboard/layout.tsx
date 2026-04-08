@@ -1,6 +1,7 @@
 'use client'
 
 import Sidebar from '@/components/Sidebar'
+import AeroAssistant from '@/components/AeroAssistant'
 import {
     Battery,
     Bell,
@@ -229,6 +230,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 </main>
             </div>
+
+            {/* Aero AI Assistant - Floating on all dashboard pages */}
+            <AeroAssistant />
         </div>
     )
 }
