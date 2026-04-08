@@ -253,7 +253,6 @@ async function getContextData(organizationId?: string, userId?: string) {
         id: true,
         modelName: true,
         createdAt: true,
-        operationalHours: true,
       },
       take: 25,
     });
@@ -264,13 +263,10 @@ async function getContextData(organizationId?: string, userId?: string) {
       select: {
         id: true,
         model: true,
-        serialNumber: true,
-        status: true,
-        capacity: true,
-        chargeLevel: true,
-        lastCharged: true,
+        ratedCapacity: true,
+        batteryNumberA: true,
+        batteryNumberB: true,
       },
-      orderBy: { chargeLevel: 'asc' },
       take: 20,
     });
 
@@ -281,11 +277,8 @@ async function getContextData(organizationId?: string, userId?: string) {
         id: true,
         companyName: true,
         contactPerson: true,
-        email: true,
-        phone: true,
-        services: true,
-        rating: true,
-        lastEngaged: true,
+        contactEmail: true,
+        contactPhone: true,
       },
       take: 15,
     });
@@ -730,7 +723,7 @@ export async function POST(request: NextRequest) {
         const avgDealValue = (parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max((contextData?.summary?.totalOrders as number) || 1, 1)).toFixed(0);
         const cashCollectionRate = (((contextData?.stats?.paymentStats?.paid as number) || 0) / (((contextData?.stats?.paymentStats?.paid as number) || 0) + ((contextData?.stats?.paymentStats?.unpaid as number) || 0)) * 100).toFixed(0);
         
-        responseText = `## Strategic Recommendations\n\n**Based on Your Current Operations:**\n\n### 🎯 Top Priority Actions\n\n1. **Revenue Acceleration** (Impact: +30%)\n   - Target: Convert ${leadsToConvert} leads to deals\n   - Timeline: 30 days\n   - Resources: ${resourcesToAllocate} team members\n   - Expected Value: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') * 0.3).toFixed(0)}\n\n2. **Cash Flow Optimization** (Impact: +₹${(parseFloat(contextData?.stats?.paymentStats?.unpaid || '0') * 50000).toFixed(0)})\n   - Collect: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n   - Timeline: 15 days\n   - Action: Personal follow-up + incentives\n\n3. **Inventory Management** (Impact: -20% costs)\n   - Address: ${contextData?.lowStockItems?.length || 0} low-stock items\n   - Timeline: Immediate\n   - Action: Smart reordering + supplier negotiation\n\n4. **Operational Efficiency** (Impact: +25% capacity)\n   - Streamline: ${contextData?.stats?.orderStats?.inProduction || 0} production orders\n   - Timeline: 21 days\n   - Action: Document SOPs + team training\n\n### 📊 Quick Wins (Implement This Week)\n✅ Schedule follow-ups for ${contextData?.leadsNeedingFollowUp?.length || 0} leads\n✅ Collect highest-value ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n✅ Document 3 mission-critical processes\n✅ Complete 2 in-production orders early\n\n### 📈 Medium-term Growth (30-90 Days)\n✅ Build team to ${teamGrowthTarget} members\n✅ Expand capacity to handle 50% more orders\n✅ Launch referral program (target 20% from referrals)\n✅ Create case studies from top 5 clients\n\n### 🚀 Strategic Initiatives (Next Quarter)\n✅ Market expansion to new geographies\n✅ New service offerings/packages\n✅ Strategic partnerships\n✅ Technology automation\n\n**Implementation Framework:**\n1. Week 1: Planning & team alignment\n2. Week 2-3: Quick wins execution\n3. Week 4+: Track, optimize, scale\n\n**Success Metrics:**\n- Lead conversion: ${leadConversionRate}% → target 25%\n- Average deal: ₹${avgDealValue} → target +25%\n- Cash collection: ${cashCollectionRate}% → target 95%\n- Delivery speed: Current → -20% faster`;
+        responseText = `## Strategic Recommendations\n\n**Based on Your Current Operations:**\n\n### 🎯 Top Priority Actions\n\n1. **Revenue Acceleration** (Impact: +30%)\n   - Target: Convert ${leadsToConvert} leads to deals\n   - Timeline: 30 days\n   - Resources: ${resourcesToAllocate} team members\n   - Expected Value: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') * 0.3).toFixed(0)}\n\n2. **Cash Flow Optimization** (Impact: +₹${(Number(contextData?.stats?.paymentStats?.unpaid || 0) * 50000).toFixed(0)})\n   - Collect: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n   - Timeline: 15 days\n   - Action: Personal follow-up + incentives\n\n3. **Inventory Management** (Impact: -20% costs)\n   - Address: ${contextData?.lowStockItems?.length || 0} low-stock items\n   - Timeline: Immediate\n   - Action: Smart reordering + supplier negotiation\n\n4. **Operational Efficiency** (Impact: +25% capacity)\n   - Streamline: ${contextData?.stats?.orderStats?.inProduction || 0} production orders\n   - Timeline: 21 days\n   - Action: Document SOPs + team training\n\n### 📊 Quick Wins (Implement This Week)\n✅ Schedule follow-ups for ${contextData?.leadsNeedingFollowUp?.length || 0} leads\n✅ Collect highest-value ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n✅ Document 3 mission-critical processes\n✅ Complete 2 in-production orders early\n\n### 📈 Medium-term Growth (30-90 Days)\n✅ Build team to ${teamGrowthTarget} members\n✅ Expand capacity to handle 50% more orders\n✅ Launch referral program (target 20% from referrals)\n✅ Create case studies from top 5 clients\n\n### 🚀 Strategic Initiatives (Next Quarter)\n✅ Market expansion to new geographies\n✅ New service offerings/packages\n✅ Strategic partnerships\n✅ Technology automation\n\n**Implementation Framework:**\n1. Week 1: Planning & team alignment\n2. Week 2-3: Quick wins execution\n3. Week 4+: Track, optimize, scale\n\n**Success Metrics:**\n- Lead conversion: ${leadConversionRate}% → target 25%\n- Average deal: ₹${avgDealValue} → target +25%\n- Cash collection: ${cashCollectionRate}% → target 95%\n- Delivery speed: Current → -20% faster`;
       } else {
         // Ultimate fallback for any other question
         responseText = `## I'd Be Happy to Help!\n\n**About: "${userMessage.substring(0, 50)}${userMessage.length > 50 ? '...' : ''}"\n\n### What I Can Help You With:\n\n**Operational Questions:**\n- Fleet status and capacity\n- Order management and tracking\n- Inventory and stock levels\n- Team management\n- Flight operations\n\n**Business Intelligence:**\n- Sales metrics and conversion rates\n- Revenue analysis\n- Lead pipeline health\n- Cash flow management\n- Performance dashboards\n\n**Strategic Advice:**\n- Sales improvement strategies\n- Operational efficiency\n- Team development\n- Process optimization\n- Business growth\n\n**Product Knowledge:**\n- VEDANSH drone specifications\n- SHAURYA capabilities\n- Service offerings\n- Industry applications\n\n**Follow-up & CRM:**\n- Lead follow-up planning\n- Contact scheduling\n- Activity tracking\n- Pipeline management\n\n### Your Current Business Snapshot:\n- 📊 Pipeline: ₹${contextData?.stats?.totalContractValue || '0'} active contracts\n- 🎯 Leads: ${contextData?.summary?.totalLeads || 0} in sales pipeline\n- 🚁 Fleet: ${contextData?.summary?.totalDrones || 0} drones operational\n- 👥 Team: ${contextData?.summary?.teamMembers || 0} team members\n- 📈 Orders: ${contextData?.summary?.totalOrders || 0} total\n\n### How to Ask:\n- **\"How can we...?\"** → Strategy & steps\n- **\"What should we...?\"** → Analysis & options\n- **\"When should...?\"** → Timeline & scheduling\n- **\"Why should...?\"** → Impact & benefits\n- **\"Suggest...\"** → Recommendations\n\n**Try asking me:**\n- How can we improve sales conversion?\n- What's the status of our orders?\n- When should we follow up with leads?\n- Why should we focus on inventory?\n- Suggest ways to optimize operations\n\n**What specific area would you like to explore?**`;
