@@ -71,6 +71,7 @@ export default function AeroAssistant() {
     const [isLoading, setIsLoading] = useState(false)
     const [isVisible, setIsVisible] = useState(false)
     const [showSuggestions, setShowSuggestions] = useState(true)
+    const [showPopup, setShowPopup] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -79,6 +80,20 @@ export default function AeroAssistant() {
         const timer = setTimeout(() => setIsVisible(true), 800)
         return () => clearTimeout(timer)
     }, [])
+
+    // Show popup after button appears, auto-dismiss after 10 seconds or when user opens chat
+    useEffect(() => {
+        if (isVisible && !isOpen) {
+            const popupTimer = setTimeout(() => setShowPopup(true), 2500)
+            const dismissTimer = setTimeout(() => setShowPopup(false), 12500)
+            return () => {
+                clearTimeout(popupTimer)
+                clearTimeout(dismissTimer)
+            }
+        } else {
+            setShowPopup(false)
+        }
+    }, [isVisible, isOpen])
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -166,6 +181,27 @@ export default function AeroAssistant() {
 
     return (
         <>
+            {/* Help Popup */}
+            <div
+                className={`fixed bottom-24 right-6 z-[201] transition-all duration-500 ${
+                    showPopup ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
+                }`}
+                style={{ transformOrigin: 'bottom right' }}
+            >
+                <div className="flex items-end gap-3">
+                    <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-2xl px-4 py-3 shadow-lg shadow-orange-500/30 max-w-xs">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Bot className="w-4 h-4" />
+                            <p className="font-bold text-sm">Aero Assistant</p>
+                        </div>
+                        <p className="text-sm font-medium leading-tight">May I help you?</p>
+                        <div className="absolute bottom-0 right-2 translate-y-full">
+                            <div className="border-8 border-transparent border-t-orange-600" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Floating Trigger Button */}
             <div
                 className={`fixed bottom-6 right-6 z-[200] transition-all duration-700 ${

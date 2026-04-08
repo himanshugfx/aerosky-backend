@@ -111,6 +111,62 @@ async function getContextData(organizationId?: string, userId?: string) {
     // Calculate total contract value
     const totalContractValue = recentOrders.reduce((sum, o) => sum + parseFloat(o.contractValue.toString()), 0);
 
+    // Fetch pending follow-ups
+    const pendingFollowUps = await prisma.followUp.findMany({
+      where: {
+        status: 'PENDING',
+      },
+      select: {
+        id: true,
+        title: true,
+        scheduledAt: true,
+        lead: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { scheduledAt: 'asc' },
+      take: 5,
+    });
+
+    // Fetch all leads to check which ones don't have scheduled follow-ups
+    const allLeads = await prisma.lead.findMany({
+      where: {},
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        stage: {
+          select: {
+            name: true,
+          },
+        },
+        followUps: {
+          where: {
+            status: 'PENDING',
+          },
+          select: {
+            id: true,
+          },
+        },
+        activities: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+          select: {
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    // Identify leads needing follow-ups (those without pending follow-ups)
+    const leadsNeedingFollowUp = allLeads.filter((lead: any) => lead.followUps.length === 0).slice(0, 5);
+
     return {
       summary: {
         totalDrones: drones,
@@ -133,6 +189,8 @@ async function getContextData(organizationId?: string, userId?: string) {
       })),
       criticalOrders,
       lowStockItems: lowStockComponents,
+      pendingFollowUps,
+      leadsNeedingFollowUp,
     };
   } catch (error) {
     console.error('Error fetching context data:', error);
@@ -159,6 +217,91 @@ function buildSystemPrompt(contextData: any): string {
   return `# Aero - AeroSky Aviation Intelligence Assistant
 
 You are Aero, an advanced AI assistant for AeroSky Aviation operations. Your role is to provide intelligent insights, answer operational questions, identify trends, and suggest improvements based on real-time data.
+
+## AeroSky Aviation - Products & Services Overview
+
+### 🚁 **Products**
+
+#### **VEDANSH** - Precision Surveying Drone
+- **Certification**: DGCA Type Certified
+- **Primary Use**: Precision surveying, mapping, and industrial inspection
+- **Key Features**:
+  - PPK equipped with dual GPS for enhanced accuracy
+  - Dual battery system for extended endurance
+  - 24 MP RGB sensor for high-resolution imaging
+  - High-strength, lightweight exoskeleton
+- **Technical Specs**:
+  - Flight Time: 40 minutes (extended with dual battery)
+  - Max Range: 1 km
+  - Max Speed: 8 m/s
+  - Wind Resistance: 12 m/s
+  - Max Payload: 500g
+  - Ground Sample Distance (GSD) @ 100m: 2.5cm/px
+- **Applications**:
+  - Agricultural mapping and crop monitoring
+  - Construction progress tracking
+  - Land surveying and topographic mapping
+  - Infrastructure inspection
+  - Mining & quarry surveys
+  - Disaster assessment
+
+#### **SHAURYA** - Professional-Grade Tactical Drone
+- **Classification**: Military-grade, professional-class
+- **Primary Use**: LiDAR surveying, multispectral imaging, defense operations
+- **Key Features**:
+  - Dual GPS with anti-jamming capabilities
+  - Dual battery system for power redundancy
+  - Advanced obstacle avoidance system
+  - Ruggedized frame for harsh environments
+- **Technical Specs**:
+  - Flight Time: 45 minutes (extended with dual battery)
+  - Max Range: 15 km (long-range tactical operations)
+  - Max Speed: 12 m/s (high-speed pursuit capability)
+  - Wind Resistance: 15 m/s (all-weather stability)
+  - Max Payload: 2 kg (heavy payload capacity)
+  - Max Altitude: 5000m (high-altitude surveillance)
+- **Modular Payloads**:
+  - LiDAR surveying for 3D mapping and terrain analysis
+  - Multispectral imaging for environmental monitoring
+  - Payload delivery system for remote deployments
+- **Applications**:
+  - Defense & surveillance operations
+  - Critical infrastructure monitoring
+  - Volumetric estimation and stockpile measurement
+  - Advanced geospatial analysis
+  - Tactical operations and security
+
+### 🛠️ **Services**
+
+#### **Surveying & Mapping**
+- **Aerial Surveying**: Comprehensive aerial data collection and analysis
+- **Topographic Mapping**: Detailed terrain and elevation mapping
+- **Geospatial Data Analysis**: Advanced processing of aerial data
+- **Precision Mapping**: High-accuracy mapping with sub-2.5cm resolution
+
+#### **Safety & Security**
+- **Defense Operations**: Military-grade surveillance and security
+- **Infrastructure Inspection**: Safe inspection of critical infrastructure
+- **Threat Assessment**: Professional security evaluation services
+
+#### **Industry Solutions**
+- **Agriculture**: Crop health monitoring, precision spraying, yield estimation
+- **Infrastructure**: Bridge, tower, and pipeline inspection
+- **Construction**: Project tracking, volumetric measurement, progress monitoring
+- **Energy**: Solar farm, wind turbine, and power line inspection
+- **Mining**: Quarry surveys and resource monitoring
+
+### 🏢 **Enterprise Partnerships**
+- Trusted by 50+ enterprise clients across India
+- Government agencies: Ministry of Road Transport, NABARD, Delhi Police, Bihar Government
+- Educational institutions: IIT Kanpur, IIT Delhi
+- Corporate partners: Adani, CNH Industrial, IFFCO, Triveni
+
+### 📊 **Your Operational Stats**
+- 10,000+ hours of successful drone operations
+- Multiple surveyed across India
+- DGCA certified products
+- IIT Kanpur incubated startup
 
 ## Current Operational Context
 
@@ -211,6 +354,12 @@ ${lowStockItems.length > 0
 4. **Analyze Data**: Calculate percentages, growth rates, and performance metrics when asked
 5. **Summarize Reports**: Create executive summaries and dashboards when requested
 6. **Flag Issues**: Alert to critical situations like low stock, unpaid orders, or overdue deliveries
+7. **Schedule Follow-ups**: Recommend timing and actions for lead follow-ups based on best practices
+8. **Manage Activities**: Suggest next steps for leads based on their current stage and activity history
+9. **Sales Improvement**: Provide strategies to increase conversion rates, improve lead quality, and accelerate deal closure
+10. **Operational Excellence**: Suggest process improvements, efficiency gains, and resource optimization
+11. **Administrative Guidance**: Share best practices for team management, compliance, and documentation
+12. **Business Strategy**: Offer insights on growth opportunities, market positioning, and competitive advantages
 
 ## Response Guidelines
 
@@ -228,6 +377,13 @@ ${lowStockItems.length > 0
 - "What should we do about [issue]?" → Analyze + recommend solutions
 - "Compare [metrics]?" → Show relationships + trends
 - "Are we on track?" → Assess performance vs. capacity
+- "What follow-ups should I do?" → List pending + recommend next steps
+- "When should I follow up?" → Suggest timing based on best practices
+- "Who needs a follow-up?" → Flag leads without scheduled follow-ups
+- "How can we improve sales?" → Suggest conversion strategies and lead optimization
+- "What operational improvements?" → Recommend efficiency and process enhancements
+- "Business tips?" → Share industry best practices and strategic insights
+- "How to manage/lead better?" → Provide administrative and team management guidance
 
 ## Important Notes
 
@@ -328,6 +484,33 @@ export async function POST(request: NextRequest) {
       } else if (userMessage.includes('performance') || userMessage.includes('summary') || userMessage.includes('overview') || userMessage.includes('status')) {
         const totalValue = contextData?.stats?.totalContractValue || '0';
         responseText = `**AeroSky Operations Summary:**\n\n📊 **Portfolio**: ${contextData?.summary?.totalOrders || 0} orders worth ₹${totalValue}\n🚁 **Fleet**: ${contextData?.summary?.totalDrones || 0} drones operational\n👥 **Team**: ${contextData?.summary?.teamMembers || 0} members\n📦 **Inventory**: ${contextData?.summary?.totalComponents || 0} components (${contextData?.lowStockItems?.length || 0} low)\n💼 **Leads**: ${contextData?.summary?.totalLeads || 0} in pipeline\n✈️ **Flights**: ${contextData?.summary?.totalFlights || 0} completed\n\n**Key Metrics:**\n- Orders in production: ${orderStats.inProduction || 0}\n- Unpaid invoices: ${paymentStats.unpaid || 0}\n- Due for delivery: ${orderStats.readyForDelivery || 0}\n\nAll systems operational. Focus on order fulfillment and cash collection.`;
+      } else if (userMessage.includes('sales') && (userMessage.includes('improve') || userMessage.includes('better') || userMessage.includes('increase') || userMessage.includes('growth') || userMessage.includes('conversion') || userMessage.includes('strategy'))) {
+        const conversionRate = ((contextData?.summary?.totalOrders || 0) / Math.max(contextData?.summary?.totalLeads || 1, 1) * 100).toFixed(1);
+        const avgDealValue = (parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0);
+        
+        responseText = `## 🎯 Sales Improvement Strategy\n\n**Your Current Sales Metrics:**\n- Lead-to-Deal Conversion: ${conversionRate}%\n- Average Deal Value: ₹${avgDealValue}\n- Active Sales Pipeline: ${contextData?.summary?.totalLeads || 0} leads\n- Monthly Orders: ${contextData?.summary?.totalOrders || 0}\n\n**Actionable Sales Improvement Strategies:**\n\n### 1️⃣ Lead Quality Enhancement\n- **Focus on source optimization**: Analyze where your best-converting leads come from\n- **Score your leads**: Prioritize leads showing high engagement indicators\n- **Segment your pipeline**: Separate hot/warm/cold leads for targeted nurturing\n- **Action**: Allocate 60% of effort to top 20% of leads\n\n### 2️⃣ Accelerate Deal Closure\n- **Shorten sales cycle**: Speed is money - get to decision 25% faster\n- **Create urgency**: Time-limited offers for key deals\n- **Establish clear milestones**: Each lead knows their next step\n- **Challenge objections early**: Address concerns before deal-blocks\n\n### 3️⃣ Revenue Expansion\n- **Upsell opportunities**: Cross-sell to existing customers\n- **Increase average deal**: From ₹${avgDealValue} → ₹${(parseInt(avgDealValue) * 1.25).toFixed(0)} (+25%)\n- **Bundle offerings**: Combine services for higher value\n- **Premium pricing**: Quality deserves premium positioning\n\n### 4️⃣ Sales Process Optimization\n- **Proposal speed**: Get to proposal 25% faster\n- **Follow-up cadence**: No lead goes 2+ days without contact\n- **Pipeline velocity**: Track each stage duration\n- **Sales targets**: 2-3 deals per team member per month\n\n**This Week:**\n1. Segment and score all ${contextData?.summary?.totalLeads || 0} leads\n2. Identify top 3 high-risk deals\n3. Plan outreach for this week`;
+      } else if (userMessage.includes('operation') && (userMessage.includes('improve') || userMessage.includes('better') || userMessage.includes('efficient') || userMessage.includes('process') || userMessage.includes('suggestion'))) {
+        responseText = `## ⚙️ Operational Excellence Plan\n\n**Your Current Status:**\n- Fleet: ${contextData?.summary?.totalDrones || 0} drones (${contextData?.summary?.batteries || 0} batteries)\n- Team: ${contextData?.summary?.teamMembers || 0} members\n- Production: ${contextData?.stats?.orderStats?.inProduction || 0} orders in progress\n- Inventory Issues: ${contextData?.lowStockItems?.length || 0} items\n\n**Key Improvement Areas:**\n\n### 1️⃣ Production Efficiency\n- **Bottleneck reduction**: Target 15% improvement in lead time\n- **Process standardization**: Document all manufacturing stages\n- **Quality metrics**: Aim for <1% error rate\n- **Setup time**: Parallelize design and production\n- **Waste reduction**: Target 10% material waste reduction\n\n### 2️⃣ Resource Optimization\n- **Drone utilization**: Maximize flight hours per unit\n- **Team workload**: Balance work across ${contextData?.summary?.teamMembers || 0} members\n- **Battery management**: Implement smart charging schedule\n- **Inventory turns**: Reduce holding costs by 20%\n\n### 3️⃣ Delivery Performance\n- **On-time delivery**: Currently ${contextData?.stats?.orderStats?.delivered || 0} delivered → aim for 98%\n- **Order tracking**: Real-time visibility cradle-to-grave\n- **Customer communication**: Proactive status updates\n- **Logistics**: Consolidate shipments to reduce costs\n\n### 4️⃣ Cost Control\n- **Labor efficiency**: Orders per team member\n- **Overhead review**: Monthly operational cost audit\n- **Energy optimization**: Facility usage efficiency\n- **Supplier management**: Competitive pricing and reliability\n\n**30-Day Action Plan:**\n1. Week 1: Audit processes and identify top 3 bottlenecks\n2. Week 2: Fix critical bottlenecks\n3. Week 3: Implement tracking dashboard\n4. Week 4: Team training and optimization`;
+      } else if (userMessage.includes('business') && (userMessage.includes('tip') || userMessage.includes('advice') || userMessage.includes('best practice') || userMessage.includes('strategy') || userMessage.includes('success'))) {
+        responseText = `## 💡 Business Strategy & Best Practices\n\n**Your Business Scorecard:**\n- Annual Contract Value: ₹${contextData?.stats?.totalContractValue || '0'}\n- Market Presence: ${contextData?.summary?.totalLeads || 0} active prospects\n- Operational History: ${contextData?.summary?.totalFlights || 0} successful operations\n- Team: ${contextData?.summary?.teamMembers || 0} skilled professionals\n\n**Strategic Business Tips:**\n\n### 1️⃣ Build Strong Customer Relationships\n- **Personal touch**: Quarterly reviews with top customers\n- **Proactive communication**: Regular updates, don't wait for problems\n- **ROI sharing**: Show customers the value delivered\n- **Referral program**: 50% of deals often come from referrals\n\n### 2️⃣ Financial Health\n- **Cash flow management**: Collect within 15 days (Currently: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid)\n- **Margin analysis**: Know profit on each order type\n- **Quarterly pricing review**: Stay competitive\n- **Build 3-month reserve**: Financial safety net\n\n### 3️⃣ Competitive Positioning\n- **Unique value**: What makes you different?\n- **Case studies**: Document success stories\n- **Thought leadership**: Share industry insights\n- **Strategic partnerships**: Build complementary ecosystem\n\n### 4️⃣ Growth Planning\n- **Market expansion**: Adjacent markets or geographies?\n- **Diversification**: New service offerings?\n- **Team development**: Invest in key talent\n- **Tech adoption**: Automate manual processes\n\n### 5️⃣ Risk Management\n- **No customer concentration**: Avoid >40% from 1-2 customers\n- **Supply chain**: Multiple supplier sources\n- **Team retention**: Develop and incentivize key roles\n- **Compliance**: Stay ahead of regulations\n\n**Q1 Priorities:**\n1. Eliminate unpaid invoices (₹${contextData?.stats?.paymentStats?.unpaid || 0})\n2. Document unique value proposition\n3. Secure 1 strategic partnership\n4. Create customer success case study`;
+      } else if (userMessage.includes('admin') || userMessage.includes('manage') || userMessage.includes('team') || (userMessage.includes('how') && (userMessage.includes('better') || userMessage.includes('improve')))) {
+        responseText = `## 👥 Administrative & Team Management Guide\n\n**Your Team:**\n- Size: ${contextData?.summary?.teamMembers || 0} members\n- Active Leads: ${contextData?.summary?.totalLeads || 0} in pipeline\n- Pending Follow-ups: ${contextData?.pendingFollowUps?.length || 0}\n\n**Administrative Best Practices:**\n\n### 1️⃣ Team Organization\n- **Clear roles**: Document each person's responsibilities\n- **Career paths**: Show growth opportunities\n- **Skill matrix**: Map skills for cross-training\n- **Documentation**: Create SOPs for all processes\n\n### 2️⃣ Performance Management\n- **Monthly reviews**: Individual + team metrics\n- **Goal setting**: OKRs each quarter\n- **Recognition**: Daily wins, monthly awards\n- **Coaching**: Identify gaps, upskill team\n\n### 3️⃣ Communication\n- **Daily standups**: 15-min sync on priorities\n- **Weekly reviews**: Retrospectives + planning\n- **Monthly town halls**: Company updates\n- **One-on-ones**: Development conversations\n\n### 4️⃣ Process Management\n- **Document everything**: Flows, checklists, decisions\n- **Implement systems**: CRM, project tracking, time logs\n- **Quarterly audits**: Compliance + quality\n- **Continuous improvement**: Kaizen culture\n\n### 5️⃣ Compliance & Governance\n- **HR records**: Attendance, payroll, benefits\n- **Safety**: Equipment maintenance, protocols\n- **Data security**: Customer + company info protection\n- **Audit trail**: Records for accountability\n\n### 6️⃣ Meeting Effectiveness\n- **Agenda-driven**: Clear purpose and outcomes\n- **Time-boxed**: 15-min standups, 30-min decisions\n- **Decision records**: Document and communicate\n- **Action tracking**: Clear owners for each item\n\n**This Month:**\n1. Create role descriptions for all ${contextData?.summary?.teamMembers || 0} members\n2. One-on-ones with each person\n3. Document 3 critical SOPs\n4. Setup daily sync meetings\n5. Implement shared documentation system`;
+      } else if (userMessage.includes('follow up') || userMessage.includes('followup') || userMessage.includes('contact') || userMessage.includes('next step')) {
+        const pendingFollowUps = contextData?.pendingFollowUps || [];
+        const leadsNeedingFollowUp = contextData?.leadsNeedingFollowUp || [];
+        
+        if (pendingFollowUps.length > 0) {
+          const upcomingText = pendingFollowUps.map((fu: any) => {
+            const scheduledDate = fu.scheduledAt ? new Date(fu.scheduledAt).toLocaleDateString('en-IN') : 'Not scheduled';
+            return `- **${fu.lead.name}** (${fu.lead.email}): ${fu.title || 'Follow-up scheduled'} - ${scheduledDate}`;
+          }).join('\n');
+          
+          responseText = `**Your Follow-up Schedule:**\n\n**Scheduled Follow-ups:**\n${upcomingText}\n\n${leadsNeedingFollowUp.length > 0 ? `**Leads Needing Follow-up:**\n${leadsNeedingFollowUp.map((lead: any) => `- **${lead.name}** (${lead.email}) - Stage: ${lead.stage?.name || 'Unknown'}`).join('\n')}\n\n` : ''}**Recommended Follow-up Timing:**\n- Initial contact: Within 24 hours\n- After proposal: 3-5 days\n- No response: 7 days\n- Active negotiation: Every 2-3 days\n- Closing stage: Daily`;
+        } else if (leadsNeedingFollowUp.length > 0) {
+          responseText = `**Leads Needing Follow-up:**\n\n${leadsNeedingFollowUp.map((lead: any) => `- **${lead.name}** (${lead.email}) - Stage: ${lead.stage?.name || 'Unknown'}`).join('\n')}\n\n**Recommended Actions:**\n1. **Prioritize high-value leads** first\n2. **Schedule follow-ups** based on their current stage\n3. **Prepare relevant materials** before calling\n4. **Document all interactions** for team coordination\n\n**Best Timing for Follow-ups:**\n- Initial contact: Within 24 hours of first interaction\n- After proposal sent: 3-5 days for feedback\n- No response after 5 days: Gentle reminder call\n- Active negotiations: Every 2-3 days\n- Closing stage: Daily contact recommended`;
+        } else {
+          responseText = `**All Follow-ups are Current! 🎉**\n\nYou have ${contextData?.summary?.totalLeads || 0} active leads and all have scheduled follow-ups.\n\n**Next Steps:**\n1. Review scheduled follow-ups in your calendar\n2. Prepare materials for upcoming calls\n3. Continue nurturing relationships consistently\n4. Track outcomes for sales pipeline visibility`;
+        }
       } else {
         // Generic intelligent response with all available data
         const totalValue = contextData?.stats?.totalContractValue || '0';
@@ -342,6 +525,26 @@ export async function POST(request: NextRequest) {
         focusAreas.push(`Continue lead nurturing (${contextData?.summary?.totalLeads || 0} active)`);
         
         responseText = `Based on your current operational data:\n\n**Business Health**: ✅ Operational\n- **Revenue Pipeline**: ₹${totalValue} in active contracts\n- **Production Capacity**: ${contextData?.summary?.totalDrones || 0} drones, ${contextData?.summary?.batteries || 0} batteries\n- **Team Strength**: ${contextData?.summary?.teamMembers || 0} members\n- **Sales Pipeline**: ${contextData?.summary?.totalLeads || 0} leads\n\n**Current Focus Areas**:\n${focusAreas.map((area, i) => `${i + 1}. ${area}`).join('\n')}\n\nWhat specific aspect would you like to focus on?`;
+      } else if (userMessage.startsWith('how ') || userMessage.startsWith('how to ') || userMessage.includes('how can')) {
+        // Intelligent response for "How" questions
+        const topic = userMessage.replace(/^how (to |can )? ?/i, '').trim();
+        responseText = `## How to ${topic.charAt(0).toUpperCase() + topic.slice(1)}\n\n**Step-by-Step Approach:**\n\n### 1️⃣ Preparation\n- Gather relevant data and stakeholders\n- Set clear objectives and success metrics\n- Identify required resources\n\n### 2️⃣ Planning\n- Create detailed action plan\n- Define timeline and milestones\n- Assign roles and responsibilities\n\n### 3️⃣ Execution\n- Communicate clearly to all teams\n- Monitor progress regularly\n- Address issues immediately\n\n### 4️⃣ Optimization\n- Collect feedback\n- Identify improvement areas\n- Refine and iterate\n\n**Key Success Factors:**\n- Clear communication across teams\n- Regular progress tracking\n- Flexible approach to adapt as needed\n- Celebrate milestones and wins\n\n**Your Current Context:**\n- Team: ${contextData?.summary?.teamMembers || 0} members available\n- Capacity: ${contextData?.summary?.totalDrones || 0} drones, ${contextData?.summary?.batteries || 0} batteries\n- Pipeline: ${contextData?.summary?.totalLeads || 0} active leads\n\n**Action Items:**\n1. Define specific objectives\n2. Break into manageable tasks\n3. Schedule with team\n4. Track and report progress\n\nWant more details on a specific step?`;
+      } else if (userMessage.startsWith('what ') || userMessage.includes('what should') || userMessage.includes('what about')) {
+        // Intelligent response for "What" questions
+        const topic = userMessage.replace(/^what (should |about )?/i, '').trim();
+        responseText = `## About ${topic.charAt(0).toUpperCase() + topic.slice(1)}\n\n**Analysis & Insights:**\n\n### Current Status\n- Business Health: ✅ Operational\n- Active Team: ${contextData?.summary?.teamMembers || 0} members\n- Orders: ${contextData?.summary?.totalOrders || 0} (₹${contextData?.stats?.totalContractValue || '0'} value)\n- Leads: ${contextData?.summary?.totalLeads || 0} in pipeline\n- Inventory: ${contextData?.summary?.totalComponents || 0} components (${contextData?.lowStockItems?.length || 0} low-stock)\n\n### Key Considerations\n1. **Resource Allocation**: Optimize use of ${contextData?.summary?.totalDrones || 0} drones + ${contextData?.summary?.teamMembers || 0} team members\n2. **Revenue Focus**: Target ₹${((parseFloat(contextData?.stats?.totalContractValue || '0') * 1.25) / contextData?.summary?.totalLeads).toFixed(0)} average deal value\n3. **Operational Excellence**: Reduce bottlenecks in ${contextData?.stats?.orderStats?.inProduction || 0} active orders\n4. **Cash Flow**: Collect ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n\n### Recommended Actions\n✅ Prioritize high-impact initiatives\n✅ Focus on quick wins for momentum\n✅ Build team capability\n✅ Track metrics weekly\n\n**Next Steps:**\n1. Validate assumptions with team\n2. Create detailed plan\n3. Assign ownership\n4. Schedule regular checkpoints`;
+      } else if (userMessage.includes('when ') || userMessage.includes('timeline') || userMessage.includes('schedule')) {
+        // Intelligent response for "When" questions
+        responseText = `## Timeline & Scheduling Strategy\n\n**Current Operational Timeline:**\n\n### Immediate (This Week)\n- Follow up on ${contextData?.pendingFollowUps?.length || 0} pending follow-ups\n- Address ${contextData?.lowStockItems?.length || 0} low-stock items\n- Review ${contextData?.stats?.orderStats?.inProduction || 0} orders in production\n\n### Short-term (Next 2 Weeks)\n- Implement quick wins from current focus areas\n- Train team on new processes\n- Close high-value deals (convert ${Math.ceil((contextData?.summary?.totalLeads || 0) * 0.2)} leads)\n\n### Medium-term (Next Month)\n- Complete all in-production orders (${contextData?.stats?.orderStats?.inProduction || 0} items)\n- Collect unpaid invoices (₹${(parseFloat(contextData?.stats?.paymentStats?.unpaid || '0') * 50000).toFixed(0)} expected)\n- Scale operations with expanded team\n\n### Long-term (Q1 Goals)\n- Grow from ${contextData?.summary?.totalLeads || 0} to ${(contextData?.summary?.totalLeads || 0) * 2} active leads\n- Increase orders from ${contextData?.summary?.totalOrders || 0} to ${(contextData?.summary?.totalOrders || 0) * 1.5 | 0}\n- Build team to ${contextData?.summary?.teamMembers || 0 + 5} members\n\n**Critical Path Items:**\n1. ⚠️ Resolve inventory issues (${contextData?.lowStockItems?.length || 0} items)\n2. 💰 Collect unpaid amounts\n3. 🎯 Close pending leads\n4. 📈 Expand capacity\n\n**Resource Availability:**\n- Team: ${contextData?.summary?.teamMembers || 0} members available\n- Fleet: ${contextData?.summary?.totalDrones || 0} operational units\n- Timeline: Recommend ${Math.ceil((contextData?.stats?.orderStats?.inProduction || 0) / Math.max(contextData?.summary?.totalDrones || 1, 1)) * 2}-4 weeks for current pipeline`;
+      } else if (userMessage.includes('why ') || userMessage.includes('reason') || userMessage.includes('benefit')) {
+        // Intelligent response for "Why" questions
+        responseText = `## Why This Matters\n\n**Business Impact Analysis:**\n\n### Revenue Perspective\n- Current Pipeline: ₹${contextData?.stats?.totalContractValue || '0'}\n- Average Deal: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0)}\n- Growth Potential: 25-50% increase possible\n\n### Operational Perspective\n- Fleet Capacity: ${contextData?.summary?.totalDrones || 0} drones (${(contextData?.summary?.totalDrones || 0) * 40 || 0} hours/month)\n- Team Bandwidth: ${contextData?.summary?.teamMembers || 0} members at current utilization\n- Bottlenecks: ${contextData?.stats?.orderStats?.inProduction || 0} orders in progress\n\n### Strategic Importance\n✅ **Customer Success**: Happy customers = referrals & repeat business\n✅ **Financial Health**: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices needs resolution\n✅ **Team Morale**: Clear goals motivate performance\n✅ **Market Position**: Stay competitive vs. others in drone services\n✅ **Scaling**: Build infrastructure for growth\n\n### Why Act Now?\n1. **Market Window**: Right time to expand capacity\n2. **Team Readiness**: ${contextData?.summary?.teamMembers || 0} team ready for next phase\n3. **Lead Quality**: ${contextData?.summary?.totalLeads || 0} leads in pipeline waiting\n4. **Resource Availability**: Spare capacity exists to handle growth\n\n### Expected Outcomes\n- 📈 Revenue growth: 30-40%\n- 👥 Team efficiency: 15-20% improvement\n- 💰 Cash collection: 100% of outstanding payments\n- 📊 Order velocity: 25% faster execution\n\n**Return on Investment:**\nEvery ₹1 invested in optimization → ₹3-5 return within 90 days`;
+      } else if (userMessage.includes('suggest') || userMessage.includes('recommend') || userMessage.includes('advice')) {
+        // Intelligent response for suggestion/advice questions
+        responseText = `## Strategic Recommendations\n\n**Based on Your Current Operations:**\n\n### 🎯 Top Priority Actions\n\n1. **Revenue Acceleration** (Impact: +30%)\n   - Target: Convert ${Math.ceil((contextData?.summary?.totalLeads || 0) * 0.3)} leads to deals\n   - Timeline: 30 days\n   - Resources: ${Math.ceil((contextData?.summary?.teamMembers || 0) * 0.4)} team members\n   - Expected Value: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') * 0.3).toFixed(0)}\n\n2. **Cash Flow Optimization** (Impact: +₹${(parseFloat(contextData?.stats?.paymentStats?.unpaid || '0') * 50000).toFixed(0)})\n   - Collect: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n   - Timeline: 15 days\n   - Action: Personal follow-up + incentives\n\n3. **Inventory Management** (Impact: -20% costs)\n   - Address: ${contextData?.lowStockItems?.length || 0} low-stock items\n   - Timeline: Immediate\n   - Action: Smart reordering + supplier negotiation\n\n4. **Operational Efficiency** (Impact: +25% capacity)\n   - Streamline: ${contextData?.stats?.orderStats?.inProduction || 0} production orders\n   - Timeline: 21 days\n   - Action: Document SOPs + team training\n\n### 📊 Quick Wins (Implement This Week)\n✅ Schedule follow-ups for ${contextData?.leadsNeedingFollowUp?.length || 0} leads\n✅ Collect highest-value ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n✅ Document 3 mission-critical processes\n✅ Complete 2 in-production orders early\n\n### 📈 Medium-term Growth (30-90 Days)\n✅ Build team to ${Math.ceil((contextData?.summary?.teamMembers || 0) * 1.25)} members\n✅ Expand capacity to handle 50% more orders\n✅ Launch referral program (target 20% from referrals)\n✅ Create case studies from top 5 clients\n\n### 🚀 Strategic Initiatives (Next Quarter)\n✅ Market expansion to new geographies\n✅ New service offerings/packages\n✅ Strategic partnerships\n✅ Technology automation\n\n**Implementation Framework:**\n1. Week 1: Planning & team alignment\n2. Week 2-3: Quick wins execution\n3. Week 4+: Track, optimize, scale\n\n**Success Metrics:**\n- Lead conversion: ${((contextData?.summary?.totalOrders || 0) / Math.max(contextData?.summary?.totalLeads || 1, 1) * 100).toFixed(1)}% → target 25%\n- Average deal: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0)} → target +25%\n- Cash collection: ${((contextData?.stats?.paymentStats?.paid || 0) / (contextData?.stats?.paymentStats?.paid + contextData?.stats?.paymentStats?.unpaid) * 100).toFixed(0)}% → target 95%\n- Delivery speed: Current → -20% faster`;
+      } else {
+        // Ultimate fallback for any other question
+        responseText = `## I'd Be Happy to Help!\n\n**About: "${userMessage.substring(0, 50)}${userMessage.length > 50 ? '...' : ''}"\n\n### What I Can Help You With:\n\n**Operational Questions:**\n- Fleet status and capacity\n- Order management and tracking\n- Inventory and stock levels\n- Team management\n- Flight operations\n\n**Business Intelligence:**\n- Sales metrics and conversion rates\n- Revenue analysis\n- Lead pipeline health\n- Cash flow management\n- Performance dashboards\n\n**Strategic Advice:**\n- Sales improvement strategies\n- Operational efficiency\n- Team development\n- Process optimization\n- Business growth\n\n**Product Knowledge:**\n- VEDANSH drone specifications\n- SHAURYA capabilities\n- Service offerings\n- Industry applications\n\n**Follow-up & CRM:**\n- Lead follow-up planning\n- Contact scheduling\n- Activity tracking\n- Pipeline management\n\n### Your Current Business Snapshot:\n- 📊 Pipeline: ₹${contextData?.stats?.totalContractValue || '0'} active contracts\n- 🎯 Leads: ${contextData?.summary?.totalLeads || 0} in sales pipeline\n- 🚁 Fleet: ${contextData?.summary?.totalDrones || 0} drones operational\n- 👥 Team: ${contextData?.summary?.teamMembers || 0} team members\n- 📈 Orders: ${contextData?.summary?.totalOrders || 0} total\n\n### How to Ask:\n- **\"How can we...?\"** → Strategy & steps\n- **\"What should we...?\"** → Analysis & options\n- **\"When should...?\"** → Timeline & scheduling\n- **\"Why should...?\"** → Impact & benefits\n- **\"Suggest...\"** → Recommendations\n\n**Try asking me:**\n- How can we improve sales conversion?\n- What's the status of our orders?\n- When should we follow up with leads?\n- Why should we focus on inventory?\n- Suggest ways to optimize operations\n\n**What specific area would you like to explore?**`;
       }
     }
 
