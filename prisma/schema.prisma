@@ -59,6 +59,8 @@ model Organization {
   supportTickets SupportTicket[]
   flightLogs     FlightLog[]
   components     Component[]
+  assistantConversations AssistantConversation[]
+  assistantInstructions  AssistantInstruction[]
   inventoryTransactions InventoryTransaction[]
   reimbursements Reimbursement[]
   expenses       Expense[]
@@ -83,6 +85,8 @@ model User {
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
   supportTickets SupportTicket[]
+  assistantConversations AssistantConversation[]
+  assistantInstructions  AssistantInstruction[]
   inventoryTransactions InventoryTransaction[]
   reimbursements Reimbursement[]
 
@@ -521,4 +525,50 @@ model Expense {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("expenses")
+}
+
+model AssistantConversation {
+  id             String             @id @default(uuid())
+  userId         String             @map("user_id")
+  organizationId String?            @map("organization_id")
+  title          String?
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages       AssistantMessage[]
+
+  @@index([userId])
+  @@index([organizationId])
+  @@map("assistant_conversations")
+}
+
+model AssistantMessage {
+  id               String               @id @default(uuid())
+  conversationId   String               @map("conversation_id")
+  role             String               // 'user' or 'system' or 'assistant'
+  content          String               @db.Text
+  createdAt        DateTime             @default(now()) @map("created_at")
+
+  conversation     AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("assistant_messages")
+}
+
+model AssistantInstruction {
+  id             String        @id @default(uuid())
+  userId         String        @map("user_id")
+  organizationId String?       @map("organization_id")
+  content        String        @db.Text
+  isActive       Boolean       @default(true) @map("is_active")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@map("assistant_instructions")
 }

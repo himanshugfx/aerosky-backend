@@ -283,7 +283,20 @@ async function getContextData(organizationId?: string, userId?: string) {
       take: 15,
     });
 
+    const pastInteractions = userId ? await prisma.assistantMessage.findMany({
+      where: { conversation: { userId } },
+      orderBy: { createdAt: 'desc' },
+      take: 15,
+    }) : [];
+
+    const userInstructions = userId ? await prisma.assistantInstruction.findMany({
+      where: { userId, isActive: true },
+      orderBy: { createdAt: 'asc' },
+    }) : [];
+
     return {
+      pastInteractions: pastInteractions.reverse(),
+      userInstructions,
       summary: {
         totalDrones: drones,
         totalOrders: orders,
@@ -342,11 +355,21 @@ function buildSystemPrompt(contextData: any): string {
     fleetDetails = [],
     batteryDetails = [],
     vendorsPartners = [],
+    pastInteractions = [],
+    userInstructions = [],
   } = contextData;
+
+  const instructionsText = userInstructions.length > 0
+    ? `\n\n## Explicit User Instructions\nThe user has explicitly asked you to remember these rules and facts. You MUST strictly follow them in all responses:\n${userInstructions.map((inst: any, idx: number) => `${idx + 1}. ${inst.content}`).join('\n')}\n`
+    : '';
+
+  const pastInteractionsText = pastInteractions.length > 0
+    ? `\n\n## Past Interactions Context\nAnalyze the following previous conversations with this user to understand their preferences, operational focus, and memory. Use this to tailor your advice more accurately and refer back to context when helpful.\n\n${pastInteractions.map((msg: any) => `${msg.role === 'user' ? 'User' : 'Aero'}: ${msg.content}`).join('\n\n')}\n`
+    : '';
 
   return `# Aero - AeroSky Aviation Intelligence Assistant
 
-You are Aero, an advanced AI assistant for AeroSky Aviation operations. Your role is to provide intelligent insights, answer operational questions, identify trends, and suggest improvements based on real-time data.
+You are Aero, an advanced AI assistant for AeroSky Aviation operations. Your role is to provide intelligent insights, answer operational questions, identify trends, and suggest improvements based on real-time data.${instructionsText}${pastInteractionsText}
 
 ## AeroSky Aviation - Products & Services Overview
 
@@ -584,6 +607,32 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = assistantRequestSchema.parse(body);
 
+    // 3.5 Check for explicit memory instruction
+    const lowerMsg = validated.message.toLowerCase();
+    const rememberPrefixes = ['/remember', 'remember:', 'keep in memory:', 'memorize:'];
+    let memoryContent = '';
+
+    for (const prefix of rememberPrefixes) {
+      if (lowerMsg.startsWith(prefix)) {
+        memoryContent = validated.message.substring(prefix.length).trim();
+        break;
+      }
+    }
+
+    if (memoryContent) {
+      await prisma.assistantInstruction.create({
+        data: {
+          userId: auth.user.id,
+          organizationId: auth.user.organizationId,
+          content: memoryContent,
+        }
+      });
+      return NextResponse.json({
+        reply: "Got it! I've saved this instruction to my explicit memory. I will strictly reference it in all our future conversations.",
+        success: true,
+      });
+    }
+
     // 4. Get context data
     const contextData = await getContextData(auth.user.organizationId, auth.user.id);
 
@@ -734,6 +783,43 @@ export async function POST(request: NextRequest) {
       responseText = 'Unable to generate a response. Please try again.';
     }
 
+    // Save to Database to form a persistent memory 
+    try {
+      if (auth?.user?.id && responseText) {
+        let conversation = await prisma.assistantConversation.findFirst({
+          where: { userId: auth.user.id },
+          orderBy: { createdAt: 'desc' },
+        });
+
+        if (!conversation) {
+          conversation = await prisma.assistantConversation.create({
+            data: {
+              userId: auth.user.id,
+              organizationId: auth.user.organizationId,
+              title: validated.message.substring(0, 30),
+            },
+          });
+        }
+
+        await prisma.assistantMessage.createMany({
+          data: [
+            {
+              conversationId: conversation.id,
+              role: 'user',
+              content: validated.message,
+            },
+            {
+              conversationId: conversation.id,
+              role: 'assistant',
+              content: responseText,
+            },
+          ],
+        });
+      }
+    } catch (dbErr) {
+      console.error('Failed to save to Assistant Memory:', dbErr);
+    }
+    
     // 7. Return response
     return NextResponse.json({
       reply: responseText,
