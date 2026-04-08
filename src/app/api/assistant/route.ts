@@ -167,6 +167,129 @@ async function getContextData(organizationId?: string, userId?: string) {
     // Identify leads needing follow-ups (those without pending follow-ups)
     const leadsNeedingFollowUp = allLeads.filter((lead: any) => lead.followUps.length === 0).slice(0, 5);
 
+    // Fetch lead activities/notes (recent activities across all leads)
+    const leadActivities = await prisma.leadActivity.findMany({
+      where: { lead: leadWhere },
+      select: {
+        id: true,
+        type: true,
+        content: true,
+        createdAt: true,
+        lead: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    });
+
+    // Fetch upcoming calendar events (follow-ups and scheduled activities)
+    const calendarEvents = await prisma.followUp.findMany({
+      where: {
+        scheduledAt: { gte: new Date() },
+      },
+      select: {
+        id: true,
+        title: true,
+        scheduledAt: true,
+        status: true,
+        lead: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: { scheduledAt: 'asc' },
+      take: 15,
+    });
+
+    // Fetch team members with details
+    const teamMembersDetails = await prisma.teamMember.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        position: true,
+        phone: true,
+        email: true,
+        createdAt: true,
+        drones: {
+          select: {
+            id: true,
+            modelName: true,
+          },
+        },
+      },
+      take: 20,
+    });
+
+    // Fetch recent flight logs with details
+    const flightLogsDetails = await prisma.flightLog.findMany({
+      where,
+      select: {
+        id: true,
+        droneId: true,
+        locationName: true,
+        duration: true,
+        missionType: true,
+        date: true,
+        drone: {
+          select: {
+            modelName: true,
+          },
+        },
+      },
+      orderBy: { date: 'desc' },
+      take: 15,
+    });
+
+    // Fetch fleet details (all drones)
+    const fleetDetails = await prisma.drone.findMany({
+      where,
+      select: {
+        id: true,
+        modelName: true,
+        createdAt: true,
+        operationalHours: true,
+      },
+      take: 25,
+    });
+
+    // Fetch battery packs with status
+    const batteryDetails = await prisma.battery.findMany({
+      where,
+      select: {
+        id: true,
+        model: true,
+        serialNumber: true,
+        status: true,
+        capacity: true,
+        chargeLevel: true,
+        lastCharged: true,
+      },
+      orderBy: { chargeLevel: 'asc' },
+      take: 20,
+    });
+
+    // Fetch subcontractors/vendors/partners
+    const vendorsPartners = await prisma.subcontractor.findMany({
+      where,
+      select: {
+        id: true,
+        companyName: true,
+        contactPerson: true,
+        email: true,
+        phone: true,
+        services: true,
+        rating: true,
+        lastEngaged: true,
+      },
+      take: 15,
+    });
+
     return {
       summary: {
         totalDrones: drones,
@@ -191,6 +314,13 @@ async function getContextData(organizationId?: string, userId?: string) {
       lowStockItems: lowStockComponents,
       pendingFollowUps,
       leadsNeedingFollowUp,
+      leadActivities,
+      calendarEvents,
+      teamMembersDetails,
+      flightLogsDetails,
+      fleetDetails,
+      batteryDetails,
+      vendorsPartners,
     };
   } catch (error) {
     console.error('Error fetching context data:', error);
@@ -212,6 +342,13 @@ function buildSystemPrompt(contextData: any): string {
     recentOrders = [],
     criticalOrders = [],
     lowStockItems = [],
+    leadActivities = [],
+    calendarEvents = [],
+    teamMembersDetails = [],
+    flightLogsDetails = [],
+    fleetDetails = [],
+    batteryDetails = [],
+    vendorsPartners = [],
   } = contextData;
 
   return `# Aero - AeroSky Aviation Intelligence Assistant
@@ -328,6 +465,49 @@ You are Aero, an advanced AI assistant for AeroSky Aviation operations. Your rol
 - **Active Leads**: ${summary.totalLeads} in pipeline
 - **Flight Records**: ${summary.totalFlights} completed flights
 - **Low Stock Items**: ${lowStockItems.length} components need replenishment
+
+### Lead Activities & Notes
+${leadActivities.length > 0 
+  ? leadActivities.slice(0, 5).map((a: any) => 
+      `- **${a.lead?.name || 'Unknown'}**: ${a.type} - ${a.content?.substring(0, 50)}...`
+    ).join('\n')
+  : '- No recent activities'}
+
+### Upcoming Calendar Events & Follow-ups
+${calendarEvents.length > 0 
+  ? calendarEvents.slice(0, 8).map((e: any) => 
+      `- **${e.title}** with ${e.lead?.name || 'TBD'}: ${new Date(e.scheduledAt).toLocaleDateString('en-IN')} (${e.status})`
+    ).join('\n')
+  : '- No upcoming events scheduled'}
+
+### Team Members Status
+${teamMembersDetails.length > 0 
+  ? `Found ${teamMembersDetails.length} active team members. Key roles: ${teamMembersDetails.slice(0, 5).map((m: any) => m.name + ' (' + m.position + ')').join(', ')}`
+  : '- No team member data'}
+
+### Fleet Status & Maintenance
+${fleetDetails.length > 0 
+  ? fleetDetails.slice(0, 8).map((d: any) => 
+      `- **${d.modelName}**: ${d.operationalHours || 0}h operation time`
+    ).join('\n')
+  : '- No fleet data available'}
+
+### Battery Pack Status
+${batteryDetails.length > 0 
+  ? `Available: ${batteryDetails.length} batteries. Status: ${batteryDetails.filter((b: any) => b.status === 'ACTIVE').length} active, ${batteryDetails.filter((b: any) => b.chargeLevel < 50).length} low charge`
+  : '- No battery data'}
+
+### Vendors & Partners
+${vendorsPartners.length > 0 
+  ? `Connected with ${vendorsPartners.length} partners. Recent: ${vendorsPartners.slice(0, 3).map((v: any) => v.companyName).join(', ')}`
+  : '- No partner data'}
+
+### Recent Flight Logs
+${flightLogsDetails.length > 0 
+  ? flightLogsDetails.slice(0, 5).map((f: any) => 
+      `- **${f.locationName || 'Unknown'}**: ${f.duration}min flight (${f.missionType})`
+    ).join('\n')
+  : '- No flight records'}
 
 ## Recent Activity
 
@@ -511,20 +691,6 @@ export async function POST(request: NextRequest) {
         } else {
           responseText = `**All Follow-ups are Current! 🎉**\n\nYou have ${contextData?.summary?.totalLeads || 0} active leads and all have scheduled follow-ups.\n\n**Next Steps:**\n1. Review scheduled follow-ups in your calendar\n2. Prepare materials for upcoming calls\n3. Continue nurturing relationships consistently\n4. Track outcomes for sales pipeline visibility`;
         }
-      } else {
-        // Generic intelligent response with all available data
-        const totalValue = contextData?.stats?.totalContractValue || '0';
-        const lowStockLength = contextData?.lowStockItems?.length || 0;
-        const unpaidCount = paymentStats.unpaid || 0;
-        const inProductionCount = orderStats.inProduction || 0;
-        
-        let focusAreas = [];
-        if (lowStockLength > 0) focusAreas.push(`Replenish low inventory (${lowStockLength} items)`);
-        if (unpaidCount > 0) focusAreas.push(`Collect unpaid invoices (${unpaidCount} orders)`);
-        if (inProductionCount > 0) focusAreas.push(`Expedite production (${inProductionCount} orders)`);
-        focusAreas.push(`Continue lead nurturing (${contextData?.summary?.totalLeads || 0} active)`);
-        
-        responseText = `Based on your current operational data:\n\n**Business Health**: ✅ Operational\n- **Revenue Pipeline**: ₹${totalValue} in active contracts\n- **Production Capacity**: ${contextData?.summary?.totalDrones || 0} drones, ${contextData?.summary?.batteries || 0} batteries\n- **Team Strength**: ${contextData?.summary?.teamMembers || 0} members\n- **Sales Pipeline**: ${contextData?.summary?.totalLeads || 0} leads\n\n**Current Focus Areas**:\n${focusAreas.map((area, i) => `${i + 1}. ${area}`).join('\n')}\n\nWhat specific aspect would you like to focus on?`;
       } else if (userMessage.startsWith('how ') || userMessage.startsWith('how to ') || userMessage.includes('how can')) {
         // Intelligent response for "How" questions
         const topic = userMessage.replace(/^how (to |can )? ?/i, '').trim();
@@ -532,16 +698,39 @@ export async function POST(request: NextRequest) {
       } else if (userMessage.startsWith('what ') || userMessage.includes('what should') || userMessage.includes('what about')) {
         // Intelligent response for "What" questions
         const topic = userMessage.replace(/^what (should |about )?/i, '').trim();
-        responseText = `## About ${topic.charAt(0).toUpperCase() + topic.slice(1)}\n\n**Analysis & Insights:**\n\n### Current Status\n- Business Health: ✅ Operational\n- Active Team: ${contextData?.summary?.teamMembers || 0} members\n- Orders: ${contextData?.summary?.totalOrders || 0} (₹${contextData?.stats?.totalContractValue || '0'} value)\n- Leads: ${contextData?.summary?.totalLeads || 0} in pipeline\n- Inventory: ${contextData?.summary?.totalComponents || 0} components (${contextData?.lowStockItems?.length || 0} low-stock)\n\n### Key Considerations\n1. **Resource Allocation**: Optimize use of ${contextData?.summary?.totalDrones || 0} drones + ${contextData?.summary?.teamMembers || 0} team members\n2. **Revenue Focus**: Target ₹${((parseFloat(contextData?.stats?.totalContractValue || '0') * 1.25) / contextData?.summary?.totalLeads).toFixed(0)} average deal value\n3. **Operational Excellence**: Reduce bottlenecks in ${contextData?.stats?.orderStats?.inProduction || 0} active orders\n4. **Cash Flow**: Collect ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n\n### Recommended Actions\n✅ Prioritize high-impact initiatives\n✅ Focus on quick wins for momentum\n✅ Build team capability\n✅ Track metrics weekly\n\n**Next Steps:**\n1. Validate assumptions with team\n2. Create detailed plan\n3. Assign ownership\n4. Schedule regular checkpoints`;
+        const leadCount = contextData?.summary?.totalLeads || 1;
+        const targetDealValue = leadCount > 0 ? ((parseFloat(contextData?.stats?.totalContractValue || '0') * 1.25) / leadCount).toFixed(0) : '0';
+        responseText = `## About ${topic.charAt(0).toUpperCase() + topic.slice(1)}\n\n**Analysis & Insights:**\n\n### Current Status\n- Business Health: ✅ Operational\n- Active Team: ${contextData?.summary?.teamMembers || 0} members\n- Orders: ${contextData?.summary?.totalOrders || 0} (₹${contextData?.stats?.totalContractValue || '0'} value)\n- Leads: ${leadCount} in pipeline\n- Inventory: ${contextData?.summary?.totalComponents || 0} components (${contextData?.lowStockItems?.length || 0} low-stock)\n\n### Key Considerations\n1. **Resource Allocation**: Optimize use of ${contextData?.summary?.totalDrones || 0} drones + ${contextData?.summary?.teamMembers || 0} team members\n2. **Revenue Focus**: Target ₹${targetDealValue} average deal value\n3. **Operational Excellence**: Reduce bottlenecks in ${contextData?.stats?.orderStats?.inProduction || 0} active orders\n4. **Cash Flow**: Collect ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n\n### Recommended Actions\n✅ Prioritize high-impact initiatives\n✅ Focus on quick wins for momentum\n✅ Build team capability\n✅ Track metrics weekly\n\n**Next Steps:**\n1. Validate assumptions with team\n2. Create detailed plan\n3. Assign ownership\n4. Schedule regular checkpoints`;
       } else if (userMessage.includes('when ') || userMessage.includes('timeline') || userMessage.includes('schedule')) {
         // Intelligent response for "When" questions
-        responseText = `## Timeline & Scheduling Strategy\n\n**Current Operational Timeline:**\n\n### Immediate (This Week)\n- Follow up on ${contextData?.pendingFollowUps?.length || 0} pending follow-ups\n- Address ${contextData?.lowStockItems?.length || 0} low-stock items\n- Review ${contextData?.stats?.orderStats?.inProduction || 0} orders in production\n\n### Short-term (Next 2 Weeks)\n- Implement quick wins from current focus areas\n- Train team on new processes\n- Close high-value deals (convert ${Math.ceil((contextData?.summary?.totalLeads || 0) * 0.2)} leads)\n\n### Medium-term (Next Month)\n- Complete all in-production orders (${contextData?.stats?.orderStats?.inProduction || 0} items)\n- Collect unpaid invoices (₹${(parseFloat(contextData?.stats?.paymentStats?.unpaid || '0') * 50000).toFixed(0)} expected)\n- Scale operations with expanded team\n\n### Long-term (Q1 Goals)\n- Grow from ${contextData?.summary?.totalLeads || 0} to ${(contextData?.summary?.totalLeads || 0) * 2} active leads\n- Increase orders from ${contextData?.summary?.totalOrders || 0} to ${(contextData?.summary?.totalOrders || 0) * 1.5 | 0}\n- Build team to ${contextData?.summary?.teamMembers || 0 + 5} members\n\n**Critical Path Items:**\n1. ⚠️ Resolve inventory issues (${contextData?.lowStockItems?.length || 0} items)\n2. 💰 Collect unpaid amounts\n3. 🎯 Close pending leads\n4. 📈 Expand capacity\n\n**Resource Availability:**\n- Team: ${contextData?.summary?.teamMembers || 0} members available\n- Fleet: ${contextData?.summary?.totalDrones || 0} operational units\n- Timeline: Recommend ${Math.ceil((contextData?.stats?.orderStats?.inProduction || 0) / Math.max(contextData?.summary?.totalDrones || 1, 1)) * 2}-4 weeks for current pipeline`;
+        const leadCountNum = Number(contextData?.summary?.totalLeads || 0);
+        const orderCountNum = Number(contextData?.summary?.totalOrders || 0);
+        const teamCount = String(Number(contextData?.summary?.teamMembers || 0) + 5);
+        const droneCount = Number(contextData?.summary?.totalDrones || 1);
+        const productionOrders = String(Number(contextData?.stats?.orderStats?.inProduction || 0));
+        const timelineWeeks = String(Math.ceil(Number(contextData?.stats?.orderStats?.inProduction || 0) / Math.max(droneCount, 1)) * 2);
+        const leadGrowth = String(Math.ceil((leadCountNum || 0) * 0.2));
+        const orderGrowth = String(Math.floor((orderCountNum * 1.5) || 0) as any);
+        const leadLongTerm = String((leadCountNum * 2) || 0);
+        const unpaidInvoices = String((parseFloat((contextData?.stats?.paymentStats?.unpaid || '0').toString()) * 50000).toFixed(0));
+        
+        responseText = `## Timeline & Scheduling Strategy\n\n**Current Operational Timeline:**\n\n### Immediate (This Week)\n- Follow up on ${contextData?.pendingFollowUps?.length || 0} pending follow-ups\n- Address ${contextData?.lowStockItems?.length || 0} low-stock items\n- Review ${productionOrders} orders in production\n\n### Short-term (Next 2 Weeks)\n- Implement quick wins from current focus areas\n- Train team on new processes\n- Close high-value deals (convert ${leadGrowth} leads)\n\n### Medium-term (Next Month)\n- Complete all in-production orders (${productionOrders} items)\n- Collect unpaid invoices (₹${unpaidInvoices} expected)\n- Scale operations with expanded team\n\n### Long-term (Q1 Goals)\n- Grow from ${leadCountNum} to ${leadLongTerm} active leads\n- Increase orders from ${orderCountNum} to ${orderGrowth}\n- Build team to ${teamCount} members\n\n**Critical Path Items:**\n1. ⚠️ Resolve inventory issues (${contextData?.lowStockItems?.length || 0} items)\n2. 💰 Collect unpaid amounts\n3. 🎯 Close pending leads\n4. 📈 Expand capacity\n\n**Resource Availability:**\n- Team: ${contextData?.summary?.teamMembers || 0} members available\n- Fleet: ${droneCount} operational units\n- Timeline: Recommend ${timelineWeeks}-4 weeks for current pipeline`;
       } else if (userMessage.includes('why ') || userMessage.includes('reason') || userMessage.includes('benefit')) {
         // Intelligent response for "Why" questions
-        responseText = `## Why This Matters\n\n**Business Impact Analysis:**\n\n### Revenue Perspective\n- Current Pipeline: ₹${contextData?.stats?.totalContractValue || '0'}\n- Average Deal: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0)}\n- Growth Potential: 25-50% increase possible\n\n### Operational Perspective\n- Fleet Capacity: ${contextData?.summary?.totalDrones || 0} drones (${(contextData?.summary?.totalDrones || 0) * 40 || 0} hours/month)\n- Team Bandwidth: ${contextData?.summary?.teamMembers || 0} members at current utilization\n- Bottlenecks: ${contextData?.stats?.orderStats?.inProduction || 0} orders in progress\n\n### Strategic Importance\n✅ **Customer Success**: Happy customers = referrals & repeat business\n✅ **Financial Health**: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices needs resolution\n✅ **Team Morale**: Clear goals motivate performance\n✅ **Market Position**: Stay competitive vs. others in drone services\n✅ **Scaling**: Build infrastructure for growth\n\n### Why Act Now?\n1. **Market Window**: Right time to expand capacity\n2. **Team Readiness**: ${contextData?.summary?.teamMembers || 0} team ready for next phase\n3. **Lead Quality**: ${contextData?.summary?.totalLeads || 0} leads in pipeline waiting\n4. **Resource Availability**: Spare capacity exists to handle growth\n\n### Expected Outcomes\n- 📈 Revenue growth: 30-40%\n- 👥 Team efficiency: 15-20% improvement\n- 💰 Cash collection: 100% of outstanding payments\n- 📊 Order velocity: 25% faster execution\n\n**Return on Investment:**\nEvery ₹1 invested in optimization → ₹3-5 return within 90 days`;
+        const drones = contextData?.summary?.totalDrones ?? 0 as const;
+        const fleetHours = `${(drones as number) * 40}`;
+        
+        responseText = `## Why This Matters\n\n**Business Impact Analysis:**\n\n### Revenue Perspective\n- Current Pipeline: ₹${contextData?.stats?.totalContractValue || '0'}\n- Average Deal: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0)}\n- Growth Potential: 25-50% increase possible\n\n### Operational Perspective\n- Fleet Capacity: ${drones} drones (${fleetHours} hours/month)\n- Team Bandwidth: ${contextData?.summary?.teamMembers || 0} members at current utilization\n- Bottlenecks: ${contextData?.stats?.orderStats?.inProduction || 0} orders in progress\n\n### Strategic Importance\n✅ **Customer Success**: Happy customers = referrals & repeat business\n✅ **Financial Health**: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices needs resolution\n✅ **Team Morale**: Clear goals motivate performance\n✅ **Market Position**: Stay competitive vs. others in drone services\n✅ **Scaling**: Build infrastructure for growth\n\n### Why Act Now?\n1. **Market Window**: Right time to expand capacity\n2. **Team Readiness**: ${contextData?.summary?.teamMembers || 0} team ready for next phase\n3. **Lead Quality**: ${contextData?.summary?.totalLeads || 0} leads in pipeline waiting\n4. **Resource Availability**: Spare capacity exists to handle growth\n\n### Expected Outcomes\n- 📈 Revenue growth: 30-40%\n- 👥 Team efficiency: 15-20% improvement\n- 💰 Cash collection: 100% of outstanding payments\n- 📊 Order velocity: 25% faster execution\n\n**Return on Investment:**\nEvery ₹1 invested in optimization → ₹3-5 return within 90 days`;
       } else if (userMessage.includes('suggest') || userMessage.includes('recommend') || userMessage.includes('advice')) {
         // Intelligent response for suggestion/advice questions
-        responseText = `## Strategic Recommendations\n\n**Based on Your Current Operations:**\n\n### 🎯 Top Priority Actions\n\n1. **Revenue Acceleration** (Impact: +30%)\n   - Target: Convert ${Math.ceil((contextData?.summary?.totalLeads || 0) * 0.3)} leads to deals\n   - Timeline: 30 days\n   - Resources: ${Math.ceil((contextData?.summary?.teamMembers || 0) * 0.4)} team members\n   - Expected Value: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') * 0.3).toFixed(0)}\n\n2. **Cash Flow Optimization** (Impact: +₹${(parseFloat(contextData?.stats?.paymentStats?.unpaid || '0') * 50000).toFixed(0)})\n   - Collect: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n   - Timeline: 15 days\n   - Action: Personal follow-up + incentives\n\n3. **Inventory Management** (Impact: -20% costs)\n   - Address: ${contextData?.lowStockItems?.length || 0} low-stock items\n   - Timeline: Immediate\n   - Action: Smart reordering + supplier negotiation\n\n4. **Operational Efficiency** (Impact: +25% capacity)\n   - Streamline: ${contextData?.stats?.orderStats?.inProduction || 0} production orders\n   - Timeline: 21 days\n   - Action: Document SOPs + team training\n\n### 📊 Quick Wins (Implement This Week)\n✅ Schedule follow-ups for ${contextData?.leadsNeedingFollowUp?.length || 0} leads\n✅ Collect highest-value ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n✅ Document 3 mission-critical processes\n✅ Complete 2 in-production orders early\n\n### 📈 Medium-term Growth (30-90 Days)\n✅ Build team to ${Math.ceil((contextData?.summary?.teamMembers || 0) * 1.25)} members\n✅ Expand capacity to handle 50% more orders\n✅ Launch referral program (target 20% from referrals)\n✅ Create case studies from top 5 clients\n\n### 🚀 Strategic Initiatives (Next Quarter)\n✅ Market expansion to new geographies\n✅ New service offerings/packages\n✅ Strategic partnerships\n✅ Technology automation\n\n**Implementation Framework:**\n1. Week 1: Planning & team alignment\n2. Week 2-3: Quick wins execution\n3. Week 4+: Track, optimize, scale\n\n**Success Metrics:**\n- Lead conversion: ${((contextData?.summary?.totalOrders || 0) / Math.max(contextData?.summary?.totalLeads || 1, 1) * 100).toFixed(1)}% → target 25%\n- Average deal: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0)} → target +25%\n- Cash collection: ${((contextData?.stats?.paymentStats?.paid || 0) / (contextData?.stats?.paymentStats?.paid + contextData?.stats?.paymentStats?.unpaid) * 100).toFixed(0)}% → target 95%\n- Delivery speed: Current → -20% faster`;
+        const leadsToConvert = Math.ceil(((contextData?.summary?.totalLeads as number) || 0) * 0.3);
+        const resourcesToAllocate = Math.ceil(((contextData?.summary?.teamMembers as number) || 0) * 0.4);
+        const teamGrowthTarget = Math.ceil(((contextData?.summary?.teamMembers as number) || 0) * 1.25);
+        const leadConversionRate = (((contextData?.summary?.totalOrders as number) || 0) / Math.max((contextData?.summary?.totalLeads as number) || 1, 1) * 100).toFixed(1);
+        const avgDealValue = (parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max((contextData?.summary?.totalOrders as number) || 1, 1)).toFixed(0);
+        const cashCollectionRate = (((contextData?.stats?.paymentStats?.paid as number) || 0) / (((contextData?.stats?.paymentStats?.paid as number) || 0) + ((contextData?.stats?.paymentStats?.unpaid as number) || 0)) * 100).toFixed(0);
+        
+        responseText = `## Strategic Recommendations\n\n**Based on Your Current Operations:**\n\n### 🎯 Top Priority Actions\n\n1. **Revenue Acceleration** (Impact: +30%)\n   - Target: Convert ${leadsToConvert} leads to deals\n   - Timeline: 30 days\n   - Resources: ${resourcesToAllocate} team members\n   - Expected Value: ₹${(parseFloat(contextData?.stats?.totalContractValue || '0') * 0.3).toFixed(0)}\n\n2. **Cash Flow Optimization** (Impact: +₹${(parseFloat(contextData?.stats?.paymentStats?.unpaid || '0') * 50000).toFixed(0)})\n   - Collect: ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n   - Timeline: 15 days\n   - Action: Personal follow-up + incentives\n\n3. **Inventory Management** (Impact: -20% costs)\n   - Address: ${contextData?.lowStockItems?.length || 0} low-stock items\n   - Timeline: Immediate\n   - Action: Smart reordering + supplier negotiation\n\n4. **Operational Efficiency** (Impact: +25% capacity)\n   - Streamline: ${contextData?.stats?.orderStats?.inProduction || 0} production orders\n   - Timeline: 21 days\n   - Action: Document SOPs + team training\n\n### 📊 Quick Wins (Implement This Week)\n✅ Schedule follow-ups for ${contextData?.leadsNeedingFollowUp?.length || 0} leads\n✅ Collect highest-value ${contextData?.stats?.paymentStats?.unpaid || 0} unpaid invoices\n✅ Document 3 mission-critical processes\n✅ Complete 2 in-production orders early\n\n### 📈 Medium-term Growth (30-90 Days)\n✅ Build team to ${teamGrowthTarget} members\n✅ Expand capacity to handle 50% more orders\n✅ Launch referral program (target 20% from referrals)\n✅ Create case studies from top 5 clients\n\n### 🚀 Strategic Initiatives (Next Quarter)\n✅ Market expansion to new geographies\n✅ New service offerings/packages\n✅ Strategic partnerships\n✅ Technology automation\n\n**Implementation Framework:**\n1. Week 1: Planning & team alignment\n2. Week 2-3: Quick wins execution\n3. Week 4+: Track, optimize, scale\n\n**Success Metrics:**\n- Lead conversion: ${leadConversionRate}% → target 25%\n- Average deal: ₹${avgDealValue} → target +25%\n- Cash collection: ${cashCollectionRate}% → target 95%\n- Delivery speed: Current → -20% faster`;
       } else {
         // Ultimate fallback for any other question
         responseText = `## I'd Be Happy to Help!\n\n**About: "${userMessage.substring(0, 50)}${userMessage.length > 50 ? '...' : ''}"\n\n### What I Can Help You With:\n\n**Operational Questions:**\n- Fleet status and capacity\n- Order management and tracking\n- Inventory and stock levels\n- Team management\n- Flight operations\n\n**Business Intelligence:**\n- Sales metrics and conversion rates\n- Revenue analysis\n- Lead pipeline health\n- Cash flow management\n- Performance dashboards\n\n**Strategic Advice:**\n- Sales improvement strategies\n- Operational efficiency\n- Team development\n- Process optimization\n- Business growth\n\n**Product Knowledge:**\n- VEDANSH drone specifications\n- SHAURYA capabilities\n- Service offerings\n- Industry applications\n\n**Follow-up & CRM:**\n- Lead follow-up planning\n- Contact scheduling\n- Activity tracking\n- Pipeline management\n\n### Your Current Business Snapshot:\n- 📊 Pipeline: ₹${contextData?.stats?.totalContractValue || '0'} active contracts\n- 🎯 Leads: ${contextData?.summary?.totalLeads || 0} in sales pipeline\n- 🚁 Fleet: ${contextData?.summary?.totalDrones || 0} drones operational\n- 👥 Team: ${contextData?.summary?.teamMembers || 0} team members\n- 📈 Orders: ${contextData?.summary?.totalOrders || 0} total\n\n### How to Ask:\n- **\"How can we...?\"** → Strategy & steps\n- **\"What should we...?\"** → Analysis & options\n- **\"When should...?\"** → Timeline & scheduling\n- **\"Why should...?\"** → Impact & benefits\n- **\"Suggest...\"** → Recommendations\n\n**Try asking me:**\n- How can we improve sales conversion?\n- What's the status of our orders?\n- When should we follow up with leads?\n- Why should we focus on inventory?\n- Suggest ways to optimize operations\n\n**What specific area would you like to explore?**`;
