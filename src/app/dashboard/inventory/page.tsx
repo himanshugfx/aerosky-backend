@@ -68,8 +68,8 @@ export default function InventoryPage() {
     const fetchData = async () => {
         try {
             const [cRes, tRes, sRes] = await Promise.all([
-                fetch('/api/inventory/components'),
-                fetch(`/api/inventory/transactions${searchTerm ? `?search=${searchTerm}` : ''}`),
+                fetch('/api/inventory/components?limit=100'),
+                fetch(`/api/inventory/transactions?limit=100${searchTerm ? `&search=${searchTerm}` : ''}`),
                 fetch('/api/subcontractors')
             ])
             if (cRes.ok) {
