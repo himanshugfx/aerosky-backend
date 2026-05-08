@@ -1,17 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/api-auth";
 
 // GET all drones with uploads
-export async function GET() {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+export async function GET(request: NextRequest) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
+        const where: any = {};
+        
+        // Add organization scoping
+        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.role !== 'ADMIN' && auth.user.role !== 'ADMINISTRATION') {
+            if (auth.user.organizationId) {
+                where.organizationId = auth.user.organizationId;
+            } else {
+                // If no organization is set, return empty array for security
+                return NextResponse.json([]);
+            }
+        }
+        
         const drones = await prisma.drone.findMany({
+            where,
             include: {
                 uploads: true,
                 accountableManager: true,
@@ -71,8 +83,8 @@ export async function GET() {
 
 // POST create drone
 export async function POST(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

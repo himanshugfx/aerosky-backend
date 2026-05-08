@@ -15,8 +15,14 @@ export async function GET(request: NextRequest) {
 
     try {
         const where: any = {};
-        if (auth.user.role !== 'SUPER_ADMIN') {
-            // Organization scoping - removed
+        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.role !== 'ADMIN') {
+            // Organization scoping
+            if (auth.user.organizationId) {
+                where.organizationId = auth.user.organizationId;
+            } else {
+                // If no organization is set, return empty array for security
+                return NextResponse.json([]);
+            }
         }
 
         const drones = await prisma.drone.findMany({

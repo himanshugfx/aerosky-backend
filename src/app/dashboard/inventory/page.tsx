@@ -68,12 +68,20 @@ export default function InventoryPage() {
     const fetchData = async () => {
         try {
             const [cRes, tRes, sRes] = await Promise.all([
-                fetch('/api/inventory/components'),
-                fetch(`/api/inventory/transactions${searchTerm ? `?search=${searchTerm}` : ''}`),
+                fetch('/api/inventory/components?limit=100'),
+                fetch(`/api/inventory/transactions?limit=100${searchTerm ? `&search=${searchTerm}` : ''}`),
                 fetch('/api/subcontractors')
             ])
-            if (cRes.ok) setComponents(await cRes.json())
-            if (tRes.ok) setTransactions(await tRes.json())
+            if (cRes.ok) {
+                const cData = await cRes.json()
+                // Handle paginated response
+                setComponents(cData.data || (Array.isArray(cData) ? cData : []))
+            }
+            if (tRes.ok) {
+                const tData = await tRes.json()
+                // Handle paginated response
+                setTransactions(tData.data || (Array.isArray(tData) ? tData : []))
+            }
             if (sRes.ok) setSubcontractors(await sRes.json())
         } finally { setLoading(false) }
     }

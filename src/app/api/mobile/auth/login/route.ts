@@ -1,7 +1,7 @@
 // Mobile Authentication API - Login endpoint
-import { signToken } from '@/lib/jwt';
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { authService } from '@/lib/auth-service';
+import { localLoginLimiter } from '@/lib/rate-limiter';
+import { handleError, errors } from '@/lib/error-handler';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -13,35 +13,30 @@ export async function POST(request: NextRequest) {
         const loginId = username || email;
 
         if (!loginId || !password) {
-            return NextResponse.json(
-                { error: 'Username/email and password are required' },
-                { status: 400 }
-            );
-        }
-
-        // Find user by username OR email
-        let user = await prisma.user.findUnique({
-            where: { username: loginId }
-        });
-
-        // If not found by username, try email
-        if (!user) {
-            user = await prisma.user.findUnique({
-                where: { email: loginId }
+            throw errors.validationError({
+                loginId: ['Username/email is required'],
+                password: ['Password is required']
             });
         }
 
-        if (!user) {
+        // Apply rate limiting
+        const { success, remaining, retryAfter } = await localLoginLimiter.limit(loginId);
+
+        if (!success) {
             return NextResponse.json(
-                { error: 'Invalid credentials' },
-                { status: 401 }
+                {
+                    error: 'TOO_MANY_ATTEMPTS',
+                    message: `Too many login attempts. Try again in ${retryAfter}s`,
+                    retryAfter,
+                },
+                { status: 429 }
             );
         }
 
-        // Verify password
-        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+        // Authenticate user
+        const user = await authService.authenticateWithCredentials(loginId, password);
 
-        if (!isPasswordValid) {
+        if (!user) {
             return NextResponse.json(
                 { error: 'Invalid credentials' },
                 { status: 401 }
@@ -49,35 +44,22 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate JWT token
-        const token = signToken({
-            userId: user.id,
-            username: user.username,
-            role: user.role,
-        });
+        const token = authService.generateJwt(user);
 
-        // Return user data and token with CORS headers
+        // Return user data and token
         return NextResponse.json({
             token,
             user: {
                 id: user.id,
                 email: user.email || user.username,
-                fullName: user.fullName || user.username,
+                fullName: user.username, // Assuming username is the display name
                 role: user.role,
-            }
-        }, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                organizationId: user.organizationId,
             }
         });
 
     } catch (error) {
-        console.error('Login error:', error);
-        return NextResponse.json(
-            { error: 'An error occurred during login' },
-            { status: 500 }
-        );
+        return handleError(error);
     }
 }
 
@@ -86,7 +68,6 @@ export async function OPTIONS() {
     return new NextResponse(null, {
         status: 200,
         headers: {
-            'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },

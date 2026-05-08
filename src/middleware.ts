@@ -2,6 +2,27 @@ import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest, NextFetchEvent } from "next/server";
 
+// CORS allowed origins by environment
+const ALLOWED_ORIGINS = {
+  development: ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.29.125:3000'],
+  production: [
+    'https://app.aerosysaviation.in',
+    'https://mobile.aerosysaviation.in',
+    'https://dashboard.aerosysaviation.in',
+  ],
+};
+
+function getAllowedOrigins(): string[] {
+  const env = process.env.NODE_ENV || 'development';
+  return ALLOWED_ORIGINS[env as keyof typeof ALLOWED_ORIGINS] || ALLOWED_ORIGINS.development;
+}
+
+function isOriginAllowed(origin: string | null): boolean {
+  if (!origin) return false;
+  const allowed = getAllowedOrigins();
+  return allowed.includes(origin);
+}
+
 // 1. Wrap your NextAuth logic
 const authMiddleware = withAuth(
     function middleware(req: NextRequestWithAuth) {
@@ -17,11 +38,6 @@ const authMiddleware = withAuth(
 
         const token = req.nextauth?.token;
         const isAuth = !!token;
-        const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
-
-        if (isAdminPage && !isAuth) {
-            return NextResponse.redirect(new URL("/login", req.url));
-        }
 
         return NextResponse.next();
     },
@@ -48,5 +64,6 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
 
 export const config = {
     // Applied to login, register, reset links, and unauthorized as well to guarantee global coverage
-    matcher: ["/admin/:path*", "/dashboard/:path*", "/api/:path*", "/login", "/register", "/unauthorized"],
+    matcher: ["/dashboard/:path*", "/api/:path*", "/login", "/register", "/unauthorized"],
 };
+

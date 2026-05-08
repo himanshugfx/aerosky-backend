@@ -11,6 +11,7 @@ export interface AuthenticatedUser {
     username: string;
     email?: string;
     role: Role;
+    organizationId?: string;
 }
 
 export interface AuthResult {
@@ -30,7 +31,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
             if ((session.user as any).id) {
                 user = await prisma.user.findUnique({
                     where: { id: (session.user as any).id },
-                    select: { id: true, username: true, email: true, role: true }
+                    select: { id: true, username: true, email: true, role: true, organizationId: true }
                 });
             }
 
@@ -38,7 +39,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
             if (!user && session.user.email) {
                 user = await prisma.user.findUnique({
                     where: { email: session.user.email },
-                    select: { id: true, username: true, email: true, role: true }
+                    select: { id: true, username: true, email: true, role: true, organizationId: true }
                 });
             }
 
@@ -46,7 +47,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
             if (!user && session.user.name) {
                 user = await prisma.user.findUnique({
                     where: { username: session.user.name },
-                    select: { id: true, username: true, email: true, role: true }
+                    select: { id: true, username: true, email: true, role: true, organizationId: true }
                 });
             }
 
@@ -57,6 +58,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                         username: user.username,
                         email: user.email || undefined,
                         role: user.role,
+                        organizationId: user.organizationId || undefined,
                     },
                     type: 'session'
                 };
@@ -79,7 +81,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                     console.log('JWT decoded userId:', userId);
                     user = await prisma.user.findUnique({
                         where: { id: userId },
-                        select: { id: true, username: true, email: true, role: true }
+                        select: { id: true, username: true, email: true, role: true, organizationId: true }
                     });
                 }
 
@@ -87,7 +89,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                     console.log('Finding user by username:', decoded.username);
                     user = await prisma.user.findUnique({
                         where: { username: decoded.username },
-                        select: { id: true, username: true, email: true, role: true }
+                        select: { id: true, username: true, email: true, role: true, organizationId: true }
                     });
                 }
 
@@ -99,6 +101,7 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                             username: user.username,
                             email: user.email || undefined,
                             role: user.role,
+                            organizationId: user.organizationId || undefined,
                         },
                         type: 'jwt'
                     };

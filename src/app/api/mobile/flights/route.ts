@@ -9,8 +9,20 @@ export async function GET(request: NextRequest) {
     }
 
     try {
+        const where: any = {};
+        
+        // Add organization scoping
+        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.role !== 'ADMIN') {
+            if (auth.user.organizationId) {
+                where.organizationId = auth.user.organizationId;
+            } else {
+                // If no organization is set, return empty array for security
+                return NextResponse.json([]);
+            }
+        }
+        
         const flightLogs = await prisma.flightLog.findMany({
-            where: {},
+            where,
             include: {
                 drone: true,
                 pic: true,

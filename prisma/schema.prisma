@@ -59,6 +59,8 @@ model Organization {
   supportTickets SupportTicket[]
   flightLogs     FlightLog[]
   components     Component[]
+  assistantConversations AssistantConversation[]
+  assistantInstructions  AssistantInstruction[]
   inventoryTransactions InventoryTransaction[]
   reimbursements Reimbursement[]
   expenses       Expense[]
@@ -83,6 +85,8 @@ model User {
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   teamMember     TeamMember?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
   supportTickets SupportTicket[]
+  assistantConversations AssistantConversation[]
+  assistantInstructions  AssistantInstruction[]
   inventoryTransactions InventoryTransaction[]
   reimbursements Reimbursement[]
 
@@ -392,11 +396,12 @@ model Component {
   description    String?
   quantity       Int      @default(0)
   category       String   @default("Operational")
-  organizationId String   @map("organization_id")
+  unitPrice      Float?   @map("unit_price")
+  organizationId String?   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   transactions InventoryTransaction[]
 
   @@map("components")
@@ -416,11 +421,11 @@ model InventoryTransaction {
   subcontractorId String?         @map("subcontractor_id")
   userId          String?          @map("user_id")
   takenOutFor     String?         @map("taken_out_for")
-  organizationId  String          @map("organization_id")
+  organizationId  String?          @map("organization_id")
   createdAt       DateTime        @default(now()) @map("created_at")
 
   component     Component      @relation(fields: [componentId], references: [id], onDelete: Cascade)
-  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization  Organization?   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   subcontractor Subcontractor? @relation(fields: [subcontractorId], references: [id], onDelete: SetNull)
   user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
 
@@ -436,12 +441,12 @@ model Reimbursement {
   billData       String   @db.Text @map("bill_data") // Base64 image or pdf
   status         String   @default("Pending") // Pending, Approved, Rejected
   userId         String   @map("user_id")
-  organizationId String   @map("organization_id")
+  organizationId String?   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("reimbursements")
 }
@@ -510,7 +515,8 @@ model Expense {
   date           DateTime
   category       String
   paymentMethod  String?  @map("payment_method")
-  status         String   @default("Paid") // Paid, Pending
+  status         String   @default("pending") // pending, approved, rejected
+  paymentStatus  String   @default("unpaid") @map("payment_status") // paid, unpaid
   attachment     String?  @db.Text // Base64 or URL
   organizationId String   @map("organization_id")
   createdAt      DateTime @default(now()) @map("created_at")
@@ -519,4 +525,50 @@ model Expense {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("expenses")
+}
+
+model AssistantConversation {
+  id             String             @id @default(uuid())
+  userId         String             @map("user_id")
+  organizationId String?            @map("organization_id")
+  title          String?
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages       AssistantMessage[]
+
+  @@index([userId])
+  @@index([organizationId])
+  @@map("assistant_conversations")
+}
+
+model AssistantMessage {
+  id               String               @id @default(uuid())
+  conversationId   String               @map("conversation_id")
+  role             String               // 'user' or 'system' or 'assistant'
+  content          String               @db.Text
+  createdAt        DateTime             @default(now()) @map("created_at")
+
+  conversation     AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("assistant_messages")
+}
+
+model AssistantInstruction {
+  id             String        @id @default(uuid())
+  userId         String        @map("user_id")
+  organizationId String?       @map("organization_id")
+  content        String        @db.Text
+  isActive       Boolean       @default(true) @map("is_active")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@map("assistant_instructions")
 }
