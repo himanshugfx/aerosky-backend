@@ -2,7 +2,7 @@ import { authenticateRequest } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET /api/expenses - Fetch expenses with filtering and pagination
+// GET /api/mobile/expenses - Fetch expenses
 export async function GET(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -10,31 +10,19 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
-        const limit = parseInt(searchParams.get('limit') || '20');
+        const limit = parseInt(searchParams.get('limit') || '50');
         const category = searchParams.get('category');
         const status = searchParams.get('status');
-        const startDate = searchParams.get('startDate');
-        const endDate = searchParams.get('endDate');
-        const search = searchParams.get('search');
 
-        const where: any = {
-            organizationId: auth.user.organizationId
-        };
+        const where: any = {};
 
-        // Add filters
+        // Scope to organization for non-super admins
+        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.organizationId) {
+            where.organizationId = auth.user.organizationId;
+        }
+
         if (category) where.category = category;
         if (status) where.status = status;
-        if (startDate || endDate) {
-            where.date = {};
-            if (startDate) where.date.gte = new Date(startDate);
-            if (endDate) where.date.lte = new Date(endDate);
-        }
-        if (search) {
-            where.description = {
-                contains: search,
-                mode: 'insensitive'
-            };
-        }
 
         const [expenses, total] = await Promise.all([
             prisma.expense.findMany({
@@ -48,25 +36,19 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             expenses,
-            pagination: {
-                page,
-                limit,
-                total,
-                pages: Math.ceil(total / limit)
-            }
+            pagination: { page, limit, total, pages: Math.ceil(total / limit) }
         });
     } catch (error) {
-        console.error('Fetch expenses error:', error);
+        console.error('Mobile fetch expenses error:', error);
         return NextResponse.json({ error: "Failed to fetch expenses" }, { status: 500 });
     }
 }
 
-// POST /api/expenses - Create new expense
+// POST /api/mobile/expenses - Create new expense
 export async function POST(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can create expenses
     if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
         return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
     }
@@ -99,20 +81,16 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(expense, { status: 201 });
     } catch (error: any) {
-        console.error('Create expense error:', error);
-        return NextResponse.json({
-            error: "Failed to create expense",
-            details: error.message
-        }, { status: 500 });
+        console.error('Mobile create expense error:', error);
+        return NextResponse.json({ error: "Failed to create expense", details: error.message }, { status: 500 });
     }
 }
 
-// PUT /api/expenses - Update expense
+// PUT /api/mobile/expenses - Update expense
 export async function PUT(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can update expenses
     if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
         return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
     }
@@ -142,20 +120,16 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json(expense);
     } catch (error: any) {
-        console.error('Update expense error:', error);
-        return NextResponse.json({
-            error: "Failed to update expense",
-            details: error.message
-        }, { status: 500 });
+        console.error('Mobile update expense error:', error);
+        return NextResponse.json({ error: "Failed to update expense", details: error.message }, { status: 500 });
     }
 }
 
-// DELETE /api/expenses - Delete expense
+// DELETE /api/mobile/expenses - Delete expense
 export async function DELETE(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can delete expenses
     if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
         return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
     }
@@ -168,17 +142,12 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
         }
 
-        await prisma.expense.delete({
-            where: { id }
-        });
+        await prisma.expense.delete({ where: { id } });
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        console.error('Delete expense error:', error);
-        return NextResponse.json({
-            error: "Failed to delete expense",
-            details: error.message
-        }, { status: 500 });
+        console.error('Mobile delete expense error:', error);
+        return NextResponse.json({ error: "Failed to delete expense", details: error.message }, { status: 500 });
     }
 }
 
