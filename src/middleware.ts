@@ -28,7 +28,7 @@ const authMiddleware = withAuth(
     function middleware(req: NextRequestWithAuth) {
         // Auth Check - Skip for mobile auth routes and other public APIs
         // Skip NextAuth for ALL mobile API routes — they use JWT Bearer auth internally
-        const publicPaths = ["/api/mobile", "/api/auth", "/unauthorized", "/login", "/register", "/forgot-password"];
+        const publicPaths = ["/api/mobile", "/api/auth", "/api/reimbursements", "/unauthorized", "/login", "/register", "/forgot-password"];
         const isPublicPath = publicPaths.some(path =>
             req.nextUrl.pathname === path || req.nextUrl.pathname.startsWith(`${path}/`)
         );
@@ -42,7 +42,7 @@ const authMiddleware = withAuth(
     {
         callbacks: {
             authorized: ({ token, req }: { token: any, req: NextRequest }) => {
-                const publicPaths = ["/api/mobile", "/api/auth", "/unauthorized", "/login", "/register", "/forgot-password"];
+                const publicPaths = ["/api/mobile", "/api/auth", "/api/reimbursements", "/unauthorized", "/login", "/register", "/forgot-password"];
                 const isPublicPath = publicPaths.some(path =>
                     req.nextUrl.pathname === path || req.nextUrl.pathname.startsWith(`${path}/`)
                 );
