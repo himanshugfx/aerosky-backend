@@ -2,29 +2,13 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
 // Create Redis instance (for production)
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-});
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// Different limiters for different endpoints
-export const loginLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '15 m'), // 5 attempts per 15 minutes
-  analytics: true,
-});
-
-export const apiLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
-  analytics: true,
-});
-
-export const uploadLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '1 h'), // 10 uploads per hour
-  analytics: true,
-});
+const redis = redisUrl && redisToken ? new Redis({
+  url: redisUrl,
+  token: redisToken,
+}) : null;
 
 // Local fallback for development (when Redis not available)
 export class LocalRateLimiter {
@@ -52,6 +36,27 @@ export class LocalRateLimiter {
   }
 }
 
+// Different limiters for different endpoints
+export const loginLimiter = redis ? new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '15 m'), // 5 attempts per 15 minutes
+  analytics: true,
+}) : new LocalRateLimiter();
+
+export const apiLimiter = redis ? new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
+  analytics: true,
+}) : new LocalRateLimiter();
+
+export const uploadLimiter = redis ? new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, '1 h'), // 10 uploads per hour
+  analytics: true,
+}) : new LocalRateLimiter();
+
+
+
 // Use local limiter if Redis not configured
-export const localLoginLimiter = new LocalRateLimiter();
-export const localApiLimiter = new LocalRateLimiter();
+export const localLoginLimiter = loginLimiter;
+export const localApiLimiter = apiLimiter;
