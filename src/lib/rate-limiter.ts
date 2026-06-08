@@ -20,19 +20,19 @@ export class LocalRateLimiter {
 
     if (!record || record.reset < now) {
       this.attempts.set(identifier, { count: 1, reset: now + windowMs });
-      return { success: true, remaining: maxAttempts - 1, retryAfter: 0 };
+      return { success: true, remaining: maxAttempts - 1, reset: now + windowMs };
     }
 
     if (record.count >= maxAttempts) {
       return {
         success: false,
         remaining: 0,
-        retryAfter: Math.ceil((record.reset - now) / 1000),
+        reset: record.reset,
       };
     }
 
     record.count++;
-    return { success: true, remaining: maxAttempts - record.count, retryAfter: 0 };
+    return { success: true, remaining: maxAttempts - record.count, reset: record.reset };
   }
 }
 

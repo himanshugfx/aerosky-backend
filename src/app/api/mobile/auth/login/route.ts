@@ -20,14 +20,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Apply rate limiting
-        const { success, remaining, retryAfter } = await localLoginLimiter.limit(loginId);
+        const limitResult = await localLoginLimiter.limit(loginId);
+        const success = typeof limitResult === 'object' && 'success' in limitResult ? limitResult.success : limitResult;
 
         if (!success) {
             return NextResponse.json(
                 {
                     error: 'TOO_MANY_ATTEMPTS',
-                    message: `Too many login attempts. Try again in ${retryAfter}s`,
-                    retryAfter,
+                    message: `Too many login attempts. Try again later.`,
                 },
                 { status: 429 }
             );

@@ -20,8 +20,9 @@ export async function POST(request: Request) {
         const validated = registerSchema.parse(body);
         const { email, password, full_name, role } = validated;
 
-        // Apply rate limiting (3 registration attempts per 15 minutes per email)
-        const { success, retryAfter } = await localLoginLimiter.limit(email, 3, 15 * 60 * 1000);
+        // Apply rate limiting (uses defaults)
+        const limitResult = await localLoginLimiter.limit(email);
+        const success = typeof limitResult === 'object' && 'success' in limitResult ? limitResult.success : limitResult;
         if (!success) {
             return NextResponse.json(
                 { error: "Too many registration attempts. Try again later." },

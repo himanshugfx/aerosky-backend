@@ -19,8 +19,9 @@ export async function POST(request: NextRequest) {
         const validated = sendOTPSchema.parse(body);
         const { email, purpose } = validated;
 
-        // Apply rate limiting (3 OTP requests per 15 minutes per email)
-        const { success, retryAfter } = await localLoginLimiter.limit(email, 3, 15 * 60 * 1000);
+        // Apply rate limiting
+        const limitResult = await localLoginLimiter.limit(email);
+        const success = typeof limitResult === 'object' && 'success' in limitResult ? limitResult.success : limitResult;
         if (!success) {
             return NextResponse.json(
                 { error: "Too many OTP requests. Please try again later." },
