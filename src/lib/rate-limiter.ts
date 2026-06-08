@@ -36,24 +36,37 @@ export class LocalRateLimiter {
   }
 }
 
+class FallbackRatelimit {
+  constructor(private primaryLimiter: Ratelimit, private fallbackLimiter: LocalRateLimiter) {}
+
+  async limit(identifier: string) {
+    try {
+      return await this.primaryLimiter.limit(identifier);
+    } catch (error) {
+      console.warn('Primary rate limiter failed, using fallback:', error);
+      return await this.fallbackLimiter.limit(identifier);
+    }
+  }
+}
+
 // Different limiters for different endpoints
-export const loginLimiter = redis ? new Ratelimit({
+export const loginLimiter = redis ? new FallbackRatelimit(new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(5, '15 m'), // 5 attempts per 15 minutes
   analytics: true,
-}) : new LocalRateLimiter();
+}), new LocalRateLimiter()) : new LocalRateLimiter();
 
-export const apiLimiter = redis ? new Ratelimit({
+export const apiLimiter = redis ? new FallbackRatelimit(new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
   analytics: true,
-}) : new LocalRateLimiter();
+}), new LocalRateLimiter()) : new LocalRateLimiter();
 
-export const uploadLimiter = redis ? new Ratelimit({
+export const uploadLimiter = redis ? new FallbackRatelimit(new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(10, '1 h'), // 10 uploads per hour
   analytics: true,
-}) : new LocalRateLimiter();
+}), new LocalRateLimiter()) : new LocalRateLimiter();
 
 
 
