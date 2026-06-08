@@ -69,6 +69,7 @@ export function handleError(error: unknown) {
     {
       error: 'INTERNAL_ERROR',
       message: 'An unexpected error occurred',
+      details: error instanceof Error ? { msg: error.message, stack: error.stack } : String(error)
     },
     { status: 500 }
   );
