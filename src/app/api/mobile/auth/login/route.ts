@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
             user: {
                 id: user.id,
                 email: user.email || user.username,
-                fullName: user.username, // Assuming username is the display name
+                fullName: user.fullName || user.username,
                 role: user.role,
                 organizationId: user.organizationId,
             }

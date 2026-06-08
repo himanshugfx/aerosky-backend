@@ -7,6 +7,7 @@ const JWT_EXPIRES_IN = '7d'; // Token expires in 7 days
 export interface JWTPayload {
     userId: string;
     username: string;
+    fullName?: string;
     role: string;
 }
 

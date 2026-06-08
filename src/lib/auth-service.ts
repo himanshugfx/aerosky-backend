@@ -6,6 +6,7 @@ import { signToken, verifyToken as verifyTokenUtil } from '@/lib/jwt';
 export interface AuthenticatedUser {
   id: string;
   username: string;
+  fullName?: string;
   email?: string;
   role: Role;
   organizationId?: string;
@@ -22,6 +23,7 @@ export class AuthService {
       select: {
         id: true,
         username: true,
+        fullName: true,
         email: true,
         role: true,
         organizationId: true,
@@ -37,6 +39,7 @@ export class AuthService {
     return {
       id: user.id,
       username: user.username,
+      fullName: user.fullName || undefined,
       email: user.email || undefined,
       role: user.role,
       organizationId: user.organizationId || undefined,
@@ -66,6 +69,7 @@ export class AuthService {
         select: {
           id: true,
           username: true,
+          fullName: true,
           email: true,
           role: true,
           organizationId: true,
@@ -76,6 +80,7 @@ export class AuthService {
       return {
         id: user.id,
         username: user.username,
+        fullName: user.fullName || undefined,
         email: user.email || undefined,
         role: user.role,
         organizationId: user.organizationId || undefined,
@@ -102,6 +107,7 @@ export class AuthService {
       userId: user.id, // Using userId for consistency with jwt.ts
       id: user.id,
       username: user.username,
+      fullName: user.fullName,
       role: user.role,
       organizationId: user.organizationId,
     } as any);
