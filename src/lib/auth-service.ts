@@ -1,7 +1,7 @@
 import { User, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import { sign as jwtSign, verify as jwtVerify } from 'jsonwebtoken';
+import { signToken, verifyToken as verifyTokenUtil } from '@/lib/jwt';
 
 export interface AuthenticatedUser {
   id: string;
@@ -58,9 +58,11 @@ export class AuthService {
   // JWT helpers
   private async verifyJwt(token: string): Promise<AuthenticatedUser | null> {
     try {
-      const decoded = jwtVerify(token, process.env.JWT_SECRET!) as any;
+      const decoded = verifyTokenUtil(token) as any;
+      if (!decoded) return null;
+      
       const user = await prisma.user.findUnique({
-        where: { id: decoded.id },
+        where: { id: decoded.id || decoded.userId },
         select: {
           id: true,
           username: true,
@@ -96,16 +98,13 @@ export class AuthService {
 
   // Generate JWT token
   generateJwt(user: AuthenticatedUser): string {
-    return jwtSign(
-      {
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        organizationId: user.organizationId,
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
+    return signToken({
+      userId: user.id, // Using userId for consistency with jwt.ts
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      organizationId: user.organizationId,
+    } as any);
   }
 }
 
