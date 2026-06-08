@@ -46,7 +46,6 @@ Thumbs.db
 .gemini/
 .antigravityignore
 task_boundary_history.txt
-package-lock.json
 *.log
 
 /src/generated/prisma
