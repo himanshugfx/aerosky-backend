@@ -76,17 +76,12 @@ const ALL_VIEW_PERMISSIONS: Permission[] = [
     PERMISSIONS.REPORT_VIEW,
 ];
 
-export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
+export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     // Legacy roles mapped just in case
-    // @ts-ignore
     ADMINISTRATION: Object.values(PERMISSIONS),
-    // @ts-ignore
     MANUFACTURING: Object.values(PERMISSIONS),
-    // @ts-ignore
     DESIGN: Object.values(PERMISSIONS),
-    // @ts-ignore
     SALES: Object.values(PERMISSIONS),
-    // @ts-ignore
     SOFTWARE: Object.values(PERMISSIONS),
 
     SUPER_ADMIN: Object.values(PERMISSIONS),
