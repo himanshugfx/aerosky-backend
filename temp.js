@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); prisma.user.findUnique({ where: { username: 'himanshu@aerosysaviation.in' } }).then(console.log).finally(() => prisma.$disconnect());
