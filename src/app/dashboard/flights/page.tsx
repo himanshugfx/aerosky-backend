@@ -326,98 +326,103 @@ export default function FlightsPage() {
 
             {/* Mission Log Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
-                        <div className="px-12 py-10 bg-slate-900 flex items-center justify-between">
-                            <div className="space-y-1">
-                                <h2 className="text-3xl font-black text-white tracking-tight">Mission Telemetry Entry</h2>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Finalizing Operational Compliance Record</p>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                    <Plane className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-bold text-slate-900">Mission Telemetry Entry</h2>
+                                    <p className="text-xs text-slate-500">Log flight operational parameters</p>
+                                </div>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="w-14 h-14 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-[1.25rem] flex items-center justify-center transition-all shadow-2xl active:scale-90">
-                                <X className="w-8 h-8" />
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-12 space-y-12 scrollbar-hide">
+                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
                             {/* Section 1: Personnel & Mission */}
-                            <div className="space-y-8">
-                                <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
-                                    <div className="w-10 h-10 rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-xl shadow-indigo-200">
-                                        <UserCheck className="w-5 h-5" />
-                                    </div>
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Critical Mission Parameters</h3>
-                                </div>
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-wider border-b border-indigo-100 pb-1.5 flex items-center gap-2">
+                                    <UserCheck className="w-4 h-4" /> Mission Details
+                                </h3>
 
-                                <div className="grid md:grid-cols-3 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Mission Date *</label>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Mission Date *</label>
                                         <div className="relative">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                                             <input
                                                 type="date"
                                                 required
                                                 value={formData.date}
                                                 onChange={e => setFormData({ ...formData, date: e.target.value })}
-                                                className="input-premium pl-12 py-4"
+                                                className="input-modern !pl-9"
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Takeoff (Z) *</label>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Takeoff Time *</label>
                                         <div className="relative">
-                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                                             <input
                                                 type="time"
                                                 required
                                                 value={formData.takeoffTime}
                                                 onChange={e => setFormData({ ...formData, takeoffTime: e.target.value })}
-                                                className="input-premium pl-12 py-4"
+                                                className="input-modern !pl-9"
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Airtime (Min) *</label>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Airtime (Min) *</label>
                                         <input
                                             placeholder="e.g. 45"
                                             required
                                             value={formData.duration}
                                             onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                                            className="input-premium py-4"
+                                            className="input-modern"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 flex justify-between">
-                                            Operational Sector *
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider flex justify-between">
+                                            <span>Operational Sector *</span>
                                             <button
                                                 type="button"
                                                 onClick={fetchCurrentLocation}
-                                                className="text-indigo-600 hover:text-indigo-800 transition-all flex items-center gap-1.5 text-[10px] font-black uppercase tracking-tighter"
+                                                className="text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1 text-[11px] font-medium"
                                             >
-                                                {fetchingLocation ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapIcon className="w-3.5 h-3.5" />}
-                                                Synchronize Location
+                                                {fetchingLocation ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapIcon className="w-3 h-3" />}
+                                                Detect Location
                                             </button>
                                         </label>
                                         <div className="relative">
-                                            <MapPin className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                             <input
-                                                placeholder="Geographic site identification..."
+                                                placeholder="Location / site name..."
                                                 required
                                                 value={formData.locationName}
                                                 onChange={e => setFormData({ ...formData, locationName: e.target.value })}
-                                                className="input-premium pl-12 py-4"
+                                                className="input-modern !pl-9"
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Objective Vector *</label>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Mission Type *</label>
                                         <select
                                             required
                                             value={formData.missionType}
                                             onChange={e => setFormData({ ...formData, missionType: e.target.value })}
-                                            className="input-premium py-4 appearance-none"
+                                            className="input-modern"
                                         >
                                             <option value="Training">Training & Drills</option>
                                             <option value="Commercial">Commercial Engagement</option>
@@ -426,27 +431,27 @@ export default function FlightsPage() {
                                     </div>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">PIC Identification *</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Pilot in Command (PIC) *</label>
                                         <select
                                             required
                                             value={formData.picId}
                                             onChange={e => setFormData({ ...formData, picId: e.target.value })}
-                                            className="input-premium py-4 appearance-none"
+                                            className="input-modern"
                                         >
                                             <option value="">Select Command Pilot</option>
                                             {team.map(m => <option key={m.id} value={m.id}>{m.name} — {m.position}</option>)}
                                         </select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Visual Observer (VO)</label>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Visual Observer (VO)</label>
                                         <select
                                             value={formData.voId}
                                             onChange={e => setFormData({ ...formData, voId: e.target.value })}
-                                            className="input-premium py-4 appearance-none"
+                                            className="input-modern"
                                         >
-                                            <option value="">Optional Wing Personnel</option>
+                                            <option value="">Optional Observer</option>
                                             {team.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                         </select>
                                     </div>
@@ -454,29 +459,26 @@ export default function FlightsPage() {
                             </div>
 
                             {/* Section 2: Aircraft Hardware */}
-                            <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-slate-100/50 space-y-8">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xl">
-                                        <Plane className="w-5 h-5" />
-                                    </div>
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Aircraft Asset Allocation</h3>
-                                </div>
+                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+                                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                                    <Plane className="w-4 h-4 text-indigo-600" /> Aircraft Allocation
+                                </h3>
 
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Drone Ecosystem *</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Drone Model *</label>
                                         <select
                                             required
                                             value={formData.droneId}
                                             onChange={e => setFormData({ ...formData, droneId: e.target.value, serialNumber: '', uin: '' })}
-                                            className="input-premium py-4 appearance-none bg-white font-black"
+                                            className="input-modern bg-white"
                                         >
                                             <option value="">Select Airframe Model</option>
                                             {drones.map(d => <option key={d.id} value={d.id}>{d.modelName}</option>)}
                                         </select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Final Unit Identification *</label>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Unit Serial / UIN *</label>
                                         <select
                                             required
                                             disabled={!formData.droneId}
@@ -485,7 +487,7 @@ export default function FlightsPage() {
                                                 const [sn, uin] = e.target.value.split('|')
                                                 setFormData({ ...formData, serialNumber: sn, uin })
                                             }}
-                                            className="input-premium py-4 appearance-none bg-white font-black disabled:opacity-30"
+                                            className="input-modern bg-white disabled:opacity-50"
                                         >
                                             <option value="|">Determine Serial / UIN</option>
                                             {selectedDrone?.manufacturedUnits.map((u, i) => (
@@ -496,36 +498,33 @@ export default function FlightsPage() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Post-Flight Technical Inspection</label>
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Post-Flight Inspection Notes</label>
                                     <textarea
-                                        rows={4}
-                                        placeholder="Record thermal spikes, rotor integrity, or telemetric anomalies..."
+                                        rows={3}
+                                        placeholder="Record rotor integrity, telemetric anomalies, etc..."
                                         value={formData.technicalFeedback}
                                         onChange={e => setFormData({ ...formData, technicalFeedback: e.target.value })}
-                                        className="input-premium py-6 bg-white font-bold text-sm tracking-tight resize-none"
+                                        className="input-modern bg-white"
                                     />
                                 </div>
                             </div>
 
                             {/* Section 3: Energy Cells */}
-                            <div className="space-y-8">
-                                <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
-                                    <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xl">
-                                        <Zap className="w-5 h-5" />
-                                    </div>
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Energy Management System</h3>
-                                </div>
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-1.5">
+                                    <Zap className="w-4 h-4 text-amber-500" /> Battery Management
+                                </h3>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Battery Manifest Allocation *</label>
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Battery Pair *</label>
                                     <select
                                         required
                                         value={formData.batteryId}
                                         onChange={e => setFormData({ ...formData, batteryId: e.target.value })}
-                                        className="input-premium py-4 appearance-none font-black"
+                                        className="input-modern"
                                     >
-                                        <option value="">Identify Operational Battery Pair</option>
+                                        <option value="">Select Operational Battery Pair</option>
                                         {batteries.map(b => (
                                             <option key={b.id} value={b.id}>
                                                 Pair: {b.batteryNumberA} / {b.batteryNumberB} [{b.model}]
@@ -536,28 +535,27 @@ export default function FlightsPage() {
                             </div>
                         </form>
 
-                        <div className="px-12 py-10 bg-slate-50 border-t border-slate-100 flex gap-6">
+                        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
                             <button
+                                type="button"
                                 onClick={() => setIsModalOpen(false)}
-                                className="flex-1 py-5 px-8 bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-300 rounded-3xl transition-all shadow-sm active:scale-95"
+                                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
                             >
-                                Discard Entries
+                                Discard
                             </button>
                             <button
                                 onClick={handleSubmit}
                                 disabled={submitting}
-                                className="flex-[2] py-5 px-8 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-3xl shadow-2xl shadow-slate-900/20 hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                                className="btn-premium-primary"
                             >
                                 {submitting ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Transmitting Telementry...
-                                    </>
+                                    <span className="flex items-center gap-2">
+                                        <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+                                    </span>
                                 ) : (
-                                    <>
-                                        <CheckCircle2 className="w-5 h-5" />
-                                        Commit Operational Record
-                                    </>
+                                    <span className="flex items-center gap-2">
+                                        <CheckCircle2 className="w-4 h-4" /> Save Record
+                                    </span>
                                 )}
                             </button>
                         </div>

@@ -203,65 +203,75 @@ export default function BatteriesPage() {
 
             {/* Modern Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
-                        <div className="px-10 py-8 bg-slate-900 flex items-center justify-between">
-                            <div className="space-y-1">
-                                <h2 className="text-2xl font-black text-white tracking-tight">Register Power Cell</h2>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">New Propulsion Unit Initiation</p>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                                    <Zap className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-bold text-slate-900">Register Power Cell</h2>
+                                    <p className="text-xs text-slate-500">Add battery pair to fleet</p>
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90">
-                                <X className="w-7 h-7" />
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-10 space-y-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Hardware Pair Number *</label>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                                    Hardware Pair Number *
+                                </label>
                                 <input
                                     type="number"
                                     value={formData.pairNumber}
                                     onChange={(e) => setFormData({ ...formData, pairNumber: e.target.value })}
                                     placeholder="e.g. 01"
-                                    className="input-premium py-4"
+                                    className="input-modern"
                                     required
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Rated Capacity (mAh) *</label>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                                    Rated Capacity (mAh) *
+                                </label>
                                 <input
                                     type="text"
                                     value={formData.ratedCapacity}
                                     onChange={(e) => setFormData({ ...formData, ratedCapacity: e.target.value })}
                                     placeholder="e.g. 22000 mAh"
-                                    className="input-premium py-4"
+                                    className="input-modern"
                                     required
                                 />
                             </div>
 
-                            <div className="flex gap-4 pt-6">
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="flex-1 py-4 px-6 bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 rounded-2xl transition-all border border-slate-100"
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="flex-[2] py-4 px-6 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-slate-900/20 hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                                    className="btn-premium-primary"
                                 >
                                     {submitting ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            Initializing...
-                                        </>
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+                                        </span>
                                     ) : (
-                                        <>
-                                            <CheckCircle2 className="w-4 h-4" />
-                                            Commit Power Cell
-                                        </>
+                                        <span className="flex items-center gap-2">
+                                            <CheckCircle2 className="w-4 h-4" /> Save Power Cell
+                                        </span>
                                     )}
                                 </button>
                             </div>

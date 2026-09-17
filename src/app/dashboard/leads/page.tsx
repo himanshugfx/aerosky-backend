@@ -139,34 +139,35 @@ export default function LeadsPage() {
     )
 
     return (
-        <div className="space-y-8 animate-slide-up pb-10">
+        <div className="space-y-6 pb-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Lead <span className="text-slate-400 font-medium">Intelligence</span></h1>
+                    <h1 className="text-2xl font-bold text-slate-900">Lead Management</h1>
+                    <p className="text-xs text-slate-500 mt-0.5">Track enquiries, pipeline stages, and conversion metrics</p>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="w-full md:w-auto btn-premium-primary !py-3.5 lg:!py-4 shadow-2xl shadow-orange-500/10 group"
+                    className="btn-premium-primary flex items-center gap-2"
                 >
-                    <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
-                    Initialize Lead
+                    <Plus className="w-4 h-4" />
+                    <span>Add Lead</span>
                 </button>
             </div>
 
             {/* View Toggle */}
-            <div className="flex p-1.5 bg-slate-100 rounded-[1.25rem] w-full lg:w-fit overflow-x-auto no-scrollbar">
+            <div className="flex p-1 bg-slate-200/60 rounded-lg w-fit">
                 <button
                     onClick={() => setViewMode('list')}
-                    className={`flex-1 lg:flex-none px-4 lg:px-8 py-2.5 rounded-2xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-xl shadow-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                    <LayoutList className="w-4 h-4" /> Pipeline Ledger
+                    <LayoutList className="w-3.5 h-3.5" /> Pipeline View
                 </button>
                 <button
                     onClick={() => setViewMode('calendar')}
-                    className={`flex-1 lg:flex-none px-4 lg:px-8 py-2.5 rounded-2xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap ${viewMode === 'calendar' ? 'bg-white text-slate-900 shadow-xl shadow-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${viewMode === 'calendar' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                    <CalendarIcon className="w-4 h-4" /> Calendar
+                    <CalendarIcon className="w-3.5 h-3.5" /> Calendar View
                 </button>
             </div>
 
@@ -174,15 +175,15 @@ export default function LeadsPage() {
                 <>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <MetricCard 
-                    label="Total Acquisition" 
+                    label="Total Inquiries" 
                     value={stats?.totalLeads || 0} 
                     icon={Target} 
                     color="orange" 
                 />
                 <MetricCard 
-                    label="Conversion Success" 
+                    label="Converted" 
                     value={stats?.wonLeads || 0} 
                     icon={TrendingUp} 
                     color="emerald" 
@@ -196,20 +197,20 @@ export default function LeadsPage() {
             </div>
 
             {/* Controls */}
-            <div className="flex flex-col lg:row gap-4 lg:gap-6">
-                <div className="relative flex-1 group">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 lg:w-5 h-4 lg:h-5 text-slate-400 group-focus-within:text-orange-600 transition-colors" />
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Search leads..."
-                        className="input-modern !pl-14 lg:!pl-16 !py-4 lg:!py-5 shadow-sm bg-white"
+                        placeholder="Search leads by name or company..."
+                        className="input-modern !pl-10 !py-2 text-xs"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                     <select 
-                        className="flex-1 lg:flex-none input-modern !py-4 lg:!py-5 !px-6 lg:!px-8 min-w-0 lg:min-w-[200px] font-black uppercase text-[10px] lg:text-[11px] tracking-widest appearance-none bg-white cursor-pointer"
+                        className="input-modern !py-2 !px-3 min-w-[150px] text-xs bg-white cursor-pointer"
                         value={filterStage}
                         onChange={(e) => setFilterStage(e.target.value)}
                     >
@@ -221,70 +222,65 @@ export default function LeadsPage() {
                 </div>
             </div>
 
-            {/* Leads Table */}
-            <div className="modern-card overflow-hidden">
+            {/* Leads Table / Pipeline List */}
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-4 lg:px-8 py-4 lg:py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
-                                <th className="px-4 lg:px-8 py-4 lg:py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hidden md:table-cell">Company</th>
-                                <th className="px-4 lg:px-8 py-4 lg:py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Stage</th>
-                                <th className="px-4 lg:px-8 py-4 lg:py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Value</th>
-                                <th className="px-4 lg:px-8 py-4 lg:py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hidden lg:table-cell">Discovery</th>
-                                <th className="px-4 lg:px-8 py-4 lg:py-6"></th>
+                            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                                <th className="px-5 py-3">Lead Info</th>
+                                <th className="px-5 py-3">Company</th>
+                                <th className="px-5 py-3">Value</th>
+                                <th className="px-5 py-3">Stage</th>
+                                <th className="px-5 py-3">Origin</th>
+                                <th className="px-5 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {filteredLeads.map((lead) => (
-                                <tr key={lead.id} className="group hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-4 lg:px-8 py-4 lg:py-6">
-                                        <div className="flex items-center gap-3 lg:gap-4">
-                                            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-slate-900 rounded-xl lg:rounded-2xl flex items-center justify-center text-[10px] lg:text-[11px] font-black text-white shrink-0">
-                                                {lead.name?.charAt(0) || '?'}
-                                            </div>
-                                            <div className="min-w-0">
-                                                <Link href={`/dashboard/leads/${lead.id}`} className="block text-xs lg:text-sm font-black text-slate-900 hover:text-orange-600 transition-colors truncate">{lead.name || 'Unnamed Lead'}</Link>
-                                                <div className="text-[10px] lg:text-[11px] font-medium text-slate-400 truncate">{lead.email || 'No email'}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 lg:px-8 py-4 lg:py-6 hidden md:table-cell">
-                                        <div className="flex items-center gap-2 text-slate-600 font-medium">
-                                            <Building2 className="w-4 h-4 opacity-40" />
-                                            <span className="text-xs uppercase tracking-tight truncate">{lead.company || 'N/A'}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 lg:px-8 py-4 lg:py-6">
-                                        <div className="flex items-center gap-2">
-                                            {lead.stage ? (
-                                                <>
-                                                    <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full shrink-0" style={{ backgroundColor: lead.stage.color }} />
-                                                    <span className="text-[9px] lg:text-[10px] font-black text-slate-900 uppercase tracking-widest">{lead.stage.name}</span>
-                                                </>
-                                            ) : (
-                                                <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest">None</span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-4 lg:px-8 py-4 lg:py-6">
-                                        <div className="text-xs lg:text-sm font-black text-slate-900">₹{(lead.value || 0).toLocaleString('en-IN')}</div>
-                                    </td>
-                                    <td className="px-4 lg:px-8 py-4 lg:py-6 text-slate-400 hidden lg:table-cell">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="w-4 h-4 opacity-40" />
-                                            <span className="text-[10px] font-bold uppercase tracking-tighter">
-                                                {new Date(lead.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 lg:px-8 py-4 lg:py-6 text-right">
-                                        <button className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 flex items-center justify-center text-slate-400 hover:text-orange-600 transition-all">
-                                            <MoreVertical className="w-4 h-4 lg:w-5 lg:h-5" />
-                                        </button>
+                            {filteredLeads.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-5 py-10 text-center text-slate-400 text-sm">
+                                        No leads found matching your criteria.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredLeads.map((lead) => (
+                                    <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
+                                        <td className="px-5 py-3.5">
+                                            <div className="font-semibold text-slate-900 text-sm">{lead.name}</div>
+                                            <div className="text-slate-400 text-xs flex items-center gap-2 mt-0.5">
+                                                {lead.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{lead.email}</span>}
+                                                {lead.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{lead.phone}</span>}
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-3.5 font-medium text-slate-700">{lead.company || '—'}</td>
+                                        <td className="px-5 py-3.5 font-semibold text-slate-900">
+                                            {lead.value ? `₹${lead.value.toLocaleString('en-IN')}` : '—'}
+                                        </td>
+                                        <td className="px-5 py-3.5">
+                                            <span 
+                                                className="px-2.5 py-1 rounded-full text-[11px] font-medium inline-block border"
+                                                style={{ 
+                                                    borderColor: lead.stage?.color ? `${lead.stage.color}40` : '#cbd5e1',
+                                                    backgroundColor: lead.stage?.color ? `${lead.stage.color}15` : '#f1f5f9',
+                                                    color: lead.stage?.color || '#475569'
+                                                }}
+                                            >
+                                                {lead.stage?.name || 'Unassigned'}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-3.5 text-slate-500">{lead.source}</td>
+                                        <td className="px-5 py-3.5 text-right">
+                                            <Link 
+                                                href={`/dashboard/leads/${lead.id}`}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+                                            >
+                                                View <ChevronRight className="w-3 h-3" />
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -294,83 +290,87 @@ export default function LeadsPage() {
                 <FollowUpCalendar />
             )}
 
-            {/* Add Lead Modal */}
+            {/* Add Lead Modal - Clean & Blur-Free */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6 animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden animate-slide-up border border-white/20">
-                        <div className="p-6 lg:p-12 pb-6 lg:pb-8 flex items-center justify-between relative overflow-hidden bg-[#1e293b] text-white">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/20 blur-[80px] rounded-full translate-x-32 -translate-y-32" />
-                            <div className="relative z-10 space-y-2">
-                                <h3 className="text-2xl lg:text-4xl font-black tracking-tightest uppercase italic">New Inquiry</h3>
-                                <p className="text-white/40 text-[8px] lg:text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
-                                    Lead Acquisition Registry <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 text-orange-400" />
-                                </p>
+                <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
+                    <div 
+                        className="fixed inset-0"
+                        onClick={() => setShowAddModal(false)} 
+                    />
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200 relative z-10">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                            <div>
+                                <h3 className="text-lg font-semibold text-slate-900">New Lead Inquiry</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Enter contact and qualification details</p>
                             </div>
-                            <button onClick={() => setShowAddModal(false)} className="w-10 h-10 lg:w-14 lg:h-14 bg-white/10 hover:bg-white/20 rounded-xl lg:rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5">
-                                <Plus className="w-5 h-5 lg:w-7 lg:h-7 rotate-45" />
+                            <button 
+                                onClick={() => setShowAddModal(false)} 
+                                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                                <Plus className="w-5 h-5 rotate-45" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleAddLead} className="p-6 lg:p-12 space-y-6 lg:y-8 max-h-[80vh] overflow-y-auto no-scrollbar">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Name</label>
+                        <form onSubmit={handleAddLead} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Contact Name *</label>
                                     <input
                                         type="text"
                                         placeholder="Full Name"
-                                        className="input-modern shadow-sm"
+                                        required
+                                        className="input-modern"
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Email Address</label>
                                     <input
                                         type="email"
                                         placeholder="email@company.com"
-                                        className="input-modern shadow-sm"
+                                        className="input-modern"
                                         value={formData.email}
                                         onChange={e => setFormData({ ...formData, email: e.target.value })}
                                     />
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Phone Number</label>
                                     <input
                                         type="tel"
                                         placeholder="+91..."
-                                        className="input-modern shadow-sm"
+                                        className="input-modern"
                                         value={formData.phone}
                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                     />
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Organization</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Organization</label>
                                     <input
                                         type="text"
                                         placeholder="Company Name"
-                                        className="input-modern shadow-sm"
+                                        className="input-modern"
                                         value={formData.company}
                                         onChange={e => setFormData({ ...formData, company: e.target.value })}
                                     />
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Pipeline Value (INR)</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Pipeline Value (INR)</label>
                                     <input
                                         type="number"
                                         placeholder="0"
-                                        className="input-modern shadow-sm"
+                                        className="input-modern"
                                         value={formData.value}
                                         onChange={e => setFormData({ ...formData, value: Number(e.target.value) })}
                                     />
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Lead Origin</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Lead Origin</label>
                                     <select
-                                        className="input-modern shadow-sm appearance-none bg-white font-bold text-sm"
+                                        className="input-modern bg-white"
                                         value={formData.source}
                                         onChange={e => setFormData({ ...formData, source: e.target.value })}
                                     >
-                                        <option value="">Select Origin</option>
                                         <option value="Website">Website</option>
                                         <option value="Reference">Reference</option>
                                         <option value="Cold calls">Cold calls</option>
@@ -378,25 +378,25 @@ export default function LeadsPage() {
                                     </select>
                                 </div>
                                 {formData.source === 'Custom' && (
-                                    <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
-                                        <label className="text-[11px] font-black text-orange-600 uppercase tracking-widest ml-1">Specify Origin</label>
+                                    <div className="space-y-1.5 sm:col-span-2">
+                                        <label className="text-xs font-medium text-orange-600">Specify Origin</label>
                                         <input
                                             type="text"
                                             placeholder="e.g. Industry Expo 2024"
-                                            className="input-modern shadow-sm border-orange-100 bg-orange-50/10 focus:border-orange-600"
+                                            className="input-modern"
                                             value={customSource}
                                             onChange={e => setCustomSource(e.target.value)}
                                         />
                                     </div>
                                 )}
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Funnel Stage</label>
+                                <div className="space-y-1.5 sm:col-span-2">
+                                    <label className="text-xs font-medium text-slate-700">Funnel Stage</label>
                                     <select
-                                        className="input-modern shadow-sm appearance-none bg-white font-bold text-sm"
+                                        className="input-modern bg-white"
                                         value={formData.stageId}
                                         onChange={e => setFormData({ ...formData, stageId: e.target.value })}
                                     >
-                                        <option value="">No Stage</option>
+                                        <option value="">Select Stage</option>
                                         {stages.map(s => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
@@ -404,23 +404,23 @@ export default function LeadsPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col lg:flex-row gap-4 pt-6">
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                                 <button
                                     type="button"
                                     onClick={() => setShowAddModal(false)}
-                                    className="order-2 lg:order-1 px-10 py-4 lg:py-5 text-slate-400 font-black uppercase tracking-widest text-[10px] lg:text-[11px] hover:text-slate-900 transition-colors"
+                                    className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
-                                    Abort
+                                    Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={formSubmitting}
-                                    className="order-1 lg:order-2 flex-1 btn-premium-primary !py-4 lg:!py-5 shadow-2xl shadow-orange-500/20"
+                                    className="px-5 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
                                 >
                                     {formSubmitting ? (
-                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
-                                        <span className="flex items-center gap-2 lg:gap-3 justify-center text-xs lg:text-base font-black">Authorize Lead <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" /></span>
+                                        <span>Save Lead</span>
                                     )}
                                 </button>
                             </div>
@@ -433,17 +433,21 @@ export default function LeadsPage() {
 }
 
 function MetricCard({ label, value, icon: Icon, color }: any) {
+    const colorClasses: Record<string, { bg: string, text: string, border: string }> = {
+        orange: { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-100' },
+        emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
+        blue: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100' },
+    }
+    const theme = colorClasses[color] || { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200' }
+
     return (
-        <div className="modern-card p-4 lg:p-6 group relative overflow-hidden">
-            <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl opacity-5 rounded-full translate-x-12 -translate-y-12 bg-${color}-600 group-hover:scale-150 transition-transform duration-700`} />
-            <div className="relative flex items-center gap-4 lg:gap-8">
-                <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-[2rem] border border-${color}-100 flex items-center justify-center bg-${color}-50 text-${color}-600 shadow-sm transition-all duration-500 group-hover:bg-${color}-600 group-hover:text-white shrink-0`}>
-                    <Icon className="w-6 h-6 lg:w-8 lg:h-8" />
-                </div>
-                <div>
-                    <p className="text-[9px] lg:text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-                    <p className="text-2xl lg:text-4xl font-black text-slate-900 tracking-tighter">{value}</p>
-                </div>
+        <div className="modern-card p-4 flex items-center gap-4">
+            <div className={`w-11 h-11 rounded-lg border ${theme.border} ${theme.bg} ${theme.text} flex items-center justify-center shrink-0`}>
+                <Icon className="w-5 h-5" />
+            </div>
+            <div>
+                <p className="text-xs font-medium text-slate-500">{label}</p>
+                <p className="text-xl font-bold text-slate-900 mt-0.5">{value}</p>
             </div>
         </div>
     )

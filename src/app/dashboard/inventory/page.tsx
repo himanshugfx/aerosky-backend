@@ -165,10 +165,9 @@ export default function InventoryPage() {
                             if (stat.filter) setBucketFilter(stat.filter as any);
                             else if (stat.isScroll) document.getElementById('audit-ledger')?.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className={`modern-card p-6 lg:p-8 group overflow-hidden relative cursor-pointer transition-all ${stat.filter && bucketFilter === stat.filter ? 'ring-2 ring-indigo-500 shadow-xl scale-[1.02]' : 'hover:-translate-y-1'}`}
+                        className={`modern-card p-6 lg:p-8 group relative cursor-pointer transition-all ${stat.filter && bucketFilter === stat.filter ? 'ring-2 ring-indigo-500 shadow-sm' : 'hover:border-slate-300'}`}
                     >
-                        <div className={`absolute top-0 right-0 w-24 h-24 blur-3xl opacity-10 rounded-full translate-x-12 -translate-y-12 bg-${stat.color}-500 group-hover:scale-150 transition-transform duration-700`} />
-                        <div className="relative">
+                        <div>
                             <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center border border-slate-100 mb-6 lg:mb-8 bg-${stat.color}-50 text-${stat.color}-600`}>
                                 <stat.icon className="w-6 h-6 lg:w-7 lg:h-7" />
                             </div>
@@ -449,23 +448,25 @@ export default function InventoryPage() {
 
 import ClientPortal from '@/components/ClientPortal'
 
-function Modal({ children, title, subtitle, onClose, color = 'slate' }: any) {
+function Modal({ children, title, subtitle, onClose }: any) {
     return (
         <ClientPortal selector="body">
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-4 lg:p-6 animate-in fade-in duration-500">
+            <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
                 <div 
-                    className="absolute inset-0 z-0" 
+                    className="fixed inset-0" 
                     onClick={onClose}
                 />
-                <div className="bg-white rounded-[2rem] lg:rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden animate-slide-up border border-white/20 relative z-10 transition-all duration-500">
-                    <div className={`p-6 lg:p-12 pb-6 lg:pb-8 flex items-center justify-between relative overflow-hidden ${color === 'emerald' ? 'bg-emerald-600' : 'bg-slate-900'} text-white`}>
-                        <div className="relative z-10 space-y-2">
-                            <h3 className="text-xl lg:text-3xl font-black tracking-tightest uppercase">{title}</h3>
-                            <p className="text-white/60 text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em]">{subtitle}</p>
+                <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200 relative z-10">
+                    <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                        <div>
+                            <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+                            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
                         </div>
-                        <button onClick={onClose} className="w-10 h-10 lg:w-12 lg:h-12 bg-white/10 hover:bg-white/20 rounded-xl lg:rounded-2xl flex items-center justify-center text-white transition-all active:scale-90 relative z-10 border border-white/5"><X className="w-5 h-5 lg:w-6 lg:h-6" /></button>
+                        <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
                     </div>
-                    <div className="p-6 lg:p-12 pt-6 lg:pt-10">{children}</div>
+                    <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
                 </div>
             </div>
         </ClientPortal>

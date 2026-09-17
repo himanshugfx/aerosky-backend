@@ -98,14 +98,9 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center p-4 selection:bg-blue-500/30">
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full"></div>
-            </div>
-
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
             <div className="w-full max-w-md relative">
-                <div className="bg-[#121214] border border-white/5 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-8 shadow-xl">
                     <div className="flex flex-col items-center mb-8">
                         <div className="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20">
                             <Shield className="text-white w-8 h-8" />

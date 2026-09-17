@@ -133,8 +133,7 @@ export default function LeadDetailsPage() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
                 {/* Profile Card */}
                 <div className="xl:col-span-2 space-y-10">
-                    <div className="modern-card p-12 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-slate-900/5 blur-3xl rounded-full translate-x-32 -translate-y-32" />
+                    <div className="modern-card p-8 relative overflow-hidden">
                         <div className="relative flex items-start justify-between">
                             <div className="flex gap-8">
                                 <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-4xl font-black text-white shadow-2xl shadow-slate-900/30">
@@ -253,9 +252,8 @@ export default function LeadDetailsPage() {
 
                 {/* Sidebar - Follow-ups */}
                 <div className="space-y-10">
-                    <div className="modern-card p-10 bg-[#1e293b] text-white overflow-hidden relative group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/20 blur-3xl rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
-                        <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em] flex items-center gap-3 mb-8">
+                    <div className="modern-card p-6 bg-slate-900 text-white overflow-hidden relative">
+                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-6">
                             Next Steps <TrendingUp className="w-4 h-4 text-orange-400" />
                         </h3>
                         <div className="space-y-6">
@@ -281,46 +279,72 @@ export default function LeadDetailsPage() {
                 </div>
             </div>
 
-            {/* Follow-up Modal */}
+            {/* Follow-up Modal - Clean & Blur-Free */}
             {showFollowUpModal && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6 animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden animate-slide-up">
-                        <div className="p-10 flex items-center justify-between border-b border-slate-100">
-                            <h3 className="text-2xl font-black tracking-tightest uppercase italic">Schedule Engagement</h3>
-                            <button onClick={() => setShowFollowUpModal(false)} className="w-10 h-10 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                                <Plus className="w-6 h-6 rotate-45" />
+                <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
+                    <div 
+                        className="fixed inset-0" 
+                        onClick={() => setShowFollowUpModal(false)} 
+                    />
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 relative z-10">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                            <div>
+                                <h3 className="text-lg font-semibold text-slate-900">Schedule Follow-up</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Set a reminder or engagement note</p>
+                            </div>
+                            <button 
+                                onClick={() => setShowFollowUpModal(false)} 
+                                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                                <Plus className="w-5 h-5 rotate-45" />
                             </button>
                         </div>
-                        <form onSubmit={handleScheduleFollowUp} className="p-10 space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Objective</label>
+                        <form onSubmit={handleScheduleFollowUp} className="p-6 space-y-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">Objective *</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. Technical Proposal Review"
+                                    required
                                     className="input-modern"
                                     value={followUpData.title}
                                     onChange={e => setFollowUpData({ ...followUpData, title: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Schedule Log</label>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">Date & Time *</label>
                                 <input
                                     type="datetime-local"
-                                    className="input-modern font-bold uppercase text-[11px]"
+                                    required
+                                    className="input-modern"
                                     value={followUpData.scheduledAt}
                                     onChange={e => setFollowUpData({ ...followUpData, scheduledAt: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Context Brief</label>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">Details / Notes</label>
                                 <textarea
-                                    className="input-modern h-32 resize-none"
-                                    placeholder="Define the engagement parameters..."
+                                    className="input-modern h-24 resize-none"
+                                    placeholder="Add any context or talking points..."
                                     value={followUpData.description}
                                     onChange={e => setFollowUpData({ ...followUpData, description: e.target.value })}
                                 />
                             </div>
-                            <button type="submit" className="w-full btn-premium-primary !py-5 shadow-2xl shadow-orange-500/10">Authorize Follow-up</button>
+                            <div className="flex items-center justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFollowUpModal(false)}
+                                    className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    className="px-5 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-sm transition-colors"
+                                >
+                                    Save Follow-up
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

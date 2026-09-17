@@ -107,41 +107,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-orange-600 selection:text-white">
-            {/* Desktop Sidebar - Premium Pill Design */}
+            {/* Desktop Sidebar */}
             <div className="hidden lg:block">
                 <Sidebar items={filteredNavigation} activeCategory={currentCategory} />
             </div>
 
             {/* Mobile Navigation Drawer */}
             <div className={`
-                fixed inset-0 z-[100] transition-all duration-500
+                fixed inset-0 z-[100] transition-all duration-300
                 ${isMobileMenuOpen ? 'visible' : 'invisible'}
             `}>
                 <div className={`
-                    absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-500
+                    absolute inset-0 bg-black/50 transition-opacity duration-300
                     ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}
                 `} onClick={() => setIsMobileMenuOpen(false)} />
                 
                 <div className={`
-                    absolute left-0 top-0 bottom-0 w-72 bg-white shadow-2xl transition-transform duration-500 transform
+                    absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl transition-transform duration-300 transform
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}>
-                    <div className="p-8 flex flex-col h-full">
-                        <div className="flex items-center justify-between mb-12">
+                    <div className="p-6 flex flex-col h-full">
+                        <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-600/20">
-                                    <Plane className="w-6 h-6" />
+                                <div className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center text-white">
+                                    <Plane className="w-5 h-5" />
                                 </div>
-                                <span className="text-xl font-black tracking-tighter text-slate-900">AeroSky</span>
+                                <span className="text-lg font-bold text-slate-900">AeroSky</span>
                             </div>
-                            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
-                                <X className="w-6 h-6 text-slate-400" />
+                            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                                <X className="w-5 h-5 text-slate-500" />
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-8">
+                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-6">
                             <div className="space-y-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Navigation Domain</p>
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2">Domain</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {(['Dashboard', 'Sales', 'Operations', 'Administration'] as Category[])
                                         .filter(cat => cat !== 'Administration' || (session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMIN' || session?.user?.role === 'ADMINISTRATION'))
@@ -149,10 +149,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         <button
                                             key={cat}
                                             onClick={() => handleCategoryChange(cat)}
-                                            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+                                            className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                                                 currentCategory === cat 
-                                                ? 'bg-orange-600 text-white shadow-lg' 
-                                                : 'bg-slate-50 text-slate-400 hover:text-slate-900'
+                                                ? 'bg-slate-900 text-white' 
+                                                : 'bg-slate-100 text-slate-600 hover:text-slate-900'
                                             }`}
                                         >
                                             {cat}
@@ -162,23 +162,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </div>
 
                             <nav className="space-y-1">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-3">{currentCategory} Links</p>
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">{currentCategory}</p>
                                 {filteredNavigation.map((item) => (
                                     <Link
                                         key={item.href}
                                         href={item.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={`
-                                            flex items-center gap-4 px-4 py-4 rounded-2xl transition-all
+                                            flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                                             ${pathname === item.href 
-                                                ? 'bg-orange-50 text-orange-600' 
-                                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                                ? 'bg-slate-100 text-slate-900 font-semibold' 
+                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                             }
                                         `}
                                     >
-                                        <item.icon className="w-5 h-5" />
-                                        <span className="font-bold text-sm tracking-tight">{item.name}</span>
-                                        {pathname === item.href && <ChevronRight className="w-4 h-4 ml-auto" />}
+                                        <item.icon className="w-4 h-4" />
+                                        <span>{item.name}</span>
+                                        {pathname === item.href && <ChevronRight className="w-4 h-4 ml-auto text-slate-400" />}
                                     </Link>
                                 ))}
                             </nav>
@@ -186,9 +186,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                         <button
                             onClick={handleLogout}
-                            className="mt-8 flex items-center gap-4 px-4 py-5 rounded-2xl bg-rose-50 text-rose-600 font-bold transition-all hover:bg-rose-100"
+                            className="mt-6 flex items-center gap-3 px-4 py-3 rounded-lg text-rose-600 hover:bg-rose-50 text-sm font-medium transition-colors"
                         >
-                            <LogOut className="w-5 h-5" />
+                            <LogOut className="w-4 h-4" />
                             <span>Sign Out</span>
                         </button>
                     </div>
@@ -196,8 +196,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Desktop Dashboard Stage */}
-            <div className="lg:pl-36 flex-1 flex flex-col transition-all duration-500">
-                {/* Contextual TopBar - Now at the very top with Search and Settings */}
+            <div className="lg:pl-24 flex-1 flex flex-col transition-all duration-300">
                 <TopBar 
                     activeCategory={currentCategory} 
                     onCategoryChange={handleCategoryChange} 
@@ -206,25 +205,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setSearchQuery={setSearchQuery}
                 />
 
-                <header className="sticky top-0 z-[40] bg-slate-50/80 backdrop-blur-md lg:hidden">
+                <header className="sticky top-0 z-[40] bg-white border-b border-slate-200 lg:hidden">
                     <div className="px-4 py-3 flex items-center justify-between">
                         <button 
                             onClick={() => setIsMobileMenuOpen(true)}
-                            className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-100 text-slate-900 active:scale-95 transition-all"
+                            className="w-9 h-9 flex items-center justify-center bg-white rounded-lg border border-slate-200 text-slate-700 active:scale-95 transition-all"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center text-white text-xs font-black">AS</div>
-                            <span className="text-sm font-black tracking-tighter text-slate-900">AeroSky</span>
+                            <div className="w-7 h-7 bg-slate-900 rounded-md flex items-center justify-center text-white text-xs font-bold">AS</div>
+                            <span className="text-sm font-bold text-slate-900">AeroSky</span>
                         </div>
-                        <div className="w-10"></div> {/* Spacer for symmetry */}
+                        <div className="w-9"></div>
                     </div>
                 </header>
 
-
-                {/* Unified Stage Area - Use flex-1 to push footer down if there was one, or just fill space */}
-                <main className="flex-1 px-4 lg:px-12 py-4 lg:py-8 animate-slide-up">
+                {/* Unified Stage Area */}
+                <main className="flex-1 px-4 lg:px-8 py-4 lg:py-6">
                     <div className="max-w-[1400px] mx-auto w-full">
                         {children}
                     </div>

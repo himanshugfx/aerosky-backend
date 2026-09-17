@@ -220,106 +220,116 @@ export default function SubcontractorsPage() {
 
             {/* Modern Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
-                        <div className="px-6 lg:px-12 py-6 lg:py-10 bg-slate-900 flex items-center justify-between relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                            <div className="relative z-10 space-y-1">
-                                <h2 className="text-xl lg:text-3xl font-black text-white tracking-tight">Partner Induction</h2>
-                                <p className="text-slate-400 text-[8px] lg:text-[10px] font-black uppercase tracking-[0.2em]">External Asset registration</p>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                    <Shield className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-bold text-slate-900">Partner Induction</h2>
+                                    <p className="text-xs text-slate-500">Register external entity or contractor</p>
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="relative z-10 w-10 h-10 lg:w-12 lg:h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90 border border-white/10">
-                                <X className="w-5 h-5 lg:w-7 lg:h-7" />
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 lg:p-12 space-y-6 max-h-[75vh] overflow-y-auto no-scrollbar">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Company Entity *</label>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Company Name *</label>
                                 <input
                                     type="text"
                                     value={formData.companyName}
-                                    placeholder="Enter Official Company Name"
+                                    placeholder="Enter company entity name"
                                     onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                                    className="input-premium py-4"
+                                    className="input-modern"
                                     required
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Partner Modality *</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Partner Type *</label>
                                     <select
                                         value={formData.type}
                                         onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                        className="input-premium py-4 cursor-pointer !appearance-none"
+                                        className="input-modern cursor-pointer"
                                         required
                                     >
                                         <option value="Design">Design Division</option>
-                                        <option value="Manufacturing">Manufacturing Div.</option>
+                                        <option value="Manufacturing">Manufacturing Division</option>
                                     </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Agreement Date</label>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Agreement Date</label>
                                     <input
                                         type="date"
                                         value={formData.agreementDate}
                                         onChange={(e) => setFormData({ ...formData, agreementDate: e.target.value })}
-                                        className="input-premium py-4"
+                                        className="input-modern"
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Accountable Liaison</label>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Contact Person</label>
                                 <input
                                     type="text"
                                     value={formData.contactPerson}
-                                    placeholder="Full Name of Primary Contact"
+                                    placeholder="Primary contact full name"
                                     onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                                    className="input-premium py-4"
+                                    className="input-modern"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Digital Mail</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Contact Email</label>
                                     <input
                                         type="email"
                                         value={formData.contactEmail}
                                         placeholder="contact@entity.com"
                                         onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                                        className="input-premium py-4"
+                                        className="input-modern"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Telecom Link</label>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Contact Phone</label>
                                     <input
                                         type="tel"
                                         value={formData.contactPhone}
-                                        placeholder="+91 ..."
+                                        placeholder="+91..."
                                         onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                                        className="input-premium py-4"
+                                        className="input-modern"
                                     />
                                 </div>
                             </div>
 
-                            <div className="pt-8">
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                                >
+                                    Cancel
+                                </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="w-full py-5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] shadow-2xl shadow-slate-900/30 hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 group"
+                                    className="btn-premium-primary"
                                 >
                                     {submitting ? (
-                                        <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            Establishing Protocol...
-                                        </>
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+                                        </span>
                                     ) : (
-                                        <>
-                                            <Shield className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
-                                            Authorize Partnership
-                                        </>
+                                        'Save Partner'
                                     )}
                                 </button>
                             </div>

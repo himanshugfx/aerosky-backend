@@ -393,22 +393,21 @@ export default function AccountsPage() {
 
                     {/* Financial Insights/Operations Sidebar */}
                     <div className="space-y-8">
-                        <div className="premium-card p-8 bg-[#1e293b] relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
-                            <h3 className="text-lg font-extrabold text-white tracking-tight mb-8">Capital Audit</h3>
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 text-white">
+                            <h3 className="text-base font-bold text-white tracking-tight mb-4">Capital Audit</h3>
 
-                            <div className="space-y-4">
-                                <div className="p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Queue Pending</p>
+                            <div className="space-y-3">
+                                <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
+                                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Queue Pending</p>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-black text-white tracking-tighter">₹{reimbursements.filter(r => r.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
-                                        <TrendingUp className="w-4 h-4 text-amber-500" />
+                                        <span className="text-xl font-bold text-white">₹{reimbursements.filter(r => r.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
+                                        <TrendingUp className="w-4 h-4 text-amber-400" />
                                     </div>
                                 </div>
-                                <div className="p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Execution Total</p>
+                                <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
+                                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Execution Total</p>
                                     <div className="flex items-baseline gap-2 text-emerald-400">
-                                        <span className="text-2xl font-black tracking-tighter">₹{reimbursements.filter(r => r.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
+                                        <span className="text-xl font-bold">₹{reimbursements.filter(r => r.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
                                         <CheckCircle className="w-4 h-4" />
                                     </div>
                                 </div>
@@ -416,10 +415,10 @@ export default function AccountsPage() {
 
                             <button
                                 onClick={exportToExcel}
-                                className="w-full mt-8 py-4 bg-white text-slate-900 text-[10px] font-extrabold uppercase tracking-widest rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-3 shadow-xl"
+                                className="w-full mt-6 py-2.5 bg-white text-slate-900 text-xs font-semibold rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 shadow-sm"
                             >
                                 <Download className="w-4 h-4" />
-                                Generate Intelligence Report
+                                Export Excel Report
                             </button>
                         </div>
 

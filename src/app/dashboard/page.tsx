@@ -183,22 +183,21 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Performance Insight */}
-                <div className="modern-card p-10 bg-gradient-to-br from-slate-800 to-slate-950 text-white relative overflow-hidden group">
-                    <Sparkles className="absolute -right-4 -top-4 w-48 h-48 opacity-10 group-hover:rotate-12 transition-transform duration-700" />
+                <div className="bg-slate-900 text-white rounded-xl p-8 border border-slate-800 relative overflow-hidden">
                     <div className="relative z-10 max-w-2xl">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-12 h-12 bg-white/10 rounded-xl backdrop-blur-md flex items-center justify-center">
-                                <Sparkles className="w-6 h-6 text-white" />
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
+                                <Sparkles className="w-5 h-5 text-orange-400" />
                             </div>
-                            <h4 className="text-2xl font-black tracking-tight">AI Generated Performance Insights</h4>
+                            <h4 className="text-xl font-bold tracking-tight">AI Generated Performance Insights</h4>
                         </div>
-                        <p className="text-white/80 text-lg font-medium leading-relaxed mb-8">
-                            Our analysis indicates that cross-module efficiency can be improved by optimizing inventory turnaround times.
+                        <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                            Cross-module efficiency can be improved by optimizing inventory turnaround times.
                             Consider reviewing low-stock components to ensure zero mission downtime.
                         </p>
-                        <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-white/50 bg-black/10 w-fit px-4 py-2 rounded-lg">
+                        <div className="flex items-center gap-2 text-xs text-slate-400">
                             <Calendar className="w-4 h-4" />
-                            <span>System Update • Moment Ago</span>
+                            <span>System Status: Updated Today</span>
                         </div>
                     </div>
                 </div>

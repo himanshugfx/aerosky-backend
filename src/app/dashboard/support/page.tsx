@@ -269,43 +269,50 @@ export default function SupportPage() {
 
             {/* Modern Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#1e293b]/60 backdrop-blur-xl animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
-                        <div className="px-12 py-10 bg-[#1e293b] flex items-center justify-between relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                            <div className="relative z-10 space-y-1">
-                                <h2 className="text-3xl font-black text-white tracking-tight">Direct Support Link</h2>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Start Secure Communication</p>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+                                    <MessageSquare className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-bold text-slate-900">Direct Support Link</h2>
+                                    <p className="text-xs text-slate-500">Start communication with engineering support</p>
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="relative z-10 w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90 border border-white/10">
-                                <X className="w-7 h-7" />
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-12 space-y-8 max-h-[75vh] overflow-y-auto scrollbar-hide">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Chat Topic *</label>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Chat Topic *</label>
                                 <input
                                     type="text"
                                     value={formData.subject}
                                     placeholder="What do you need help with?"
                                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                                    className="input-premium py-4"
+                                    className="input-modern"
                                     required
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Operational Priority *</label>
-                                <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Operational Priority *</label>
+                                <div className="grid grid-cols-2 gap-3">
                                     {Object.entries(priorityConfig).map(([key, config]) => (
                                         <button
                                             key={key}
                                             type="button"
                                             onClick={() => setFormData({ ...formData, priority: key })}
-                                            className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${formData.priority === key
-                                                ? 'bg-orange-600 border-orange-600 text-white shadow-lg'
-                                                : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                                            className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors border ${formData.priority === key
+                                                ? 'bg-orange-50 border-orange-500 text-orange-700'
+                                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                                                 }`}
                                         >
                                             {config.label}
@@ -314,42 +321,40 @@ export default function SupportPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Your Message *</label>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Your Message *</label>
                                 <textarea
                                     value={formData.message}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                    rows={5}
+                                    rows={4}
                                     placeholder="Describe your situation in detail..."
-                                    className="input-premium py-4 resize-none"
+                                    className="input-modern"
                                     required
                                 />
                             </div>
 
-                            <div className="pt-6">
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="w-full py-5 bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] shadow-2xl shadow-orange-600/30 hover:bg-orange-700 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 group"
-                                >
-                                    {submitting ? (
-                                        <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            Opening Channel...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Send className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                            Start Chat
-                                        </>
-                                    )}
-                                </button>
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="w-full mt-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
                                     Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="btn-premium-primary"
+                                >
+                                    {submitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="w-4 h-4 animate-spin" /> Opening...
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-2">
+                                            <Send className="w-4 h-4" /> Start Chat
+                                        </span>
+                                    )}
                                 </button>
                             </div>
                         </form>

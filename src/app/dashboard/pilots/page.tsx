@@ -102,9 +102,8 @@ export default function PilotsPage() {
             {/* Personnel Telemetry Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {stats.map((stat, i) => (
-                    <div key={i} className="modern-card p-10 group relative overflow-hidden transition-all duration-500 hover:-translate-y-1">
-                        <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl opacity-5 rounded-full translate-x-12 -translate-y-12 bg-${stat.color}-600 group-hover:scale-150 transition-transform duration-700`} />
-                        <div className="relative space-y-8">
+                    <div key={i} className="modern-card p-6">
+                        <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-slate-100 bg-slate-50 text-slate-900 group-hover:bg-slate-950 group-hover:text-white transition-all duration-500`}>
                                     <stat.icon className="w-7 h-7" />
@@ -196,11 +195,8 @@ export default function PilotsPage() {
                                 <tr key={pilot.id} className="group hover:bg-slate-50/50 transition-all duration-300">
                                     <td className="px-12 py-10">
                                         <div className="flex items-center gap-6">
-                                            <div className="relative">
-                                                <div className="w-16 h-16 bg-slate-950 text-white rounded-[1.75rem] flex items-center justify-center font-black text-2xl shadow-xl italic relative z-10">
-                                                    {pilot.full_name.charAt(0)}
-                                                </div>
-                                                <div className="absolute inset-0 bg-blue-600/20 blur-xl rounded-full scale-125 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className="w-11 h-11 bg-slate-900 text-white rounded-lg flex items-center justify-center font-bold text-base shrink-0">
+                                                {pilot.full_name.charAt(0)}
                                             </div>
                                             <div>
                                                 <p className="text-lg font-black text-slate-900 tracking-tighter uppercase italic">{pilot.full_name}</p>
@@ -256,162 +252,127 @@ export default function PilotsPage() {
                 </div>
             </div>
 
-            {/* Industrial Induction Modal */}
+            {/* Pilot Induction Modal - Clean & Blur-Free */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] w-full max-w-4xl overflow-hidden animate-slide-up border border-white/20">
-                        <div className="p-14 pb-10 bg-slate-950 text-white flex items-center justify-between relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/20 blur-[100px] rounded-full translate-x-32 -translate-y-32" />
-                            <div className="relative z-10 space-y-3">
-                                <h2 className="text-4xl font-black italic tracking-tightest uppercase italic">Personnel Induction</h2>
-                                <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-3">
-                                    <Key className="w-4 h-4 text-blue-400" /> Aviation Credential Authentication Protocol
-                                </p>
+                <div className="fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4">
+                    <div 
+                        className="fixed inset-0" 
+                        onClick={() => setIsModalOpen(false)} 
+                    />
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-200 relative z-10">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                            <div>
+                                <h2 className="text-lg font-semibold text-slate-900">Induct Aviator</h2>
+                                <p className="text-xs text-slate-500 mt-0.5">Register a pilot and assign credentials</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="relative z-10 w-16 h-16 bg-white/5 hover:bg-white/10 rounded-[2rem] flex items-center justify-center transition-all shadow-2xl active:scale-90 border border-white/5 group">
-                                <X className="w-8 h-8 group-hover:rotate-90 transition-transform duration-500" />
+                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit(onSubmit)} className="p-14 space-y-12 max-h-[70vh] overflow-y-auto custom-scrollbar bg-slate-50/20">
+                        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                             {mutation.isError && (
-                                <div className="p-6 bg-rose-50 border border-rose-100 rounded-[2rem] flex items-start gap-4 text-rose-800 animate-shake">
-                                    <AlertCircle className="w-6 h-6 flex-shrink-0 mt-0.5" />
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-black uppercase italic">Protocol Violation Detected</p>
-                                        <p className="text-xs font-medium opacity-80 italic">{(mutation.error as any)?.response?.data?.detail || 'Identity Verification Services Offline'}</p>
-                                    </div>
+                                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-3 text-rose-800 text-xs">
+                                    <AlertCircle className="w-4 h-4 shrink-0" />
+                                    <span>{(mutation.error as any)?.response?.data?.detail || 'Failed to save pilot record'}</span>
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Legal Aviator Identity *</label>
-                                    <div className="relative">
-                                        <Users className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />
-                                        <input
-                                            {...register('full_name')}
-                                            placeholder="Enter Legal Name"
-                                            className="input-modern !pl-16 shadow-sm"
-                                        />
-                                    </div>
-                                    {errors.full_name && <p className="text-rose-500 text-[10px] font-black uppercase italic mt-1 ml-1">{errors.full_name.message}</p>}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Full Name *</label>
+                                    <input
+                                        {...register('full_name')}
+                                        placeholder="Full Legal Name"
+                                        className="input-modern"
+                                    />
+                                    {errors.full_name && <p className="text-rose-500 text-xs mt-0.5">{errors.full_name.message}</p>}
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Registry Birthdate *</label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />
-                                        <input
-                                            type="date"
-                                            {...register('date_of_birth')}
-                                            className="input-modern !pl-16 shadow-sm appearance-none"
-                                        />
-                                    </div>
-                                    {errors.date_of_birth && <p className="text-rose-500 text-[10px] font-black uppercase italic mt-1 ml-1">{errors.date_of_birth.message}</p>}
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Date of Birth *</label>
+                                    <input
+                                        type="date"
+                                        {...register('date_of_birth')}
+                                        className="input-modern"
+                                    />
+                                    {errors.date_of_birth && <p className="text-rose-500 text-xs mt-0.5">{errors.date_of_birth.message}</p>}
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Verification Modality *</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">ID Type *</label>
                                     <select
                                         {...register('primary_id_type')}
-                                        className="input-modern shadow-sm bg-white"
+                                        className="input-modern bg-white"
                                     >
-                                        <option value="Aadhaar">National ID (Aadhaar)</option>
-                                        <option value="Passport">Global Passport</option>
-                                        <option value="Voter_ID">Voter Credentials</option>
-                                        <option value="Driving_License">Aviation Category License</option>
+                                        <option value="Aadhaar">Aadhaar Card</option>
+                                        <option value="Passport">Passport</option>
+                                        <option value="Voter_ID">Voter ID</option>
+                                        <option value="Driving_License">Driving License</option>
                                     </select>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Identity Manifest Number *</label>
-                                    <div className="relative">
-                                        <Briefcase className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />
-                                        <input
-                                            {...register('primary_id_number')}
-                                            placeholder="Enter ID Sequence"
-                                            className="input-modern !pl-16 shadow-sm"
-                                        />
-                                    </div>
-                                    {errors.primary_id_number && <p className="text-rose-500 text-[10px] font-black uppercase italic mt-1 ml-1">{errors.primary_id_number.message}</p>}
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">ID Number *</label>
+                                    <input
+                                        {...register('primary_id_number')}
+                                        placeholder="Enter ID number"
+                                        className="input-modern"
+                                    />
+                                    {errors.primary_id_number && <p className="text-rose-500 text-xs mt-0.5">{errors.primary_id_number.message}</p>}
                                 </div>
                             </div>
 
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Technical Rating Configuration</h4>
-                                    <div className="flex-1 h-[1px] bg-slate-100" />
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Category</label>
+                                    <select {...register('category_rating')} className="input-modern bg-white">
+                                        <option value="Rotary_Wing">Rotary Wing</option>
+                                        <option value="Fixed_Wing">Fixed Wing</option>
+                                        <option value="Hybrid_Vertical_Take_Off_and_Landing">Hybrid VTOL</option>
+                                    </select>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    <div className="space-y-3">
-                                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Category Registry</label>
-                                        <select {...register('category_rating')} className="input-modern shadow-sm bg-white">
-                                            <option value="Rotary_Wing">Rotary Wing</option>
-                                            <option value="Fixed_Wing">Fixed Wing</option>
-                                            <option value="Hybrid_Vertical_Take_Off_and_Landing">Hybrid VTOL</option>
-                                        </select>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Class Authorized</label>
-                                        <select {...register('class_rating')} className="input-modern shadow-sm bg-white">
-                                            <option value="Nano">Nano (≤ 250g)</option>
-                                            <option value="Micro">Micro (≤ 2kg)</option>
-                                            <option value="Small">Small (≤ 25kg)</option>
-                                            <option value="Medium">Medium (≤ 150kg)</option>
-                                            <option value="Large">Large (&gt; 150kg)</option>
-                                        </select>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Ops Modality</label>
-                                        <select {...register('operation_rating')} className="input-modern shadow-sm bg-white">
-                                            <option value="VLOS">Visual Path (VLOS)</option>
-                                            <option value="BVLOS">Beyond Path (BVLOS)</option>
-                                            <option value="Night">Nocturnal Ops</option>
-                                        </select>
-                                    </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Class</label>
+                                    <select {...register('class_rating')} className="input-modern bg-white">
+                                        <option value="Nano">Nano (≤ 250g)</option>
+                                        <option value="Micro">Micro (≤ 2kg)</option>
+                                        <option value="Small">Small (≤ 25kg)</option>
+                                        <option value="Medium">Medium (≤ 150kg)</option>
+                                        <option value="Large">Large (&gt; 150kg)</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Operations</label>
+                                    <select {...register('operation_rating')} className="input-modern bg-white">
+                                        <option value="VLOS">VLOS</option>
+                                        <option value="BVLOS">BVLOS</option>
+                                        <option value="Night">Night Flight</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <div className="bg-blue-50/40 border border-blue-100 p-10 rounded-[3rem] flex items-start gap-8 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 blur-3xl rounded-full" />
-                                <ShieldCheck className="w-10 h-10 text-blue-600 shrink-0 mt-1 relative z-10" />
-                                <div className="relative z-10 space-y-3">
-                                    <p className="text-md font-black text-blue-900 uppercase italic tracking-tight italic">Organizational Compliance Declaration</p>
-                                    <p className="text-xs font-medium text-blue-700/80 leading-relaxed italic">
-                                        By authorizing this induction, you verify that the personnel has completed the AeroSys flight safety curriculum and holds a valid RPC issued by the appropriate civil aviation authority. Operational logs will be auto-synchronized to this profile.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-8 pt-6">
+                            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-12 py-5 text-slate-400 font-black uppercase tracking-[0.3em] text-[11px] hover:text-slate-900 transition-colors italic"
+                                    className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
-                                    Abort Induction
+                                    Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={mutation.isPending}
-                                    className="flex-1 btn-premium-primary !py-6 shadow-[0_25px_60px_rgba(37,99,235,0.25)] relative group overflow-hidden"
+                                    className="px-5 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="relative z-10 flex items-center justify-center gap-4">
-                                        {mutation.isPending ? (
-                                            <>
-                                                <Loader2 className="w-6 h-6 animate-spin" />
-                                                <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Authenticating Registry...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ShieldCheck className="w-6 h-6 text-blue-300" />
-                                                <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Authorize Personnel Induction</span>
-                                                <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-                                            </>
-                                        )}
-                                    </div>
+                                    {mutation.isPending ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <span>Saving...</span>
+                                        </>
+                                    ) : (
+                                        <span>Save Aviator</span>
+                                    )}
                                 </button>
                             </div>
                         </form>

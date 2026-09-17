@@ -147,14 +147,13 @@ export default function TicketChatPage() {
     return (
         <div className="max-w-6xl mx-auto flex flex-col h-[calc(100vh-140px)] animate-in fade-in duration-700">
             {/* Premium Header */}
-            <div className="bg-white border border-slate-200 rounded-t-[2.5rem] px-8 py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shrink-0 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                <div className="flex items-center gap-6 relative z-10">
+            <div className="bg-white border border-slate-200 rounded-t-xl px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0 shadow-sm relative">
+                <div className="flex items-center gap-4 relative z-10">
                     <button
                         onClick={() => router.push('/dashboard/support')}
-                        className="w-12 h-12 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-90 group"
+                        className="w-10 h-10 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center transition-colors border border-slate-200"
                     >
-                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft className="w-4 h-4" />
                     </button>
                     <div className="space-y-1">
                         <div className="flex items-center gap-3">
@@ -234,12 +233,11 @@ export default function TicketChatPage() {
             </div>
 
             {/* Premium Input Area */}
-            <div className="bg-white border border-slate-200 rounded-b-[2.5rem] p-6 shrink-0 shadow-sm relative overflow-hidden">
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-slate-50 rounded-full -ml-16 -mb-16 blur-3xl"></div>
+            <div className="bg-white border border-slate-200 rounded-b-xl p-4 shrink-0 shadow-sm relative">
                 {ticket.status === 'CLOSED' ? (
-                    <div className="flex items-center justify-center gap-3 py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 group">
-                        <Lock className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-slate-600 transition-colors">Transmission Channel Sealed: Resolved</span>
+                    <div className="flex items-center justify-center gap-3 py-3 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                        <Lock className="w-4 h-4 text-slate-400" />
+                        <span className="text-xs font-medium text-slate-500">This channel is resolved and closed.</span>
                     </div>
                 ) : (
                     <form onSubmit={handleSendMessage} className="flex gap-4 items-end relative z-10">

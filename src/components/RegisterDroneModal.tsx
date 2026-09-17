@@ -59,16 +59,16 @@ export function RegisterDroneModal({ isOpen, onClose }: RegisterDroneModalProps)
             <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 sm:p-4">
                 {/* Backdrop */}
                 <div
-                    className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-500"
+                    className="absolute inset-0 bg-black/50 animate-in fade-in duration-200"
                     onClick={onClose}
                 />
 
                 {/* Modal */}
-                <div className="relative bg-[#0f0f12] border-x border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-[0_40px_100px_rgba(0,0,0,0.5)] h-[90vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col mt-auto sm:mt-0 animate-slide-up z-10 transition-all duration-500">
+                <div className="relative bg-slate-900 border border-slate-800 rounded-xl w-full max-w-lg shadow-xl h-[90vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col mt-auto sm:mt-0 animate-in zoom-in-95 duration-200 z-10">
                     {/* Close Button */}
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10"
+                        className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors z-10"
                     >
                         <X className="w-5 h-5" />
                     </button>

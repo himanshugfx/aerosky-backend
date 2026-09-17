@@ -257,29 +257,28 @@ export default function AdminReimbursementsPage() {
 
                 {/* Financial Insights Sidebar */}
                 <div className="space-y-8">
-                    <div className="premium-card p-10 bg-slate-900 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-orange-600/10 blur-[80px] rounded-full -mr-24 -mt-24"></div>
-                        <h3 className="text-xl font-black tracking-tight mb-8">Enterprise Audit</h3>
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 text-white">
+                        <h3 className="text-base font-bold tracking-tight mb-4">Enterprise Audit</h3>
 
-                        <div className="space-y-6">
-                            <div className="p-5 bg-white/5 rounded-3xl border border-white/10">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Pending Disbursement</p>
+                        <div className="space-y-3">
+                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Pending Disbursement</p>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-3xl font-black tracking-tighter">₹{reimbursements.filter(r => r.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
-                                    <TrendingUp className="w-4 h-4 text-orange-500" />
+                                    <span className="text-xl font-bold">₹{reimbursements.filter(r => r.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
+                                    <TrendingUp className="w-4 h-4 text-orange-400" />
                                 </div>
                             </div>
-                            <div className="p-5 bg-white/5 rounded-3xl border border-white/10">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Approved Total</p>
+                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Approved Total</p>
                                 <div className="flex items-baseline gap-2 text-emerald-400">
-                                    <span className="text-3xl font-black tracking-tighter">₹{reimbursements.filter(r => r.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
+                                    <span className="text-xl font-bold">₹{reimbursements.filter(r => r.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
                                     <CheckCircle className="w-4 h-4" />
                                 </div>
                             </div>
-                            <div className="p-5 bg-white/5 rounded-3xl border border-white/10">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Completed (Paid)</p>
+                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Completed (Paid)</p>
                                 <div className="flex items-baseline gap-2 text-slate-200">
-                                    <span className="text-3xl font-black tracking-tighter">₹{reimbursements.filter(r => r.status === 'Completed').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
+                                    <span className="text-xl font-bold">₹{reimbursements.filter(r => r.status === 'Completed').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                         </div>

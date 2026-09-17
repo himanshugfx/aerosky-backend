@@ -230,107 +230,111 @@ export default function MaintenancePage() {
                 </div>
             </div>
 
-            {/* Modern Modal */}
+            {/* Maintenance Modal - Clean & Blur-Free */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
-                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
-                        <div className="px-12 py-10 bg-slate-900 flex items-center justify-between relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                            <div className="relative z-10 space-y-1">
-                                <h2 className="text-3xl font-black text-white tracking-tight">Initialize Log</h2>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Engineering workflow compliance input</p>
+                <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+                    <div 
+                        className="fixed inset-0" 
+                        onClick={() => setIsModalOpen(false)} 
+                    />
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-xl overflow-hidden border border-slate-200 relative z-10">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                            <div>
+                                <h2 className="text-lg font-semibold text-slate-900">New Maintenance Record</h2>
+                                <p className="text-xs text-slate-500 mt-0.5">Log inspection, repair, or service activity</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="relative z-10 w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-2xl flex items-center justify-center transition-all shadow-2xl active:scale-90 border border-white/10">
-                                <X className="w-7 h-7" />
+                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit(onSubmit)} className="p-12 space-y-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Target Asset *</label>
+                        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Target Drone *</label>
                                     <select
                                         {...register('drone_id')}
-                                        className={`input-premium appearance-none py-4 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat ${errors.drone_id ? 'border-red-500' : ''}`}
+                                        className={`input-modern bg-white ${errors.drone_id ? 'border-red-500' : ''}`}
                                     >
-                                        <option value="">Search Airframe...</option>
+                                        <option value="">Select drone...</option>
                                         {drones.map((drone: any) => (
-                                            <option key={drone.id} value={drone.id}>{drone.uin || drone.manufacturer_serial_number} — [{drone.status}]</option>
+                                            <option key={drone.id} value={drone.id}>{drone.uin || drone.modelName || drone.id}</option>
                                         ))}
                                     </select>
-                                    {errors.drone_id && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.drone_id.message}</p>}
+                                    {errors.drone_id && <p className="text-red-500 text-xs mt-1">{errors.drone_id.message}</p>}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Modality *</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Type *</label>
                                     <select
                                         {...register('maintenance_type')}
-                                        className="input-premium appearance-none py-4 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat"
+                                        className="input-modern bg-white"
                                     >
                                         <option value="Inspection">Routine Inspection</option>
                                         <option value="Repair">Critical Repair</option>
-                                        <option value="Software_Update">Telemetry Update</option>
-                                        <option value="Component_Replacement">Hardware Swap</option>
+                                        <option value="Software_Update">Software / Firmware</option>
+                                        <option value="Component_Replacement">Component Replacement</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Engineering Date *</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Date *</label>
                                     <input
                                         type="date"
                                         {...register('maintenance_date')}
-                                        className={`input-premium py-4 ${errors.maintenance_date ? 'border-red-500' : ''}`}
-                                    />
-                                    {errors.maintenance_date && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.maintenance_date.message}</p>}
+                                        className={`input-modern ${errors.maintenance_date ? 'border-red-500' : ''}`}
+                                    >
+                                    </input>
+                                    {errors.maintenance_date && <p className="text-red-500 text-xs mt-1">{errors.maintenance_date.message}</p>}
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Certified Technician *</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-slate-700">Technician *</label>
                                     <input
                                         {...register('technician_name')}
-                                        placeholder="Enter Certification Name"
-                                        className={`input-premium py-4 ${errors.technician_name ? 'border-red-500' : ''}`}
+                                        placeholder="Technician Name"
+                                        className={`input-modern ${errors.technician_name ? 'border-red-500' : ''}`}
                                     />
-                                    {errors.technician_name && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.technician_name.message}</p>}
+                                    {errors.technician_name && <p className="text-red-500 text-xs mt-1">{errors.technician_name.message}</p>}
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Technical Disposition *</label>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">Details & Notes *</label>
                                 <textarea
                                     {...register('description')}
-                                    rows={4}
-                                    placeholder="Provide detailed technical summary of the modality performed..."
-                                    className={`input-premium py-4 resize-none ${errors.description ? 'border-red-500' : ''}`}
+                                    rows={3}
+                                    placeholder="Provide description of maintenance performed..."
+                                    className={`input-modern resize-none ${errors.description ? 'border-red-500' : ''}`}
                                 />
-                                {errors.description && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 pl-1">{errors.description.message}</p>}
+                                {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
                             </div>
 
-                            <div className="pt-6">
-                                <button
-                                    type="submit"
-                                    disabled={mutation.isPending}
-                                    className="w-full py-5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] shadow-2xl shadow-slate-900/30 hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 group"
-                                >
-                                    {mutation.isPending ? (
-                                        <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            Synchronizing Log...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <ShieldCheck className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                                            Commit to Engineering Ledger
-                                        </>
-                                    )}
-                                </button>
+                            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="w-full mt-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
+                                    className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
-                                    Cancel Initiation
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={mutation.isPending}
+                                    className="px-5 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                                >
+                                    {mutation.isPending ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShieldCheck className="w-4 h-4" />
+                                            Save Record
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>

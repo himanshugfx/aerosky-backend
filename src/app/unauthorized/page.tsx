@@ -16,7 +16,7 @@ function UnauthorizedContent() {
                 {/* Header Pattern */}
                 <div className="h-32 bg-gradient-to-br from-red-500 to-rose-600 relative overflow-hidden flex items-center justify-center">
                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                    <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm z-10 border border-white/30">
+                    <div className="bg-white/25 p-4 rounded-full z-10 border border-white/30">
                         <WifiOff className="w-12 h-12 text-white" />
                     </div>
                 </div>

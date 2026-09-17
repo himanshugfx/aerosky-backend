@@ -13,6 +13,7 @@ import {
     ShieldCheck,
     MapPin,
     ArrowUpRight,
+    X,
     XCircle,
     UserPlus,
     BadgeCheck,
@@ -244,79 +245,87 @@ export default function TeamPage() {
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
-                        <div className="px-10 py-8 bg-slate-900 flex items-center justify-between">
-                            <div className="space-y-1">
-                                <h3 className="text-2xl font-extrabold text-white tracking-tight">Onboard Personnel</h3>
-                                <p className="text-slate-400 text-sm font-medium">Provision new organization access</p>
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                                    <Users className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-slate-900">Onboard Personnel</h3>
+                                    <p className="text-xs text-slate-500">Provision organization access</p>
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-white transition-all active:scale-90">
-                                <XCircle className="w-7 h-7" />
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-10 space-y-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Legal Name *</label>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Legal Name *</label>
                                 <input
                                     type="text"
-                                    placeholder="Full identity"
+                                    placeholder="Full name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="input-premium"
+                                    className="input-modern"
                                     required
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Reference/Access ID *</label>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Employee / Access ID *</label>
                                 <input
                                     type="text"
-                                    placeholder="Employee / Staff ID"
+                                    placeholder="e.g. AS-ENG-042"
                                     value={formData.accessId}
                                     onChange={(e) => setFormData({ ...formData, accessId: e.target.value })}
-                                    className="input-premium"
+                                    className="input-modern"
                                     required
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Operational Position</label>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Operational Position</label>
                                 <input
                                     type="text"
-                                    placeholder="e.g. Lead Engineer"
+                                    placeholder="e.g. Lead Avionics Engineer"
                                     value={formData.position}
                                     onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                                    className="input-premium"
+                                    className="input-modern"
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Primary Email</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Primary Email</label>
                                     <input
                                         type="email"
-                                        placeholder="Corporate email"
+                                        placeholder="user@company.com"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="input-premium"
+                                        className="input-modern"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Phone Number</label>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number</label>
                                     <input
                                         type="tel"
                                         placeholder="+91..."
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        className="input-premium"
+                                        className="input-modern"
                                     />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">System Privilege *</label>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">System Privilege *</label>
                                 <select
                                     value={formData.role}
                                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                    className="input-premium"
+                                    className="input-modern"
                                     required
                                 >
                                     <option value="ADMINISTRATION">Administration</option>
@@ -327,30 +336,32 @@ export default function TeamPage() {
                                 </select>
                             </div>
 
-                            <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl flex items-start gap-3">
-                                <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                                <p className="text-[11px] font-bold text-blue-700 leading-normal">
-                                    Credentials will be auto-generated. Username: <span className="underline italic">Email Address</span>. Temporary Key: <span className="underline italic">Phone Number</span>.
+                            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg flex items-start gap-2.5">
+                                <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                                <p className="text-xs text-blue-700">
+                                    Initial login credentials: Username is email address, temporary password is phone number.
                                 </p>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="px-8 py-4 text-slate-500 font-extrabold uppercase tracking-widest text-[10px] hover:bg-slate-50 rounded-2xl transition-all"
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
-                                    Dismiss
+                                    Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="flex-1 py-4 bg-slate-900 text-white font-extrabold uppercase tracking-widest text-[10px] rounded-2xl hover:bg-slate-800 active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20 disabled:opacity-50 flex items-center justify-center gap-3"
+                                    className="btn-premium-primary"
                                 >
                                     {submitting ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+                                        </span>
                                     ) : (
-                                        <>Finalize Onboarding <ChevronRight className="w-4 h-4" /></>
+                                        'Onboard Member'
                                     )}
                                 </button>
                             </div>

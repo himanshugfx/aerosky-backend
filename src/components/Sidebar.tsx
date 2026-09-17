@@ -35,19 +35,20 @@ function NavigationLink({ item, isActive }: { item: any, isActive: boolean }) {
     return (
         <div 
             ref={ref}
-            className="relative group flex flex-col items-center justify-center w-full"
+            className="relative flex flex-col items-center justify-center w-full"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             <Link
                 href={item.href}
-                className={`flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-500 hover:scale-105 active:scale-95 ${
+                className={`flex items-center justify-center w-10 h-10 rounded-xl transition-colors ${
                     isActive 
-                    ? 'bg-orange-600 text-white shadow-xl shadow-orange-600/30 ring-4 ring-orange-600/10' 
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent hover:border-slate-100'
+                    ? 'bg-slate-900 text-white shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                 }`}
+                title={item.name}
             >
-                <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <item.icon className="w-5 h-5" />
             </Link>
 
             {isHovered && rect && (
@@ -56,11 +57,11 @@ function NavigationLink({ item, isActive }: { item: any, isActive: boolean }) {
                         style={{ 
                             position: 'fixed',
                             top: rect.top + rect.height / 2,
-                            left: rect.right + 24,
+                            left: rect.right + 12,
                             transform: 'translateY(-50%)',
                             zIndex: 9999
                         }}
-                        className="px-3 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-xl animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap shadow-2xl border border-white/10"
+                        className="px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-md whitespace-nowrap shadow-md pointer-events-none"
                     >
                         {item.name}
                     </div>
@@ -81,72 +82,38 @@ export default function Sidebar({ items, activeCategory }: { items: any[], activ
     }
 
     return (
-        <aside className="fixed left-6 top-6 bottom-6 w-24 bg-white rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-200 flex flex-col items-center justify-between py-12 z-[50] transition-all duration-500 overflow-hidden">
-            {/* Background Category Watermark */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none select-none overflow-hidden h-full z-0">
-                <span className="text-[5.5rem] font-black text-slate-300/50 -rotate-90 uppercase tracking-tighter opacity-70 whitespace-nowrap leading-none filter blur-[0.5px]">
-                    {activeCategory || 'AERO'}
-                </span>
-            </div>
-
+        <aside className="fixed left-4 top-4 bottom-4 w-16 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-between py-6 z-[50] transition-all">
             {/* Top Section: User Profile */}
-            <div className="relative z-10 flex flex-col items-center">
-                <div className="relative group cursor-pointer flex flex-col items-center">
-                    <div className="w-14 h-14 bg-slate-900 rounded-3xl flex items-center justify-center text-white text-xl font-bold shadow-2xl shadow-slate-900/30 overflow-hidden ring-4 ring-white group-hover:scale-105 transition-transform duration-300">
+            <div className="flex flex-col items-center">
+                <div className="relative group cursor-pointer flex flex-col items-center" title={session?.user?.name || 'User'}>
+                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white text-sm font-semibold shadow-sm">
                         {session?.user?.name ? (
-                            <div className="text-2xl font-black uppercase tracking-tighter">
-                                {session.user.name.charAt(0)}
-                            </div>
+                            <span>{session.user.name.charAt(0).toUpperCase()}</span>
                         ) : (
-                            <Shield className="w-7 h-7" />
+                            <Shield className="w-5 h-5" />
                         )}
                     </div>
-                    <div className="absolute -bottom-1 -right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-sm"></div>
-                    
-                    {/* User Role Tooltip */}
-                    <div className="absolute left-full ml-8 top-1/2 -translate-y-1/2 flex flex-col items-center opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[100] translate-x-[-10px] group-hover:translate-x-0">
-                        <div className="bg-slate-900 text-white px-5 py-4 rounded-[1.5rem] shadow-2xl border border-white/10">
-                            <p className="text-base font-black tracking-tight">{session?.user?.name}</p>
-                            <p className="text-[11px] font-black text-slate-500 tracking-widest uppercase mt-0.5">
-                                {session?.user?.role?.replace('_', ' ')}
-                            </p>
-                        </div>
-                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>
                 </div>
             </div>
 
             {/* Middle Section: Navigation Icons */}
-            <nav className="relative z-10 flex flex-col gap-6 items-center w-full my-10 overflow-y-auto no-scrollbar scroll-smooth">
+            <nav className="flex flex-col gap-3 items-center w-full my-6 overflow-y-auto no-scrollbar">
                 {items?.map((item) => (
                     <NavigationLink key={item.href} item={item} isActive={pathname === item.href} />
                 ))}
             </nav>
 
-            {/* Bottom Section: Logout/Disconnect */}
-            <div className="relative z-10">
+            {/* Bottom Section: Logout */}
+            <div className="flex flex-col items-center">
                 <button
                     onClick={handleLogout}
-                    className="flex items-center justify-center w-14 h-14 rounded-3xl text-rose-500 hover:bg-rose-50 transition-all duration-500 group relative"
+                    className="flex items-center justify-center w-10 h-10 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                    title="Sign Out"
                 >
-                    <div className="w-12 h-12 border-2 border-slate-200 rounded-2xl flex items-center justify-center group-hover:border-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-rose-500/20">
-                        <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
-                    </div>
-                    
-                    <span className="absolute left-full ml-8 top-1/2 -translate-y-1/2 px-4 py-2 bg-rose-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100] border border-white/10 shadow-2xl">
-                        Terminate Session
-                    </span>
+                    <LogOut className="w-5 h-5" />
                 </button>
             </div>
-
-            <style jsx>{`
-                .no-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-                .no-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-            `}</style>
         </aside>
     )
 }
