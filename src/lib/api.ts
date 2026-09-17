@@ -1,82 +1,12 @@
-import axios from 'axios'
-
-// Mock Data
-const MOCK_USER = {
-    id: 'user-123',
-    email: 'admin@aerosky.com',
-    full_name: 'AeroSys Admin',
-    role: 'ADMINISTRATION',
-    is_active: true
-}
-
-const MOCK_DRONES = [
-    {
-        id: 'drone-1',
-        uin: 'UIN-AR-2024-001',
-        dan: 'DAN-AR-001',
-        manufacturer_serial_number: 'AR-X1-001',
-        status: 'Active',
-        type_certificate: { model_name: 'Aero-X1', certificate_number: 'TC-2024-001' }
-    },
-    {
-        id: 'drone-2',
-        uin: 'UIN-AR-2024-002',
-        dan: 'DAN-AR-002',
-        manufacturer_serial_number: 'AR-X1-002',
-        status: 'Active',
-        type_certificate: { model_name: 'Aero-X1', certificate_number: 'TC-2024-001' }
-    }
-]
-
-const MOCK_MODELS = [
-    {
-        id: 'model-1',
-        model_name: 'Aero-X1',
-        model_number: 'AX1-2024',
-        category: 'Rotary Wing',
-        weight_class: 'Small',
-        max_altitude_ft: 400,
-        npnt_compliant: true
-    }
-]
-
-const MOCK_PILOTS = [
-    {
-        id: 'pilot-1',
-        full_name: 'John Doe',
-        rpto_authorization_number: 'RPTO-2024-005',
-        category_rating: 'Small',
-        status: 'Active'
-    }
-]
-
-const MOCK_FLIGHT_PLANS = [
-    {
-        id: 'plan-1',
-        drone_id: 'drone-1',
-        pilot_id: 'pilot-1',
-        status: 'Approved',
-        planned_start: new Date().toISOString(),
-        planned_end: new Date(Date.now() + 3600000).toISOString(),
-        takeoff_lat: 28.5562,
-        takeoff_lon: 77.1000,
-        flight_purpose: 'Inspection'
-    }
-]
-
-// Helper for mock responses
-const mockResolve = (data: any) => Promise.resolve({ data })
+import axios from 'axios';
 
 export const api = axios.create({
-    baseURL: '/mock-api',
-})
+    baseURL: '/api',
+});
 
 // Auth API
 export const authApi = {
     login: async (email: string, password: string) => {
-        // Note: For NextAuth, we usually use signIn('credentials', ...) in the component directly
-        // But if we want to keep this helper, we'd need to handle it.
-        // For now, let's just make it a placeholder that indicates next-auth is used.
         return { message: "Use next-auth signIn instead" };
     },
     register: async (data: any) => {
@@ -84,47 +14,152 @@ export const authApi = {
         return response.data;
     },
     me: async () => {
-        // This is usually handled by useSession() in NextAuth
         const response = await axios.get('/api/auth/session');
         return response.data;
     },
-}
+};
 
 // Drones API
 export const dronesApi = {
-    list: (params?: any) => mockResolve({ total: MOCK_DRONES.length, items: MOCK_DRONES }),
-    listModels: () => mockResolve(MOCK_MODELS),
-    createModel: (data: any) => mockResolve({ ...data, id: 'new-model' }),
-    get: (id: string) => mockResolve(MOCK_DRONES.find(d => d.id === id) || MOCK_DRONES[0]),
-    create: (data: any) => mockResolve({ ...data, id: 'new-drone' }),
-    update: (id: string, data: any) => mockResolve({ ...MOCK_DRONES[0], ...data }),
-    generateUin: (data: any) => mockResolve({ success: true, uin: 'UIN-NEW-2024', drone_id: 'new-drone' }),
-    activate: (id: string) => mockResolve({ ...MOCK_DRONES[0], status: 'Active' }),
-}
+    list: async (params?: any) => {
+        try {
+            const res = await axios.get('/api/drones', { params });
+            const items = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+            return { data: { total: items.length, items } };
+        } catch {
+            return { data: { total: 0, items: [] } };
+        }
+    },
+    listModels: async () => {
+        try {
+            const res = await axios.get('/api/drones');
+            const items = Array.isArray(res.data) ? res.data : [];
+            return {
+                data: items.map((d: any) => ({
+                    id: d.id,
+                    model_name: d.modelName,
+                    model_number: d.id,
+                    category: 'Rotary Wing',
+                    weight_class: 'Small',
+                    max_altitude_ft: 400,
+                    npnt_compliant: true,
+                })),
+            };
+        } catch {
+            return { data: [] };
+        }
+    },
+    createModel: async (data: any) => {
+        const res = await axios.post('/api/drones', data);
+        return { data: res.data };
+    },
+    get: async (id: string) => {
+        const res = await axios.get(`/api/drones/${id}`);
+        return { data: res.data };
+    },
+    create: async (data: any) => {
+        const res = await axios.post('/api/drones', data);
+        return { data: res.data };
+    },
+    update: async (id: string, data: any) => {
+        const res = await axios.put(`/api/drones/${id}`, data);
+        return { data: res.data };
+    },
+    generateUin: async (data: any) => {
+        return { data: { success: true, uin: `UIN-${Date.now()}` } };
+    },
+    activate: async (id: string) => {
+        return { data: { status: 'Active' } };
+    },
+};
 
 // Pilots API
 export const pilotsApi = {
-    list: (params?: any) => mockResolve(MOCK_PILOTS),
-    get: (id: string) => mockResolve(MOCK_PILOTS[0]),
-    create: (data: any) => mockResolve({ ...data, id: 'new-pilot' }),
-}
+    list: async (params?: any) => {
+        try {
+            const res = await axios.get('/api/team', { params });
+            const list = Array.isArray(res.data) ? res.data : [];
+            return {
+                data: list.map((m: any) => ({
+                    id: m.id,
+                    full_name: m.name,
+                    rpto_authorization_number: m.accessId,
+                    category_rating: m.position || 'Pilot',
+                    status: 'Active',
+                })),
+            };
+        } catch {
+            return { data: [] };
+        }
+    },
+    get: async (id: string) => {
+        try {
+            const res = await axios.get(`/api/team/${id}`);
+            const m = res.data;
+            return {
+                data: {
+                    id: m.id,
+                    full_name: m.name,
+                    rpto_authorization_number: m.accessId,
+                    category_rating: m.position || 'Pilot',
+                    status: 'Active',
+                },
+            };
+        } catch {
+            return { data: null };
+        }
+    },
+    create: async (data: any) => {
+        const res = await axios.post('/api/team', {
+            name: data.full_name,
+            position: data.category_rating || 'Pilot',
+            phone: data.phone || data.primary_id_number,
+            email: data.email,
+        });
+        return { data: res.data };
+    },
+};
 
 // Maintenance API
 export const maintenanceApi = {
-    list: (params?: any) => mockResolve([]),
-    create: (data: any) => mockResolve({ ...data, id: 'new-log' }),
-}
+    list: async (params?: any) => {
+        return { data: [] };
+    },
+    create: async (data: any) => {
+        return { data: { ...data, id: `log-${Date.now()}` } };
+    },
+};
 
 // Flights API
 export const flightsApi = {
-    listPlans: (params?: any) => mockResolve({ total: MOCK_FLIGHT_PLANS.length, items: MOCK_FLIGHT_PLANS }),
-    getPlan: (id: string) => mockResolve(MOCK_FLIGHT_PLANS[0]),
-    createPlan: (data: any) => mockResolve({ ...data, id: 'new-plan' }),
-    updatePlan: (id: string, data: any) => mockResolve({ ...MOCK_FLIGHT_PLANS[0], ...data }),
-    validateNpnt: (data: any) => mockResolve({ is_valid: true, checks: [], permission_artifact: { id: 'artifact-1' } }),
-    validateZone: (data: any) => mockResolve({ zone_type: 'GREEN', is_flyable: true, message: 'Clear to fly' }),
-    ingestLogs: (data: any) => mockResolve({ success: true, entries_processed: 100 }),
-    getSummary: (planId: string) => mockResolve({ total_distance_m: 5000, max_altitude_m: 120 }),
-    startFlight: (planId: string) => mockResolve({ ...MOCK_FLIGHT_PLANS[0], status: 'InProgress' }),
-    completeFlight: (planId: string) => mockResolve({ ...MOCK_FLIGHT_PLANS[0], status: 'Completed' }),
-}
+    listPlans: async (params?: any) => {
+        return { data: { total: 0, items: [] } };
+    },
+    getPlan: async (id: string) => {
+        return { data: null };
+    },
+    createPlan: async (data: any) => {
+        return { data: { ...data, id: `plan-${Date.now()}` } };
+    },
+    updatePlan: async (id: string, data: any) => {
+        return { data: { ...data, id } };
+    },
+    validateNpnt: async (data: any) => {
+        return { data: { is_valid: true, checks: [] } };
+    },
+    validateZone: async (data: any) => {
+        return { data: { zone_type: 'GREEN', is_flyable: true, message: 'Clear to fly' } };
+    },
+    ingestLogs: async (data: any) => {
+        return { data: { success: true, entries_processed: 0 } };
+    },
+    getSummary: async (planId: string) => {
+        return { data: { total_distance_m: 0, max_altitude_m: 0 } };
+    },
+    startFlight: async (planId: string) => {
+        return { data: { status: 'InProgress' } };
+    },
+    completeFlight: async (planId: string) => {
+        return { data: { status: 'Completed' } };
+    },
+};
