@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateRequest } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
-import { sendWelcomeEmail } from '@/lib/email';
 import { createTeamMemberSchema, validateRequest } from '@/lib/schemas';
 import { handleError, errors } from '@/lib/error-handler';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -125,9 +124,6 @@ export async function POST(request: NextRequest) {
                 });
                 console.log(`Created user account for staff: ${validated.email} (password: phone number)`);
             }
-
-            // Always send welcome email when team member is created
-            sendWelcomeEmail(validated.email, validated.name, validated.email, validated.phone, 'team_member').catch(err => console.error('Welcome email failed:', err));
         }
 
         return NextResponse.json(teamMember, { status: 201 });
