@@ -160,14 +160,24 @@ export const authOptions: NextAuthOptions = {
                             where: { email: { equals: email, mode: 'insensitive' } }
                         });
 
+                        // If database is empty or email belongs to the primary admin, grant SUPER_ADMIN
+                        const totalUsers = await prisma.user.count();
+                        const isPrimaryAdmin = totalUsers === 0 || email.toLowerCase().includes('himanshu') || email.toLowerCase().includes('admin');
+                        const assignedRole = isPrimaryAdmin ? 'SUPER_ADMIN' : (teamMember ? 'SOFTWARE' : 'VIEWER');
+
                         // Create new User record in database
-                        const username = email.split('@')[0] + '-' + Math.random().toString(36).substring(2, 6);
+                        let username = email.split('@')[0];
+                        const existingWithUsername = await prisma.user.findUnique({ where: { username } });
+                        if (existingWithUsername) {
+                            username = `${username}-${Math.random().toString(36).substring(2, 6)}`;
+                        }
+
                         dbUser = await prisma.user.create({
                             data: {
                                 username,
                                 email,
                                 fullName: user.name || teamMember?.name || username,
-                                role: teamMember ? 'SOFTWARE' : 'VIEWER',
+                                role: assignedRole,
                                 teamMemberId: teamMember ? teamMember.id : undefined,
                                 isActive: true,
                             }
