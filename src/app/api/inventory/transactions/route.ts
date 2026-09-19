@@ -51,6 +51,11 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { componentId, type, quantity, subcontractorId, takenOutFor, date } = body;
 
+        const parsedQuantity = parseInt(quantity, 10);
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+            return NextResponse.json({ error: "Quantity must be a positive integer" }, { status: 400 });
+        }
+
         // Permission check based on type
         const permAction = type === 'IN' ? 'edit' : 'delete';
         const permCheck = checkResourceAccess(auth.user, 'inventory', permAction as any);
@@ -58,12 +63,24 @@ export async function POST(request: NextRequest) {
 
         // Record the transaction and update the component quantity in a transaction
         const result = await prisma.$transaction(async (tx) => {
+            const component = await tx.component.findUnique({
+                where: { id: componentId }
+            });
+
+            if (!component) {
+                throw new Error("COMPONENT_NOT_FOUND");
+            }
+
+            if (type === 'OUT' && component.quantity < parsedQuantity) {
+                throw new Error(`INSUFFICIENT_STOCK: Available ${component.quantity}, requested ${parsedQuantity}`);
+            }
+
             // Record transaction
             const transaction = await tx.inventoryTransaction.create({
                 data: {
                     componentId,
                     type,
-                    quantity: parseInt(quantity),
+                    quantity: parsedQuantity,
                     subcontractorId: subcontractorId || null,
                     userId: auth.user.id,
                     takenOutFor: takenOutFor || null,
@@ -72,7 +89,7 @@ export async function POST(request: NextRequest) {
             });
 
             // Update component stock
-            const quantityChange = type === 'IN' ? parseInt(quantity) : -parseInt(quantity);
+            const quantityChange = type === 'IN' ? parsedQuantity : -parsedQuantity;
             await tx.component.update({
                 where: { id: componentId },
                 data: {
@@ -88,6 +105,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(result, { status: 201 });
     } catch (error: any) {
         console.error('Create transaction error:', error);
+        if (error.message === "COMPONENT_NOT_FOUND") {
+            return NextResponse.json({ error: "Component not found" }, { status: 404 });
+        }
+        if (error.message?.startsWith("INSUFFICIENT_STOCK")) {
+            return NextResponse.json({ error: error.message.replace("INSUFFICIENT_STOCK: ", "") }, { status: 400 });
+        }
         return NextResponse.json({
             error: "Failed to process inventory transaction",
             details: error.message || String(error)

@@ -60,6 +60,24 @@ export class AuthService {
               data: { supabaseId: authData.user.id }
             });
           }
+        } else if (authData.user.email) {
+          const teamMember = await prisma.teamMember.findFirst({
+            where: { email: { equals: authData.user.email, mode: 'insensitive' } }
+          });
+
+          user = await prisma.user.create({
+            data: {
+              username: authData.user.email.split('@')[0] || rawUser,
+              email: authData.user.email,
+              fullName: authData.user.user_metadata?.full_name || authData.user.user_metadata?.name || rawUser,
+              supabaseId: authData.user.id,
+              role: 'VIEWER',
+              teamMemberId: teamMember ? teamMember.id : undefined,
+            }
+          });
+        }
+
+        if (user) {
           return {
             id: user.id,
             username: user.username,

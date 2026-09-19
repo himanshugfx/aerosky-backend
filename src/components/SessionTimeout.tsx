@@ -23,6 +23,8 @@ export function SessionTimeout() {
         }
     }, [session, isAuthenticated, logout]);
 
+    const lastResetRef = useRef<number>(Date.now());
+
     const resetTimer = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -30,7 +32,15 @@ export function SessionTimeout() {
         if (session || isAuthenticated) {
             timeoutRef.current = setTimeout(handleLogout, TIMEOUT_DURATION);
         }
+        lastResetRef.current = Date.now();
     }, [handleLogout, session, isAuthenticated]);
+
+    const handleActivity = useCallback(() => {
+        // Throttle resets to at most once every 15 seconds
+        if (Date.now() - lastResetRef.current > 15000) {
+            resetTimer();
+        }
+    }, [resetTimer]);
 
     useEffect(() => {
         if (!session && !isAuthenticated) return;
@@ -50,7 +60,7 @@ export function SessionTimeout() {
 
         // Add event listeners
         events.forEach((event) => {
-            window.addEventListener(event, resetTimer);
+            window.addEventListener(event, handleActivity);
         });
 
         // Cleanup
@@ -59,10 +69,10 @@ export function SessionTimeout() {
                 clearTimeout(timeoutRef.current);
             }
             events.forEach((event) => {
-                window.removeEventListener(event, resetTimer);
+                window.removeEventListener(event, handleActivity);
             });
         };
-    }, [session, isAuthenticated, resetTimer]);
+    }, [session, isAuthenticated, resetTimer, handleActivity]);
 
     return null;
 }

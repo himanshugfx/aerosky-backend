@@ -153,6 +153,7 @@ model Drone {
   flightLogs         FlightLog[]
   recurringData      Json?              @map("recurring_data")
 
+  @@index([accountableManagerId])
   @@map("drones")
 }
 
@@ -165,6 +166,7 @@ model ManufacturedUnit {
 
   drone Drone @relation(fields: [droneId], references: [id], onDelete: Cascade)
 
+  @@index([droneId])
   @@map("manufactured_units")
 }
 
@@ -178,6 +180,7 @@ model DroneUpload {
 
   drone Drone @relation(fields: [droneId], references: [id], onDelete: Cascade)
 
+  @@index([droneId])
   @@map("drone_uploads")
 }
 
@@ -224,6 +227,11 @@ model FlightLog {
   vo               TeamMember?   @relation("VO", fields: [voId], references: [id])
   battery          Battery?      @relation(fields: [batteryId], references: [id])
 
+  @@index([droneId])
+  @@index([picId])
+  @@index([voId])
+  @@index([batteryId])
+  @@index([date])
   @@map("flight_logs")
 }
 
@@ -292,6 +300,7 @@ model OrderUpload {
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
+  @@index([orderId])
   @@map("order_uploads")
 }
 
@@ -377,6 +386,10 @@ model InventoryTransaction {
   subcontractor Subcontractor? @relation(fields: [subcontractorId], references: [id], onDelete: SetNull)
   user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  @@index([componentId])
+  @@index([subcontractorId])
+  @@index([userId])
+  @@index([date])
   @@map("inventory_transactions")
 }
 
@@ -394,6 +407,8 @@ model Reimbursement {
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([status])
   @@map("reimbursements")
 }
 
@@ -426,6 +441,7 @@ model Lead {
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
 
+  @@index([stageId])
   @@map("leads")
 }
 
@@ -437,6 +453,7 @@ model LeadActivity {
   content   String
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([leadId])
   @@map("lead_activities")
 }
 
@@ -451,6 +468,8 @@ model FollowUp {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  @@index([leadId])
+  @@index([scheduledAt])
   @@map("follow_ups")
 }
 
@@ -467,6 +486,8 @@ model Expense {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
+  @@index([date])
+  @@index([category])
   @@map("expenses")
 }
 

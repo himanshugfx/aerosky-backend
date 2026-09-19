@@ -14,12 +14,14 @@ export async function GET(request: NextRequest) {
     if (permCheck !== true) return permCheck;
 
     try {
+        const { searchParams } = new URL(request.url);
+        const includeUploads = searchParams.get('includeUploads') === 'true';
         const where: any = {};
 
         const drones = await prisma.drone.findMany({
             where,
             include: {
-                uploads: true,
+                uploads: includeUploads,
                 accountableManager: true,
                 manufacturedUnits: true,
             },
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
         });
 
         const transformedDrones = drones.map((drone: any) => {
-            const uploads = {
+            const uploads = includeUploads && drone.uploads ? {
                 trainingManual: drone.uploads.find((u: any) => u.uploadType === "training_manual")?.fileData,
                 infrastructureManufacturing: drone.uploads
                     .filter((u: any) => u.uploadType === "infrastructure_manufacturing")
@@ -48,6 +50,8 @@ export async function GET(request: NextRequest) {
                 hardwareSecurity: drone.uploads
                     .filter((u: any) => u.uploadType === "hardware_security")
                     .map((u: any) => u.fileData),
+                webPortalLink: drone.webPortalLink,
+            } : {
                 webPortalLink: drone.webPortalLink,
             };
 

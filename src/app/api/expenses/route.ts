@@ -1,4 +1,5 @@
 import { authenticateRequest } from "@/lib/api-auth";
+import { checkResourceAccess } from "@/lib/authorize";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -6,6 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const permCheck = checkResourceAccess(auth.user, 'expense', 'view');
+    if (permCheck !== true) return permCheck;
 
     try {
         const { searchParams } = new URL(request.url);
@@ -64,10 +68,8 @@ export async function POST(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can create expenses
-    if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
-        return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
-    }
+    const permCheck = checkResourceAccess(auth.user, 'expense', 'create');
+    if (permCheck !== true) return permCheck;
 
     try {
         const body = await request.json();
@@ -105,10 +107,8 @@ export async function PUT(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can update expenses
-    if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
-        return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
-    }
+    const permCheck = checkResourceAccess(auth.user, 'expense', 'edit');
+    if (permCheck !== true) return permCheck;
 
     try {
         const body = await request.json();
@@ -148,10 +148,8 @@ export async function DELETE(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION, ADMIN, or SUPER_ADMIN can delete expenses
-    if (!['ADMINISTRATION', 'ADMIN', 'SUPER_ADMIN'].includes(auth.user.role)) {
-        return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
-    }
+    const permCheck = checkResourceAccess(auth.user, 'expense', 'delete');
+    if (permCheck !== true) return permCheck;
 
     try {
         const { searchParams } = new URL(request.url);

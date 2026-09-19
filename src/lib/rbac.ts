@@ -84,7 +84,25 @@ const RESOURCE_PERMISSION_MAP: Record<string, Record<ResourceAction, Permission>
         create: PERMISSIONS.INVENTORY_MANAGE,
         edit: PERMISSIONS.INVENTORY_MANAGE,
         delete: PERMISSIONS.INVENTORY_MANAGE,
-    }
+    },
+    expense: {
+        view: PERMISSIONS.EXPENSE_VIEW,
+        create: PERMISSIONS.EXPENSE_CREATE,
+        edit: PERMISSIONS.EXPENSE_EDIT,
+        delete: PERMISSIONS.EXPENSE_DELETE,
+    },
+    lead: {
+        view: PERMISSIONS.LEAD_VIEW,
+        create: PERMISSIONS.LEAD_CREATE,
+        edit: PERMISSIONS.LEAD_EDIT,
+        delete: PERMISSIONS.LEAD_DELETE,
+    },
+    crm: {
+        view: PERMISSIONS.LEAD_VIEW,
+        create: PERMISSIONS.LEAD_CREATE,
+        edit: PERMISSIONS.LEAD_EDIT,
+        delete: PERMISSIONS.LEAD_DELETE,
+    },
 };
 
 /**

@@ -3,6 +3,7 @@ import { checkResourceAccess } from "@/lib/authorize";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+// GET inventory transactions
 export async function GET(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
+// POST create inventory transaction (IN or OUT)
 export async function POST(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,24 +51,41 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { componentId, type, quantity, subcontractorId, takenOutFor, date } = body;
 
+        const parsedQuantity = parseInt(quantity, 10);
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+            return NextResponse.json({ error: "Quantity must be a positive integer" }, { status: 400 });
+        }
+
         const permAction = type === 'IN' ? 'edit' : 'delete';
         const permCheck = checkResourceAccess(auth.user, 'inventory' as any, permAction as any);
         if (permCheck !== true) return permCheck;
 
         const result = await prisma.$transaction(async (tx) => {
+            const component = await tx.component.findUnique({
+                where: { id: componentId }
+            });
+
+            if (!component) {
+                throw new Error("COMPONENT_NOT_FOUND");
+            }
+
+            if (type === 'OUT' && component.quantity < parsedQuantity) {
+                throw new Error(`INSUFFICIENT_STOCK: Available ${component.quantity}, requested ${parsedQuantity}`);
+            }
+
             const transaction = await tx.inventoryTransaction.create({
                 data: {
                     componentId,
                     type,
-                    quantity,
-                    subcontractorId,
+                    quantity: parsedQuantity,
+                    subcontractorId: subcontractorId || null,
                     userId: auth.user.id,
-                    takenOutFor,
+                    takenOutFor: takenOutFor || null,
                     date: date ? new Date(date) : new Date(),
                 }
             });
 
-            const quantityChange = type === 'IN' ? quantity : -quantity;
+            const quantityChange = type === 'IN' ? parsedQuantity : -parsedQuantity;
             await tx.component.update({
                 where: { id: componentId },
                 data: { quantity: { increment: quantityChange } }
@@ -76,8 +95,14 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json(result, { status: 201 });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Mobile: Create transaction error:', error);
-        return NextResponse.json({ error: "Failed to process inventory transaction" }, { status: 500 });
+        if (error.message === "COMPONENT_NOT_FOUND") {
+            return NextResponse.json({ error: "Component not found" }, { status: 404 });
+        }
+        if (error.message?.startsWith("INSUFFICIENT_STOCK")) {
+            return NextResponse.json({ error: error.message.replace("INSUFFICIENT_STOCK: ", "") }, { status: 400 });
+        }
+        return NextResponse.json({ error: "Failed to process inventory transaction", details: error.message }, { status: 500 });
     }
 }

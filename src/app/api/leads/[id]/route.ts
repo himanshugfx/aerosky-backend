@@ -1,4 +1,5 @@
 import { authenticateRequest } from "@/lib/api-auth";
+import { checkResourceAccess } from "@/lib/authorize";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,6 +9,9 @@ export async function GET(
 ) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const permCheck = checkResourceAccess(auth.user, 'lead', 'view');
+    if (permCheck !== true) return permCheck;
 
     try {
         const lead = await prisma.lead.findUnique({
@@ -38,11 +42,27 @@ export async function PATCH(
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const permCheck = checkResourceAccess(auth.user, 'lead', 'edit');
+    if (permCheck !== true) return permCheck;
+
     try {
         const body = await request.json();
+        const { name, email, phone, company, source, stageId, value, notes, convertedAt } = body;
+
+        const dataToUpdate: any = {};
+        if (name !== undefined) dataToUpdate.name = name;
+        if (email !== undefined) dataToUpdate.email = email;
+        if (phone !== undefined) dataToUpdate.phone = phone;
+        if (company !== undefined) dataToUpdate.company = company;
+        if (source !== undefined) dataToUpdate.source = source;
+        if (stageId !== undefined) dataToUpdate.stageId = stageId;
+        if (value !== undefined) dataToUpdate.value = parseFloat(value) || 0;
+        if (notes !== undefined) dataToUpdate.notes = notes;
+        if (convertedAt !== undefined) dataToUpdate.convertedAt = convertedAt ? new Date(convertedAt) : null;
+
         const updatedLead = await prisma.lead.update({
             where: { id: params.id },
-            data: body,
+            data: dataToUpdate,
             include: { stage: true }
         });
 
@@ -59,6 +79,9 @@ export async function DELETE(
 ) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const permCheck = checkResourceAccess(auth.user, 'lead', 'delete');
+    if (permCheck !== true) return permCheck;
 
     try {
         await prisma.lead.delete({

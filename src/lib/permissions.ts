@@ -53,6 +53,18 @@ export const PERMISSIONS = {
     REPORT_VIEW: 'report:view',
     REPORT_EXPORT: 'report:export',
 
+    // Expenses
+    EXPENSE_VIEW: 'expense:view',
+    EXPENSE_CREATE: 'expense:create',
+    EXPENSE_EDIT: 'expense:edit',
+    EXPENSE_DELETE: 'expense:delete',
+
+    // Leads / CRM
+    LEAD_VIEW: 'lead:view',
+    LEAD_CREATE: 'lead:create',
+    LEAD_EDIT: 'lead:edit',
+    LEAD_DELETE: 'lead:delete',
+
     // Settings
     SETTINGS_VIEW: 'settings:view',
     SETTINGS_EDIT: 'settings:edit',
@@ -165,6 +177,10 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
         PERMISSIONS.TEAM_VIEW,
         PERMISSIONS.SUBCONTRACTOR_VIEW,
         ...ALL_INVENTORY_PERMISSIONS,
+        PERMISSIONS.LEAD_VIEW,
+        PERMISSIONS.LEAD_CREATE,
+        PERMISSIONS.LEAD_EDIT,
+        PERMISSIONS.LEAD_DELETE,
         PERMISSIONS.REPORT_VIEW,
         PERMISSIONS.REPORT_EXPORT,
     ],
@@ -248,6 +264,16 @@ export const PERMISSION_METADATA: Record<
 
     [PERMISSIONS.REPORT_VIEW]: { description: 'View reports', category: 'reports' },
     [PERMISSIONS.REPORT_EXPORT]: { description: 'Export reports', category: 'reports' },
+
+    [PERMISSIONS.EXPENSE_VIEW]: { description: 'View company expenses', category: 'expenses' },
+    [PERMISSIONS.EXPENSE_CREATE]: { description: 'Create expenses', category: 'expenses' },
+    [PERMISSIONS.EXPENSE_EDIT]: { description: 'Edit expenses', category: 'expenses' },
+    [PERMISSIONS.EXPENSE_DELETE]: { description: 'Delete expenses', category: 'expenses' },
+
+    [PERMISSIONS.LEAD_VIEW]: { description: 'View leads', category: 'leads' },
+    [PERMISSIONS.LEAD_CREATE]: { description: 'Create leads', category: 'leads' },
+    [PERMISSIONS.LEAD_EDIT]: { description: 'Edit leads', category: 'leads' },
+    [PERMISSIONS.LEAD_DELETE]: { description: 'Delete leads', category: 'leads' },
 
     [PERMISSIONS.SETTINGS_VIEW]: { description: 'View settings', category: 'settings' },
     [PERMISSIONS.SETTINGS_EDIT]: { description: 'Edit settings', category: 'settings' },
