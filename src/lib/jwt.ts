@@ -1,7 +1,18 @@
 // JWT utilities for mobile authentication
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-fallback-secret-key-change-in-production';
+function getJwtSecret(): string {
+    const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
+    if (!secret) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error('CRITICAL SECURITY ERROR: Neither JWT_SECRET nor NEXTAUTH_SECRET is defined in environment.');
+        }
+        return 'aerosky-dev-temporary-secret-key-replace-in-env';
+    }
+    return secret;
+}
+
+const JWT_SECRET = getJwtSecret();
 const JWT_EXPIRES_IN = '7d'; // Token expires in 7 days
 
 export interface JWTPayload {

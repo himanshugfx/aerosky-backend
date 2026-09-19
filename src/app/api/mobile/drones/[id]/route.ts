@@ -1,4 +1,5 @@
 import { authenticateRequest } from "@/lib/api-auth";
+import { checkResourceAccess } from "@/lib/authorize";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,6 +11,9 @@ export async function GET(
     if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'drone', 'view');
+    if (permCheck !== true) return permCheck;
 
     const { id } = params;
 
@@ -83,20 +87,19 @@ export async function PUT(
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const permCheck = checkResourceAccess(auth.user, 'drone', 'edit');
+    if (permCheck !== true) return permCheck;
+
     const { id } = params;
 
     try {
         const existingDrone = await prisma.drone.findUnique({
             where: { id },
-            /* select: { organizationId: true } removed */
         });
 
         if (!existingDrone) {
             return NextResponse.json({ error: "Drone not found" }, { status: 404 });
         }
-
-        // Organization scoping check
-        // Scoping check removed
 
         const body = await request.json();
         const { modelName, image, accountableManagerId, webPortalLink, manufacturedUnits, recurringData } = body;
@@ -157,20 +160,19 @@ export async function DELETE(
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const permCheck = checkResourceAccess(auth.user, 'drone', 'delete');
+    if (permCheck !== true) return permCheck;
+
     const { id } = params;
 
     try {
         const existingDrone = await prisma.drone.findUnique({
             where: { id },
-            /* select: { organizationId: true } removed */
         });
 
         if (!existingDrone) {
             return NextResponse.json({ error: "Drone not found" }, { status: 404 });
         }
-
-        // Organization scoping check
-        // Scoping check removed
 
         await prisma.drone.delete({
             where: { id }
@@ -181,15 +183,4 @@ export async function DELETE(
         console.error("Error deleting drone:", error);
         return NextResponse.json({ error: "Failed to delete drone" }, { status: 500 });
     }
-}
-
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

@@ -21,28 +21,27 @@ type AssistantRequest = z.infer<typeof assistantRequestSchema>;
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 /**
- * Fetches comprehensive context data about the user's operations
+ * Fetches comprehensive context data about the user's operations, scoped by user role
  */
-async function getContextData(userId?: string) {
+async function getContextData(userId?: string, userRole?: string) {
   try {
+    const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION', 'SALES'].includes(userRole || '');
+    const hasOrderAccess = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION', 'SALES', 'OPERATIONS'].includes(userRole || '');
     const where: any = {};
 
-    // Note: Lead model doesn't have organizationId field, so we count all leads
-    // TODO: Add organizationId to Lead model in schema migration
-    const leadWhere: any = {};
-
-    const [drones, orders, flights, components, teamMembers, batteries, leads] = await Promise.all([
+    const [drones, orders, flights, components, teamMembers, batteries, rawLeads] = await Promise.all([
       prisma.drone.count({ where }),
-      prisma.order.count({ where }),
+      hasOrderAccess ? prisma.order.count({ where }) : Promise.resolve(0),
       prisma.flightLog.count({ where }),
       prisma.component.count({ where }),
       prisma.teamMember.count({ where }),
       prisma.battery.count({ where }),
-      prisma.lead.count({ where: leadWhere }),
+      isPrivileged ? prisma.lead.count({ where: {} }) : Promise.resolve(0),
     ]);
+    const leads = isPrivileged ? rawLeads : 0;
 
-    // Get recent orders with more details
-    const recentOrders = await prisma.order.findMany({
+    // Get recent orders with more details if authorized
+    const recentOrders = hasOrderAccess ? await prisma.order.findMany({
       where,
       select: {
         id: true,
@@ -57,7 +56,7 @@ async function getContextData(userId?: string) {
       },
       orderBy: { createdAt: 'desc' },
       take: 10,
-    });
+    }) : [];
 
     // Get low stock components
     const lowStockComponents = await prisma.component.findMany({
@@ -74,7 +73,7 @@ async function getContextData(userId?: string) {
     });
 
     // Get high-priority orders (critical for analysis)
-    const criticalOrders = await prisma.order.findMany({
+    const criticalOrders = hasOrderAccess ? await prisma.order.findMany({
       where: {
         ...where,
         priorityLevel: 'High',
@@ -86,7 +85,7 @@ async function getContextData(userId?: string) {
         manufacturingStage: true,
       },
       take: 5,
-    });
+    }) : [];
 
     // Calculate order statistics
     const orderStats = {
@@ -96,18 +95,20 @@ async function getContextData(userId?: string) {
       delivered: orders > 0 ? recentOrders.filter(o => o.manufacturingStage === 'Delivered').length : 0,
     };
 
-    // Calculate payment statistics
-    const paymentStats = {
+    // Calculate payment statistics (only for privileged roles)
+    const paymentStats = isPrivileged ? {
       paid: orders > 0 ? recentOrders.filter(o => o.paymentStatus === 'Paid').length : 0,
       pending: orders > 0 ? recentOrders.filter(o => o.paymentStatus === 'Pending').length : 0,
       unpaid: orders > 0 ? recentOrders.filter(o => o.paymentStatus === 'Unpaid').length : 0,
-    };
+    } : { paid: 0, pending: 0, unpaid: 0 };
 
-    // Calculate total contract value
-    const totalContractValue = recentOrders.reduce((sum, o) => sum + parseFloat(o.contractValue.toString()), 0);
+    // Calculate total contract value (only for privileged roles)
+    const totalContractValue = isPrivileged
+      ? recentOrders.reduce((sum, o) => sum + parseFloat(o.contractValue.toString()), 0).toFixed(2)
+      : 'Confidential';
 
-    // Fetch pending follow-ups
-    const pendingFollowUps = await prisma.followUp.findMany({
+    // Fetch pending follow-ups (only for privileged CRM roles)
+    const pendingFollowUps = isPrivileged ? await prisma.followUp.findMany({
       where: {
         status: 'PENDING',
       },
@@ -125,10 +126,10 @@ async function getContextData(userId?: string) {
       },
       orderBy: { scheduledAt: 'asc' },
       take: 5,
-    });
+    }) : [];
 
-    // Fetch all leads to check which ones don't have scheduled follow-ups
-    const allLeads = await prisma.lead.findMany({
+    // Fetch all leads to check which ones don't have scheduled follow-ups (privileged only)
+    const allLeads = isPrivileged ? await prisma.lead.findMany({
       where: {},
       select: {
         id: true,
@@ -157,14 +158,14 @@ async function getContextData(userId?: string) {
           },
         },
       },
-    });
+    }) : [];
 
     // Identify leads needing follow-ups (those without pending follow-ups)
-    const leadsNeedingFollowUp = allLeads.filter((lead: any) => lead.followUps.length === 0).slice(0, 5);
+    const leadsNeedingFollowUp = allLeads.filter((lead: any) => lead.followUps?.length === 0).slice(0, 5);
 
-    // Fetch lead activities/notes (recent activities across all leads)
-    const leadActivities = await prisma.leadActivity.findMany({
-      where: { lead: leadWhere },
+    // Fetch lead activities/notes (recent activities across all leads - privileged only)
+    const leadActivities = isPrivileged ? await prisma.leadActivity.findMany({
+      where: { lead: {} },
       select: {
         id: true,
         type: true,
@@ -179,10 +180,10 @@ async function getContextData(userId?: string) {
       },
       orderBy: { createdAt: 'desc' },
       take: 10,
-    });
+    }) : [];
 
-    // Fetch upcoming calendar events (follow-ups and scheduled activities)
-    const calendarEvents = await prisma.followUp.findMany({
+    // Fetch upcoming calendar events (follow-ups and scheduled activities - privileged only)
+    const calendarEvents = isPrivileged ? await prisma.followUp.findMany({
       where: {
         scheduledAt: { gte: new Date() },
       },
@@ -199,7 +200,7 @@ async function getContextData(userId?: string) {
       },
       orderBy: { scheduledAt: 'asc' },
       take: 15,
-    });
+    }) : [];
 
     // Fetch team members with details
     const teamMembersDetails = await prisma.teamMember.findMany({
@@ -304,11 +305,11 @@ async function getContextData(userId?: string) {
       stats: {
         orderStats,
         paymentStats,
-        totalContractValue: totalContractValue.toFixed(2),
+        totalContractValue,
       },
       recentOrders: recentOrders.map(o => ({
         ...o,
-        contractValue: o.contractValue.toString(),
+        contractValue: isPrivileged ? o.contractValue.toString() : 'Confidential',
         createdAt: o.createdAt.toLocaleDateString('en-IN'),
       })),
       criticalOrders,
@@ -461,7 +462,7 @@ You are Aero, an advanced AI assistant for AeroSky Aviation operations. Your rol
 
 ### Sales & Orders Pipeline
 - **Total Orders**: ${summary.totalOrders} contracts in pipeline
-- **Total Contract Value**: ₹${stats.totalContractValue || '0'} 
+- **Total Contract Value**: ${stats.totalContractValue === 'Confidential' ? 'Confidential (Restricted)' : `₹${stats.totalContractValue || '0'}`} 
 - **Order Status Distribution**: 
   - In Design: ${stats.orderStats?.inDesign || 0}
   - In Production: ${stats.orderStats?.inProduction || 0}
@@ -529,7 +530,7 @@ ${criticalOrders.length > 0
 
 ### Top Recent Orders
 ${recentOrders.slice(0, 5).map((o: any) => 
-  '- **' + o.contractNumber + '**: ' + o.clientName + ' (₹' + o.contractValue + ', Qty: ' + o.quantity + ') - ' + o.manufacturingStage + ' - Payment: ' + o.paymentStatus
+  '- **' + o.contractNumber + '**: ' + o.clientName + ' (' + (o.contractValue === 'Confidential' ? 'Confidential' : '₹' + o.contractValue) + ', Qty: ' + o.quantity + ') - ' + o.manufacturingStage + ' - Payment: ' + o.paymentStatus
 ).join('\n')}
 
 ### Low Stock Alert
@@ -627,8 +628,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 4. Get context data
-    const contextData = await getContextData(auth.user.id);
+    // 4. Get context data (scoped to user role)
+    const contextData = await getContextData(auth.user.id, auth.user.role);
 
     // 5. Build conversation history for Gemini
     const conversationHistory = [
@@ -689,7 +690,8 @@ export async function POST(request: NextRequest) {
         responseText = `Your drone fleet consists of **${contextData?.summary?.totalDrones || 0} drones** with **${contextData?.summary?.batteries || 0} battery packs** available. This gives you capacity for multiple simultaneous operations. Ensure regular maintenance to keep all units mission-ready.`;
       } else if (userMessage.includes('order') || userMessage.includes('contract')) {
         const totalValue = contextData?.stats?.totalContractValue || '0';
-        responseText = `You have **${contextData?.summary?.totalOrders || 0} active orders** worth **₹${totalValue}** in total contract value.\n\n**Order Pipeline Status:**\n- In Design: ${orderStats.inDesign || 0}\n- In Production: ${orderStats.inProduction || 0}\n- Ready for Delivery: ${orderStats.readyForDelivery || 0}\n- Delivered: ${orderStats.delivered || 0}\n\n**Payment Status:**\n- Paid: ${paymentStats.paid || 0}\n- Pending: ${paymentStats.pending || 0}\n- Unpaid: ${paymentStats.unpaid || 0}\n\nFocus on collecting unpaid invoices and expediting orders in production.`;
+        const formattedValue = totalValue === 'Confidential' ? 'Confidential' : `₹${totalValue}`;
+        responseText = `You have **${contextData?.summary?.totalOrders || 0} active orders** worth **${formattedValue}** in total contract value.\n\n**Order Pipeline Status:**\n- In Design: ${orderStats.inDesign || 0}\n- In Production: ${orderStats.inProduction || 0}\n- Ready for Delivery: ${orderStats.readyForDelivery || 0}\n- Delivered: ${orderStats.delivered || 0}\n\n**Payment Status:**\n- Paid: ${paymentStats.paid || 0}\n- Pending: ${paymentStats.pending || 0}\n- Unpaid: ${paymentStats.unpaid || 0}\n\nFocus on collecting unpaid invoices and expediting orders in production.`;
       } else if (userMessage.includes('inventory') || userMessage.includes('stock') || userMessage.includes('component')) {
         const lowStockCount = contextData?.lowStockItems?.length || 0;
         responseText = `Your inventory has **${contextData?.summary?.totalComponents || 0} components** in stock. ${lowStockCount > 0 ? `**⚠️ ${lowStockCount} items are running low** and need replenishment:` : 'All inventory levels are healthy.'}\n\n${contextData?.lowStockItems?.map((item: any) => `- **${item.name}** (${item.category}): ${item.quantity} units remaining`).join('\n') || 'No critical stock issues.'}`;
@@ -699,12 +701,14 @@ export async function POST(request: NextRequest) {
         responseText = `Your team consists of **${contextData?.summary?.teamMembers || 0} active members**. A strong team is essential for executing complex orders and maintaining quality. Consider training and skill development to enhance overall capability.`;
       } else if (userMessage.includes('performance') || userMessage.includes('summary') || userMessage.includes('overview') || userMessage.includes('status')) {
         const totalValue = contextData?.stats?.totalContractValue || '0';
-        responseText = `**AeroSky Operations Summary:**\n\n📊 **Portfolio**: ${contextData?.summary?.totalOrders || 0} orders worth ₹${totalValue}\n🚁 **Fleet**: ${contextData?.summary?.totalDrones || 0} drones operational\n👥 **Team**: ${contextData?.summary?.teamMembers || 0} members\n📦 **Inventory**: ${contextData?.summary?.totalComponents || 0} components (${contextData?.lowStockItems?.length || 0} low)\n💼 **Leads**: ${contextData?.summary?.totalLeads || 0} in pipeline\n✈️ **Flights**: ${contextData?.summary?.totalFlights || 0} completed\n\n**Key Metrics:**\n- Orders in production: ${orderStats.inProduction || 0}\n- Unpaid invoices: ${paymentStats.unpaid || 0}\n- Due for delivery: ${orderStats.readyForDelivery || 0}\n\nAll systems operational. Focus on order fulfillment and cash collection.`;
+        const formattedValue = totalValue === 'Confidential' ? 'Confidential' : `₹${totalValue}`;
+        responseText = `**AeroSky Operations Summary:**\n\n📊 **Portfolio**: ${contextData?.summary?.totalOrders || 0} orders worth ${formattedValue}\n🚁 **Fleet**: ${contextData?.summary?.totalDrones || 0} drones operational\n👥 **Team**: ${contextData?.summary?.teamMembers || 0} members\n📦 **Inventory**: ${contextData?.summary?.totalComponents || 0} components (${contextData?.lowStockItems?.length || 0} low)\n💼 **Leads**: ${contextData?.summary?.totalLeads || 0} in pipeline\n✈️ **Flights**: ${contextData?.summary?.totalFlights || 0} completed\n\n**Key Metrics:**\n- Orders in production: ${orderStats.inProduction || 0}\n- Unpaid invoices: ${paymentStats.unpaid || 0}\n- Due for delivery: ${orderStats.readyForDelivery || 0}\n\nAll systems operational. Focus on order fulfillment and cash collection.`;
       } else if (userMessage.includes('sales') && (userMessage.includes('improve') || userMessage.includes('better') || userMessage.includes('increase') || userMessage.includes('growth') || userMessage.includes('conversion') || userMessage.includes('strategy'))) {
         const conversionRate = ((contextData?.summary?.totalOrders || 0) / Math.max(contextData?.summary?.totalLeads || 1, 1) * 100).toFixed(1);
-        const avgDealValue = (parseFloat(contextData?.stats?.totalContractValue || '0') / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0);
+        const parsedValue = parseFloat(contextData?.stats?.totalContractValue || '0');
+        const avgDealValue = isNaN(parsedValue) ? 'Confidential' : `₹${(parsedValue / Math.max(contextData?.summary?.totalOrders || 1, 1)).toFixed(0)}`;
         
-        responseText = `## 🎯 Sales Improvement Strategy\n\n**Your Current Sales Metrics:**\n- Lead-to-Deal Conversion: ${conversionRate}%\n- Average Deal Value: ₹${avgDealValue}\n- Active Sales Pipeline: ${contextData?.summary?.totalLeads || 0} leads\n- Monthly Orders: ${contextData?.summary?.totalOrders || 0}\n\n**Actionable Sales Improvement Strategies:**\n\n### 1️⃣ Lead Quality Enhancement\n- **Focus on source optimization**: Analyze where your best-converting leads come from\n- **Score your leads**: Prioritize leads showing high engagement indicators\n- **Segment your pipeline**: Separate hot/warm/cold leads for targeted nurturing\n- **Action**: Allocate 60% of effort to top 20% of leads\n\n### 2️⃣ Accelerate Deal Closure\n- **Shorten sales cycle**: Speed is money - get to decision 25% faster\n- **Create urgency**: Time-limited offers for key deals\n- **Establish clear milestones**: Each lead knows their next step\n- **Challenge objections early**: Address concerns before deal-blocks\n\n### 3️⃣ Revenue Expansion\n- **Upsell opportunities**: Cross-sell to existing customers\n- **Increase average deal**: From ₹${avgDealValue} → ₹${(parseInt(avgDealValue) * 1.25).toFixed(0)} (+25%)\n- **Bundle offerings**: Combine services for higher value\n- **Premium pricing**: Quality deserves premium positioning\n\n### 4️⃣ Sales Process Optimization\n- **Proposal speed**: Get to proposal 25% faster\n- **Follow-up cadence**: No lead goes 2+ days without contact\n- **Pipeline velocity**: Track each stage duration\n- **Sales targets**: 2-3 deals per team member per month\n\n**This Week:**\n1. Segment and score all ${contextData?.summary?.totalLeads || 0} leads\n2. Identify top 3 high-risk deals\n3. Plan outreach for this week`;
+        responseText = `## 🎯 Sales Improvement Strategy\n\n**Your Current Sales Metrics:**\n- Lead-to-Deal Conversion: ${conversionRate}%\n- Average Deal Value: ${avgDealValue}\n- Active Sales Pipeline: ${contextData?.summary?.totalLeads || 0} leads\n- Monthly Orders: ${contextData?.summary?.totalOrders || 0}\n\n**Actionable Sales Improvement Strategies:**\n\n### 1️⃣ Lead Quality Enhancement\n- **Focus on source optimization**: Analyze where your best-converting leads come from\n- **Score your leads**: Prioritize leads showing high engagement indicators\n- **Segment your pipeline**: Separate hot/warm/cold leads for targeted nurturing\n- **Action**: Allocate 60% of effort to top 20% of leads\n\n### 2️⃣ Accelerate Deal Closure\n- **Shorten sales cycle**: Speed is money - get to decision 25% faster\n- **Create urgency**: Time-limited offers for key deals\n- **Establish clear milestones**: Each lead knows their next step\n- **Challenge objections early**: Address concerns before deal-blocks\n\n### 3️⃣ Revenue Expansion\n- **Upsell opportunities**: Cross-sell to existing customers\n- **Increase average deal**: Focus on value-add proposals\n- **Bundle offerings**: Combine services for higher value\n- **Premium pricing**: Quality deserves premium positioning\n\n### 4️⃣ Sales Process Optimization\n- **Proposal speed**: Get to proposal 25% faster\n- **Follow-up cadence**: No lead goes 2+ days without contact\n- **Pipeline velocity**: Track each stage duration\n- **Sales targets**: 2-3 deals per team member per month\n\n**This Week:**\n1. Segment and score all ${contextData?.summary?.totalLeads || 0} leads\n2. Identify top 3 high-risk deals\n3. Plan outreach for this week`;
       } else if (userMessage.includes('operation') && (userMessage.includes('improve') || userMessage.includes('better') || userMessage.includes('efficient') || userMessage.includes('process') || userMessage.includes('suggestion'))) {
         responseText = `## ⚙️ Operational Excellence Plan\n\n**Your Current Status:**\n- Fleet: ${contextData?.summary?.totalDrones || 0} drones (${contextData?.summary?.batteries || 0} batteries)\n- Team: ${contextData?.summary?.teamMembers || 0} members\n- Production: ${contextData?.stats?.orderStats?.inProduction || 0} orders in progress\n- Inventory Issues: ${contextData?.lowStockItems?.length || 0} items\n\n**Key Improvement Areas:**\n\n### 1️⃣ Production Efficiency\n- **Bottleneck reduction**: Target 15% improvement in lead time\n- **Process standardization**: Document all manufacturing stages\n- **Quality metrics**: Aim for <1% error rate\n- **Setup time**: Parallelize design and production\n- **Waste reduction**: Target 10% material waste reduction\n\n### 2️⃣ Resource Optimization\n- **Drone utilization**: Maximize flight hours per unit\n- **Team workload**: Balance work across ${contextData?.summary?.teamMembers || 0} members\n- **Battery management**: Implement smart charging schedule\n- **Inventory turns**: Reduce holding costs by 20%\n\n### 3️⃣ Delivery Performance\n- **On-time delivery**: Currently ${contextData?.stats?.orderStats?.delivered || 0} delivered → aim for 98%\n- **Order tracking**: Real-time visibility cradle-to-grave\n- **Customer communication**: Proactive status updates\n- **Logistics**: Consolidate shipments to reduce costs\n\n### 4️⃣ Cost Control\n- **Labor efficiency**: Orders per team member\n- **Overhead review**: Monthly operational cost audit\n- **Energy optimization**: Facility usage efficiency\n- **Supplier management**: Competitive pricing and reliability\n\n**30-Day Action Plan:**\n1. Week 1: Audit processes and identify top 3 bottlenecks\n2. Week 2: Fix critical bottlenecks\n3. Week 3: Implement tracking dashboard\n4. Week 4: Team training and optimization`;
       } else if (userMessage.includes('business') && (userMessage.includes('tip') || userMessage.includes('advice') || userMessage.includes('best practice') || userMessage.includes('strategy') || userMessage.includes('success'))) {

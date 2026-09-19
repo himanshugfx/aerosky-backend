@@ -48,10 +48,20 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        // Create a User account for the team member if email and phone are provided
-        if (email && phone) {
+        let temporaryPassword: string | undefined;
+
+        // Create a User account for the team member if email is provided
+        if (email) {
+            const crypto = require('crypto');
             const bcrypt = require('bcryptjs');
-            const passwordHash = await bcrypt.hash(phone, 12);
+            temporaryPassword = crypto.randomBytes(6).toString('hex');
+            const passwordHash = await bcrypt.hash(temporaryPassword, 12);
+
+            // Restrict role assignment: only SUPER_ADMIN can assign SUPER_ADMIN or ADMIN
+            let assignedRole = role || 'VIEWER';
+            if (['SUPER_ADMIN', 'ADMIN'].includes(assignedRole) && auth.user.role !== 'SUPER_ADMIN') {
+                assignedRole = 'VIEWER';
+            }
 
             // Check if user with this email already exists
             const existingUser = await prisma.user.findFirst({
@@ -65,11 +75,11 @@ export async function POST(request: NextRequest) {
                     try {
                         const { data: sbUser } = await supabaseAdmin.auth.admin.createUser({
                             email,
-                            password: phone,
+                            password: temporaryPassword,
                             email_confirm: true,
                             user_metadata: {
                                 full_name: name,
-                                role: role || 'SOFTWARE',
+                                role: assignedRole,
                             }
                         });
                         if (sbUser?.user) {
@@ -87,15 +97,17 @@ export async function POST(request: NextRequest) {
                         fullName: name,
                         passwordHash,
                         supabaseId,
-                        role: role || 'SOFTWARE', // Default to SOFTWARE or something safe
+                        role: assignedRole,
                         teamMemberId: teamMember.id,
                     }
                 });
-                console.log(`Created user account for staff: ${email} (password: phone number)`);
             }
         }
 
-        return NextResponse.json(teamMember, { status: 201 });
+        return NextResponse.json({
+            ...teamMember,
+            ...(temporaryPassword ? { temporaryPassword } : {}),
+        }, { status: 201 });
     } catch (error: any) {
         console.error('Create team member error:', error);
         if (error.code === 'P2002') {
@@ -103,15 +115,4 @@ export async function POST(request: NextRequest) {
         }
         return NextResponse.json({ error: "Failed to create team member" }, { status: 500 });
     }
-}
-
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

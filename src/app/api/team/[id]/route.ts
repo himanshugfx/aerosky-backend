@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/api-auth";
+import { checkResourceAccess } from "@/lib/authorize";
 
 // PUT update team member
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'team', 'edit');
+    if (permCheck !== true) return permCheck;
 
     try {
         const { id } = await params;
@@ -34,10 +37,13 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'team', 'delete');
+    if (permCheck !== true) return permCheck;
 
     try {
         const { id } = await params;

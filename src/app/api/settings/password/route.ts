@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        if (newPassword.length < 8) {
+            return NextResponse.json({ error: "New password must be at least 8 characters long" }, { status: 400 });
+        }
+
         // Get fresh user record
         const user = await prisma.user.findUnique({
             where: { id: auth.user.id }

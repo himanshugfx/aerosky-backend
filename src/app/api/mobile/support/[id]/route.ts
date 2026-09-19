@@ -49,11 +49,7 @@ export async function GET(
             ticket.hasNewReply = false;
         }
 
-        return NextResponse.json(ticket, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
+        return NextResponse.json(ticket);
     } catch (error: any) {
         console.error('Get ticket error:', error);
         return NextResponse.json(
@@ -90,11 +86,7 @@ export async function PUT(
             }
         });
 
-        return NextResponse.json(ticket, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
+        return NextResponse.json(ticket);
     } catch (error: any) {
         console.error('Update ticket error:', error);
         return NextResponse.json(
@@ -124,11 +116,7 @@ export async function DELETE(
             where: { id: params.id }
         });
 
-        return NextResponse.json({ success: true }, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
+        return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('Delete ticket error:', error);
         return NextResponse.json(
@@ -136,16 +124,4 @@ export async function DELETE(
             { status: 500 }
         );
     }
-}
-
-// OPTIONS for CORS preflight
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

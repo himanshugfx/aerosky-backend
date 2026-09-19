@@ -1,12 +1,16 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { authenticateRequest } from "@/lib/api-auth";
+import { checkResourceAccess } from "@/lib/authorize";
 
 export async function GET(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'order', 'view');
+    if (permCheck !== true) return permCheck;
 
     try {
         const where: any = {};
@@ -27,6 +31,9 @@ export async function POST(request: NextRequest) {
     if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'order', 'create');
+    if (permCheck !== true) return permCheck;
 
     try {
         const body = await request.json();

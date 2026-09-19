@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateRequest } from "@/lib/api-auth";
+import { checkResourceAccess } from "@/lib/authorize";
 import { prisma } from "@/lib/prisma";
 import { createTeamMemberSchema, validateRequest } from '@/lib/schemas';
 import { handleError, errors } from '@/lib/error-handler';
 import { supabaseAdmin } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 // Generate sequential access ID (AS001, AS002, etc.)
 async function generateSequentialAccessId() {
@@ -36,11 +38,17 @@ async function generateSequentialAccessId() {
     return `AS${nextNumber.toString().padStart(3, "0")}`;
 }
 
-// GET all team members
+// GET all team members (Authenticated only)
 export async function GET(request: NextRequest) {
     try {
-        // For now, allow unauthenticated access to team list
-        // In production, you might want to add authentication here
+        const auth = await authenticateRequest(request);
+        if (!auth) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const permCheck = checkResourceAccess(auth.user, 'team', 'view');
+        if (permCheck !== true) return permCheck;
+
         const teamMembers = await prisma.teamMember.findMany({
             orderBy: { createdAt: "desc" },
         });
@@ -57,6 +65,9 @@ export async function POST(request: NextRequest) {
         if (!auth) {
             throw errors.unauthorized();
         }
+
+        const permCheck = checkResourceAccess(auth.user, 'team', 'create');
+        if (permCheck !== true) return permCheck;
 
         const body = await request.json();
 
@@ -80,9 +91,13 @@ export async function POST(request: NextRequest) {
             },
         });
 
+        let temporaryPassword: string | undefined;
+
         // Create a User account for the team member if email and phone are provided
-        if (validated.email && validated.phone) {
-            const passwordHash = await bcrypt.hash(validated.phone, 10);
+        if (validated.email) {
+            // Generate a secure, cryptographically random temporary password
+            temporaryPassword = crypto.randomBytes(6).toString('hex');
+            const passwordHash = await bcrypt.hash(temporaryPassword, 12);
 
             // Check if user with this email already exists
             const existingUser = await prisma.user.findFirst({
@@ -92,15 +107,19 @@ export async function POST(request: NextRequest) {
             if (!existingUser) {
                 let supabaseId: string | undefined;
 
+                // Non-admins can only provision VIEWER roles
+                const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
+                const assignedRole = isPrivileged ? (validated.role || 'VIEWER') : 'VIEWER';
+
                 if (supabaseAdmin) {
                     try {
                         const { data: sbUser } = await supabaseAdmin.auth.admin.createUser({
                             email: validated.email,
-                            password: validated.phone,
+                            password: temporaryPassword,
                             email_confirm: true,
                             user_metadata: {
                                 full_name: validated.name,
-                                role: validated.role || 'ADMINISTRATION',
+                                role: assignedRole,
                             }
                         });
                         if (sbUser?.user) {
@@ -118,15 +137,17 @@ export async function POST(request: NextRequest) {
                         fullName: validated.name,
                         passwordHash,
                         supabaseId,
-                        role: validated.role || 'ADMINISTRATION',
+                        role: assignedRole,
                         teamMemberId: teamMember.id,
                     }
                 });
-                console.log(`Created user account for staff: ${validated.email} (password: phone number)`);
             }
         }
 
-        return NextResponse.json(teamMember, { status: 201 });
+        return NextResponse.json({
+            ...teamMember,
+            temporaryPassword,
+        }, { status: 201 });
     } catch (error) {
         return handleError(error);
     }

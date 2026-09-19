@@ -9,8 +9,13 @@ import * as XLSX from 'xlsx';
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userRole = (session.user as any).role;
+    if (!['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION', 'SALES', 'OPERATIONS_MANAGER'].includes(userRole)) {
+        return NextResponse.json({ error: 'Forbidden: Insufficient permissions to export orders' }, { status: 403 });
     }
 
     try {

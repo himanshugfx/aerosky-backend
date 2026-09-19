@@ -63,14 +63,7 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json(
-            { success: true, message: 'OTP sent to your email' },
-            {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-                },
-            }
+            { success: true, message: 'OTP sent to your email' }
         );
     } catch (error: any) {
         console.error('Send OTP error:', error);
@@ -79,16 +72,4 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         );
     }
-}
-
-// OPTIONS for CORS preflight
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

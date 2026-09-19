@@ -8,6 +8,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role)) {
+        return NextResponse.json({ error: 'Forbidden: Only administrators can broadcast push notifications' }, { status: 403 });
+    }
+
     try {
         const body = await request.json();
         const { title, message } = body;
@@ -80,24 +84,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ 
             success: true, 
             message: `Push notification broadcasted to ${tokens.length} active devices successfully.` 
-        }, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
         });
     } catch (error) {
         console.error("Push notification error:", error);
         return NextResponse.json({ error: "Failed to send push notification" }, { status: 500 });
     }
-}
-
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

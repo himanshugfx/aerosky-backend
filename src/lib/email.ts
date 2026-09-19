@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 // Create reusable transporter
 function createTransporter() {
@@ -13,9 +14,9 @@ function createTransporter() {
     });
 }
 
-// Generate a random 6-digit OTP
+// Generate a cryptographically secure random 6-digit OTP
 export function generateOTP(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return crypto.randomInt(100000, 1000000).toString();
 }
 
 // Send OTP email

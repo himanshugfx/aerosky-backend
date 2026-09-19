@@ -4,12 +4,11 @@ import { localLoginLimiter } from "@/lib/rate-limiter";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
-// Input validation schema
+// Input validation schema - role is NOT allowed to be self-assigned
 const registerSchema = z.object({
     email: z.string().email("Invalid email address").toLowerCase(),
     password: z.string().min(8, "Password must be at least 8 characters"),
     full_name: z.string().min(2, "Full name required").max(255),
-    role: z.enum(['ADMIN', 'USER', 'MANUFACTURING', 'ADMINISTRATION']).optional().default('USER'),
 });
 
 export async function POST(request: Request) {
@@ -18,7 +17,7 @@ export async function POST(request: Request) {
 
         // Validate input
         const validated = registerSchema.parse(body);
-        const { email, password, full_name, role } = validated;
+        const { email, password, full_name } = validated;
 
         // Apply rate limiting (uses defaults)
         const limitResult = await localLoginLimiter.limit(email);
@@ -42,8 +41,8 @@ export async function POST(request: Request) {
 
         if (existingUser) {
             return NextResponse.json(
-                { error: "User with this email already exists" },
-                { status: 409 }
+                { error: "Registration failed. Please check your details or try logging in." },
+                { status: 400 }
             );
         }
 
@@ -53,14 +52,14 @@ export async function POST(request: Request) {
         // Check if team member exists
         const teamMember = await prisma.teamMember.findFirst({ where: { email } });
         
-        // Create user
+        // Create user - always with least privilege (VIEWER)
         const user = await prisma.user.create({
             data: {
                 username: email,
                 email: email,
                 fullName: full_name,
                 passwordHash: passwordHash,
-                role: (role as any) || 'USER',
+                role: 'VIEWER',
                 teamMemberId: teamMember?.id || null,
             },
             select: {

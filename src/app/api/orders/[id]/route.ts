@@ -1,16 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authenticateRequest } from '@/lib/api-auth';
+import { checkResourceAccess } from '@/lib/authorize';
 
 export async function GET(
-    request: Request,
+    request: NextRequest,
     { params }: { params: { id: string } }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'order', 'view');
+    if (permCheck !== true) return permCheck;
 
     try {
         const order = await prisma.order.findUnique({
@@ -29,31 +32,46 @@ export async function GET(
 }
 
 export async function PUT(
-    request: Request,
+    request: NextRequest,
     { params }: { params: { id: string } }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'order', 'edit');
+    if (permCheck !== true) return permCheck;
 
     try {
         const body = await request.json();
 
-        // Convert dates if present
-        if (body.orderDate) {
-            body.orderDate = new Date(body.orderDate);
+        const updateData: any = {};
+        if (body.clientName !== undefined) updateData.clientName = body.clientName;
+        if (body.clientSegment !== undefined) updateData.clientSegment = body.clientSegment;
+        if (body.orderDate !== undefined) updateData.orderDate = new Date(body.orderDate);
+        if (body.estimatedCompletionDate !== undefined) {
+            updateData.estimatedCompletionDate = body.estimatedCompletionDate ? new Date(body.estimatedCompletionDate) : null;
         }
-        if (body.estimatedCompletionDate) {
-            body.estimatedCompletionDate = new Date(body.estimatedCompletionDate);
-        }
-        if (body.contractValue) {
-            body.contractValue = parseFloat(body.contractValue);
-        }
+        if (body.contractValue !== undefined) updateData.contractValue = parseFloat(body.contractValue);
+        if (body.currency !== undefined) updateData.currency = body.currency;
+        if (body.revenueRecognitionStatus !== undefined) updateData.revenueRecognitionStatus = body.revenueRecognitionStatus;
+        if (body.manufacturingStage !== undefined) updateData.manufacturingStage = body.manufacturingStage;
+        if (body.paymentStatus !== undefined) updateData.paymentStatus = body.paymentStatus;
+        if (body.deliveryAddress !== undefined) updateData.deliveryAddress = body.deliveryAddress;
+        if (body.contactPerson !== undefined) updateData.contactPerson = body.contactPerson;
+        if (body.contactPhone !== undefined) updateData.contactPhone = body.contactPhone;
+        if (body.contactEmail !== undefined) updateData.contactEmail = body.contactEmail;
+        if (body.quantity !== undefined) updateData.quantity = parseInt(body.quantity);
+        if (body.unitPrice !== undefined) updateData.unitPrice = parseFloat(body.unitPrice);
+        if (body.priorityLevel !== undefined) updateData.priorityLevel = body.priorityLevel;
+        if (body.qualityCheckStatus !== undefined) updateData.qualityCheckStatus = body.qualityCheckStatus;
+        if (body.internalOrderNotes !== undefined) updateData.internalOrderNotes = body.internalOrderNotes;
+        if (body.cocData !== undefined) updateData.cocData = body.cocData;
 
         const order = await prisma.order.update({
             where: { id: params.id },
-            data: body,
+            data: updateData,
         });
 
         return NextResponse.json(order);
@@ -67,13 +85,16 @@ export async function PUT(
 }
 
 export async function DELETE(
-    request: Request,
+    request: NextRequest,
     { params }: { params: { id: string } }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'order', 'delete');
+    if (permCheck !== true) return permCheck;
 
     try {
         await prisma.order.delete({

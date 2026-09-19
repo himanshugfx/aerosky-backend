@@ -23,10 +23,6 @@ export async function GET(request: NextRequest) {
             email: auth.user.email || user?.email,
             fullName: user?.fullName || auth.user.username,
             role: auth.user.role,
-        }, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
         });
 
     } catch (error) {
@@ -36,16 +32,4 @@ export async function GET(request: NextRequest) {
             { status: 500 }
         );
     }
-}
-
-// Handle OPTIONS for CORS preflight
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

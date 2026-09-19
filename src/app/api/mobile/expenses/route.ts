@@ -142,14 +142,3 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: "Failed to delete expense", details: error.message }, { status: 500 });
     }
 }
-
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
-}

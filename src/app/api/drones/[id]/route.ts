@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/api-auth";
+import { checkResourceAccess } from "@/lib/authorize";
 
 // GET single drone
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'drone', 'view');
+    if (permCheck !== true) return permCheck;
 
     try {
         const { id } = await params;
@@ -76,10 +79,13 @@ export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'drone', 'edit');
+    if (permCheck !== true) return permCheck;
 
     try {
         const { id } = await params;
@@ -90,7 +96,6 @@ export async function PUT(
             where: { id },
             data: {
                 modelName,
-                // uin, // Removed
                 image,
                 accountableManagerId,
                 webPortalLink,
@@ -118,10 +123,13 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const permCheck = checkResourceAccess(auth.user, 'drone', 'delete');
+    if (permCheck !== true) return permCheck;
 
     try {
         const { id } = await params;

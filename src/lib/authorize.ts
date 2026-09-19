@@ -18,9 +18,6 @@ export interface AuthenticatedUser {
 export function unauthorizedResponse(message = 'Unauthorized'): NextResponse {
     return NextResponse.json({ error: message }, {
         status: 401,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-        }
     });
 }
 
@@ -30,9 +27,6 @@ export function unauthorizedResponse(message = 'Unauthorized'): NextResponse {
 export function forbiddenResponse(message = 'Forbidden: Insufficient permissions'): NextResponse {
     return NextResponse.json({ error: message }, {
         status: 403,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-        }
     });
 }
 

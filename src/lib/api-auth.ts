@@ -58,14 +58,19 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                             type: 'jwt'
                         };
                     } else if (sbUser.email) {
-                        // Provision Prisma user for new Supabase user
+                        // Provision Prisma user for new Supabase user with least privilege (VIEWER)
+                        const teamMember = await prisma.teamMember.findFirst({
+                            where: { email: { equals: sbUser.email, mode: 'insensitive' } }
+                        });
+
                         const newUser = await prisma.user.create({
                             data: {
                                 username: sbUser.email.split('@')[0],
                                 email: sbUser.email,
                                 fullName: sbUser.user_metadata?.full_name || sbUser.email.split('@')[0],
                                 supabaseId: sbUser.id,
-                                role: 'SUPER_ADMIN',
+                                role: 'VIEWER',
+                                teamMemberId: teamMember ? teamMember.id : undefined,
                             }
                         });
                         return {

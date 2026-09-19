@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { localLoginLimiter } from '@/lib/rate-limiter';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -11,6 +12,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { error: 'Email, OTP, and purpose are required' },
                 { status: 400 }
+            );
+        }
+
+        // Apply rate limiting (prevents brute forcing 6-digit OTPs)
+        const limitResult = await localLoginLimiter.limit(`verify-otp:${email}`);
+        const success = typeof limitResult === 'object' && 'success' in limitResult ? limitResult.success : limitResult;
+        if (!success) {
+            return NextResponse.json(
+                { error: 'Too many verification attempts. Please try again later.' },
+                { status: 429 }
             );
         }
 

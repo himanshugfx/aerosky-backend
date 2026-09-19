@@ -95,13 +95,18 @@ const providers: any[] = [
                     });
                 }
             } else {
+                const teamMember = authUser.email ? await prisma.teamMember.findFirst({
+                    where: { email: { equals: authUser.email, mode: 'insensitive' } }
+                }) : null;
+
                 user = await prisma.user.create({
                     data: {
                         username: authUser.email?.split('@')[0] || rawUser,
                         email: authUser.email,
                         fullName: authUser.user_metadata?.full_name || authUser.user_metadata?.name || rawUser,
                         supabaseId: authUser.id,
-                        role: 'SUPER_ADMIN',
+                        role: 'VIEWER',
+                        teamMemberId: teamMember ? teamMember.id : undefined,
                     }
                 });
             }
@@ -160,10 +165,11 @@ export const authOptions: NextAuthOptions = {
                             where: { email: { equals: email, mode: 'insensitive' } }
                         });
 
-                        // If database is empty or email belongs to the primary admin, grant SUPER_ADMIN
+                        // If database is empty or email exactly matches the primary admin email, grant SUPER_ADMIN
                         const totalUsers = await prisma.user.count();
-                        const isPrimaryAdmin = totalUsers === 0 || email.toLowerCase().includes('himanshu') || email.toLowerCase().includes('admin');
-                        const assignedRole = isPrimaryAdmin ? 'SUPER_ADMIN' : (teamMember ? 'SOFTWARE' : 'VIEWER');
+                        const primaryAdminEmail = (process.env.PRIMARY_ADMIN_EMAIL || 'himanshu@aerosysaviation.in').toLowerCase();
+                        const isPrimaryAdmin = totalUsers === 0 || email.toLowerCase() === primaryAdminEmail;
+                        const assignedRole = isPrimaryAdmin ? 'SUPER_ADMIN' : 'VIEWER';
 
                         // Create new User record in database
                         let username = email.split('@')[0];

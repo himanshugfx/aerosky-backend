@@ -57,8 +57,17 @@ export async function DELETE(
             return NextResponse.json({ error: "Flight log not found" }, { status: 404 });
         }
 
-        // Organization scoping check
-        // Scoping check removed
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'OPERATIONS_MANAGER', 'ADMINISTRATION'].includes(auth.user.role);
+        const user = await prisma.user.findUnique({
+            where: { id: auth.user.id },
+            select: { teamMemberId: true }
+        });
+        const isPilotOfFlight = user?.teamMemberId && (flightLog.picId === user.teamMemberId || flightLog.voId === user.teamMemberId);
+
+        if (!isPrivileged && !isPilotOfFlight) {
+            return NextResponse.json({ error: 'Forbidden: Insufficient permissions to delete this flight record' }, { status: 403 });
+        }
+
         await prisma.flightLog.delete({
             where: { id }
         });

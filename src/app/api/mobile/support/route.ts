@@ -67,11 +67,7 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        return NextResponse.json(tickets, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
+        return NextResponse.json(tickets);
     } catch (error: any) {
         console.error('Get support tickets error:', error);
         return NextResponse.json(
@@ -128,10 +124,6 @@ export async function POST(request: NextRequest) {
             success: true,
             ticket,
             message: 'Your support ticket has been created'
-        }, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
         });
     } catch (error: any) {
         console.error('Create support ticket error:', error);
@@ -140,16 +132,4 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         );
     }
-}
-
-// OPTIONS for CORS preflight
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

@@ -25,26 +25,10 @@ export async function POST(request: NextRequest) {
 
         console.log(`[PUSH TOKEN] Registered token for user ${auth.user.username}: ${token}`);
 
-        return NextResponse.json({ success: true, message: 'Push token registered successfully' }, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
+        return NextResponse.json({ success: true, message: 'Push token registered successfully' });
 
     } catch (error) {
         console.error('Register push token error:', error);
         return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
     }
-}
-
-// Handle OPTIONS for CORS preflight
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

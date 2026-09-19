@@ -15,9 +15,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (newPassword.length < 4) {
+        if (newPassword.length < 8) {
             return NextResponse.json(
-                { error: 'Password must be at least 4 characters long' },
+                { error: 'Password must be at least 8 characters long' },
                 { status: 400 }
             );
         }
@@ -91,14 +91,7 @@ export async function POST(request: NextRequest) {
         console.log(`Password reset successfully for ${email}`);
 
         return NextResponse.json(
-            { success: true, message: 'Password updated successfully' },
-            {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-                },
-            }
+            { success: true, message: 'Password updated successfully' }
         );
     } catch (error: any) {
         console.error('Reset password error:', error);
@@ -107,16 +100,4 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         );
     }
-}
-
-// OPTIONS for CORS preflight
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }

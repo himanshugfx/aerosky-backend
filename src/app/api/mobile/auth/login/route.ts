@@ -92,13 +92,18 @@ export async function POST(request: NextRequest) {
                     });
                 }
             } else {
+                const teamMember = authUser.email ? await prisma.teamMember.findFirst({
+                    where: { email: { equals: authUser.email, mode: 'insensitive' } }
+                }) : null;
+
                 user = await prisma.user.create({
                     data: {
                         username: authUser.email?.split('@')[0] || loginId,
                         email: authUser.email,
                         fullName: authUser.user_metadata?.full_name || authUser.user_metadata?.name || loginId,
                         supabaseId: authUser.id,
-                        role: 'SUPER_ADMIN',
+                        role: 'VIEWER',
+                        teamMemberId: teamMember ? teamMember.id : undefined,
                     }
                 });
             }

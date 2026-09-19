@@ -32,11 +32,7 @@ export async function GET(
             orderBy: { createdAt: 'asc' }
         });
 
-        return NextResponse.json(messages, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
+        return NextResponse.json(messages);
     } catch (error: any) {
         console.error('Get messages error:', error);
         return NextResponse.json(
@@ -113,11 +109,7 @@ export async function POST(
 
         console.log('Added message to ticket:', params.id, 'by:', auth.user.username);
 
-        return NextResponse.json(result, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
+        return NextResponse.json(result);
     } catch (error: any) {
         console.error('Add message error:', error);
         return NextResponse.json(
@@ -125,16 +117,4 @@ export async function POST(
             { status: 500 }
         );
     }
-}
-
-// OPTIONS for CORS preflight
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-    });
 }
