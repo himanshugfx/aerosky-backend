@@ -11,11 +11,6 @@ export async function GET(request: NextRequest) {
     try {
         const where: any = {};
 
-        // Scope to organization for non-super admins
-        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.organizationId) {
-            where.organizationId = auth.user.organizationId;
-        }
-
         // 1. Fetch Recent Flight Logs (Last 3)
         const recentFlights = await prisma.flightLog.findMany({
             where,

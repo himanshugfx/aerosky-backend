@@ -23,14 +23,9 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 /**
  * Fetches comprehensive context data about the user's operations
  */
-async function getContextData(organizationId?: string, userId?: string) {
+async function getContextData(userId?: string) {
   try {
     const where: any = {};
-    
-    // Filter by organization if user is not SUPER_ADMIN
-    if (organizationId) {
-      where.organizationId = organizationId;
-    }
 
     // Note: Lead model doesn't have organizationId field, so we count all leads
     // TODO: Add organizationId to Lead model in schema migration
@@ -623,7 +618,6 @@ export async function POST(request: NextRequest) {
       await prisma.assistantInstruction.create({
         data: {
           userId: auth.user.id,
-          organizationId: auth.user.organizationId,
           content: memoryContent,
         }
       });
@@ -634,7 +628,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Get context data
-    const contextData = await getContextData(auth.user.organizationId, auth.user.id);
+    const contextData = await getContextData(auth.user.id);
 
     // 5. Build conversation history for Gemini
     const conversationHistory = [
@@ -795,7 +789,6 @@ export async function POST(request: NextRequest) {
           conversation = await prisma.assistantConversation.create({
             data: {
               userId: auth.user.id,
-              organizationId: auth.user.organizationId,
               title: validated.message.substring(0, 30),
             },
           });

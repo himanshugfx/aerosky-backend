@@ -17,9 +17,7 @@ export async function GET(request: NextRequest) {
         const endDate = searchParams.get('endDate');
         const search = searchParams.get('search');
 
-        const where: any = {
-            organizationId: auth.user.organizationId
-        };
+        const where: any = {};
 
         // Add filters
         if (category) where.category = category;
@@ -79,10 +77,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        if (!auth.user.organizationId) {
-            return NextResponse.json({ error: "User must be associated with an organization" }, { status: 400 });
-        }
-
         const expense = await prisma.expense.create({
             data: {
                 description,
@@ -93,7 +87,6 @@ export async function POST(request: NextRequest) {
                 // @ts-ignore - Exists in schema but TS server hasn't updated
                 paymentStatus: paymentStatus || 'unpaid',
                 attachment: attachment || null,
-                organizationId: auth.user.organizationId,
             }
         });
 

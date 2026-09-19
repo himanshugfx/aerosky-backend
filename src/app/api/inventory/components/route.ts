@@ -19,15 +19,6 @@ export async function GET(request: NextRequest) {
         const { page, limit } = getPaginationParams(searchParams);
 
         const where: any = {};
-        // Filter by organization if user is not SUPER_ADMIN
-        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.role !== 'ADMIN' && auth.user.role !== 'ADMINISTRATION') {
-            if (auth.user.organizationId) {
-                where.organizationId = auth.user.organizationId;
-            } else {
-                // If no organization is set, return empty array for security
-                return NextResponse.json(createPaginatedResponse([], 0, { page, limit }));
-            }
-        }
 
         const [components, total] = await Promise.all([
             prisma.component.findMany({
@@ -65,11 +56,6 @@ export async function POST(request: NextRequest) {
 
         const { data: validated } = validation;
 
-        // Use user's organization or return error
-        if (!auth.user.organizationId) {
-            throw errors.validationError({ organizationId: ['User must be associated with an organization'] });
-        }
-
         const component = await prisma.component.create({
             data: {
                 name: validated.name,
@@ -77,7 +63,6 @@ export async function POST(request: NextRequest) {
                 category: validated.category || "Operational",
                 quantity: validated.quantity,
                 unitPrice: validated.unitPrice,
-                organizationId: auth.user.organizationId,
             },
         });
 

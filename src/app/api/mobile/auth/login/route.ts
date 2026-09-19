@@ -54,7 +54,6 @@ export async function POST(request: NextRequest) {
                 email: user.email || user.username,
                 fullName: user.fullName || user.username,
                 role: user.role,
-                organizationId: user.organizationId,
             }
         });
 

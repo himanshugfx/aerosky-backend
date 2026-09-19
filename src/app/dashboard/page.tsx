@@ -31,14 +31,13 @@ interface DashboardStats {
     team: number
     orders: number
     batteries: number
-    organizations: number
     tickets: number
     flights: number
 }
 
 export default function DashboardPage() {
     const { data: session, status } = useSession()
-    const [stats, setStats] = useState<DashboardStats>({ drones: 0, team: 0, orders: 0, batteries: 0, organizations: 0, tickets: 0, flights: 0 })
+    const [stats, setStats] = useState<DashboardStats>({ drones: 0, team: 0, orders: 0, batteries: 0, tickets: 0, flights: 0 })
     const [loading, setLoading] = useState(true)
 
     const isSuperAdmin = (session?.user as any)?.role === 'SUPER_ADMIN'
@@ -46,12 +45,11 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const [dronesRes, teamRes, ordersRes, batteriesRes, orgsRes, ticketsRes, flightsRes] = await Promise.all([
+                const [dronesRes, teamRes, ordersRes, batteriesRes, ticketsRes, flightsRes] = await Promise.all([
                     fetch('/api/mobile/drones').catch(() => null),
                     fetch('/api/mobile/team').catch(() => null),
                     fetch('/api/mobile/orders').catch(() => null),
                     fetch('/api/mobile/batteries').catch(() => null),
-                    fetch('/api/mobile/organizations').catch(() => null),
                     fetch('/api/mobile/support').catch(() => null),
                     fetch('/api/mobile/flights').catch(() => null),
                 ])
@@ -60,7 +58,6 @@ export default function DashboardPage() {
                 const team = teamRes?.ok ? await teamRes.json() : []
                 const orders = ordersRes?.ok ? await ordersRes.json() : []
                 const batteries = batteriesRes?.ok ? await batteriesRes.json() : []
-                const organizations = orgsRes?.ok ? await orgsRes.json() : []
                 const tickets = ticketsRes?.ok ? await ticketsRes.json() : []
                 const flights = flightsRes?.ok ? await flightsRes.json() : []
 
@@ -69,7 +66,6 @@ export default function DashboardPage() {
                     team: Array.isArray(team) ? team.length : 0,
                     orders: Array.isArray(orders) ? orders.length : 0,
                     batteries: Array.isArray(batteries) ? batteries.length : 0,
-                    organizations: Array.isArray(organizations) ? organizations.length : 0,
                     tickets: Array.isArray(tickets) ? tickets.length : 0,
                     flights: Array.isArray(flights) ? flights.length : 0,
                 })
@@ -95,15 +91,10 @@ export default function DashboardPage() {
         )
     }
 
-    const statCards = isSuperAdmin ? [
-        { name: 'Managed Offices', value: stats.organizations, icon: Building2, trend: '+4', label: 'Registered Units', color: 'orange' },
-        { name: 'Pending Enquiries', value: stats.tickets, icon: HelpCircle, trend: '-2', label: 'Help Requests', color: 'slate' },
-        { name: 'Total Business', value: stats.orders, icon: ShoppingCart, trend: '+12%', label: 'Orders Processed', color: 'orange-alt' },
-        { name: 'Staff Network', value: stats.team, icon: Users, trend: '+8', label: 'Onboarded Team', color: 'emerald' },
-    ] : [
-        { name: 'Drone Fleet', value: stats.drones, icon: Plane, trend: 'Active', label: 'Total Drones', color: 'orange' },
+    const statCards = [
+        { name: 'Drone Fleet', value: stats.drones, icon: Plane, trend: 'Active', label: 'Total Aircraft', color: 'orange' },
         { name: 'Active Staff', value: stats.team, icon: Users, trend: 'Vetted', label: 'Team Members', color: 'slate' },
-        { name: 'Battery Stock', value: stats.batteries, icon: Battery, trend: '98%', label: 'Battery Packs', color: 'emerald' },
+        { name: 'Battery Stock', value: stats.batteries, icon: Battery, trend: '98%', label: 'Power Packs', color: 'emerald' },
         { name: 'Project Flow', value: stats.orders, icon: ShoppingCart, trend: '+14%', label: 'Active Orders', color: 'orange-alt' },
     ]
 

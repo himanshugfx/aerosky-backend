@@ -58,10 +58,6 @@ export async function POST(request: NextRequest) {
             throw errors.unauthorized();
         }
 
-        if (!auth.user.organizationId) {
-            throw errors.validationError({ organizationId: ['User must be associated with an organization'] });
-        }
-
         const body = await request.json();
 
         // Validate input
@@ -81,7 +77,6 @@ export async function POST(request: NextRequest) {
                 phone: validated.phone,
                 email: validated.email,
                 position: validated.position,
-                organizationId: auth.user.organizationId, // Add organization scoping
             },
         });
 
@@ -103,7 +98,6 @@ export async function POST(request: NextRequest) {
                         passwordHash,
                         role: validated.role || 'ADMINISTRATION',
                         teamMemberId: teamMember.id,
-                        organizationId: auth.user.organizationId, // Add organization scoping
                     }
                 });
                 console.log(`Created user account for staff: ${validated.email} (password: phone number)`);

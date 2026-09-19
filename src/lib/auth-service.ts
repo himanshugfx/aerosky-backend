@@ -9,7 +9,6 @@ export interface AuthenticatedUser {
   fullName?: string;
   email?: string;
   role: Role;
-  organizationId?: string;
 }
 
 export class AuthService {
@@ -26,7 +25,6 @@ export class AuthService {
         fullName: true,
         email: true,
         role: true,
-        organizationId: true,
         passwordHash: true,
       },
     });
@@ -42,7 +40,6 @@ export class AuthService {
       fullName: user.fullName || undefined,
       email: user.email || undefined,
       role: user.role,
-      organizationId: user.organizationId || undefined,
     };
   }
 
@@ -72,7 +69,6 @@ export class AuthService {
           fullName: true,
           email: true,
           role: true,
-          organizationId: true,
         },
       });
       if (!user) return null;
@@ -83,7 +79,6 @@ export class AuthService {
         fullName: user.fullName || undefined,
         email: user.email || undefined,
         role: user.role,
-        organizationId: user.organizationId || undefined,
       };
     } catch (error) {
       return null;
@@ -91,8 +86,6 @@ export class AuthService {
   }
 
   private async verifySessionToken(token: string): Promise<AuthenticatedUser | null> {
-    // Implementation for session verification
-    // Could use NextAuth session verification
     return null;
   }
 
@@ -104,12 +97,11 @@ export class AuthService {
   // Generate JWT token
   generateJwt(user: AuthenticatedUser): string {
     return signToken({
-      userId: user.id, // Using userId for consistency with jwt.ts
+      userId: user.id,
       id: user.id,
       username: user.username,
       fullName: user.fullName,
       role: user.role,
-      organizationId: user.organizationId,
     } as any);
   }
 }

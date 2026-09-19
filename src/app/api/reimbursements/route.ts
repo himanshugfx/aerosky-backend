@@ -59,11 +59,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // User must be associated with an organization
-        if (!auth.user.organizationId) {
-            return NextResponse.json({ error: "User must be associated with an organization" }, { status: 400 });
-        }
-
         const reimbursement = await prisma.reimbursement.create({
             data: {
                 name,
@@ -72,7 +67,6 @@ export async function POST(request: NextRequest) {
                 date: new Date(date),
                 billData,
                 userId: auth.user.id,
-                organizationId: auth.user.organizationId,
             }
         });
 

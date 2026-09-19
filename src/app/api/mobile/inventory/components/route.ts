@@ -12,15 +12,6 @@ export async function GET(request: NextRequest) {
 
     try {
         const where: any = {};
-        // Filter by organization if user is not SUPER_ADMIN
-        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.role !== 'ADMIN') {
-            if (auth.user.organizationId) {
-                where.organizationId = auth.user.organizationId;
-            } else {
-                // If no organization is set, return empty array for security
-                return NextResponse.json([]);
-            }
-        }
 
         const components = await prisma.component.findMany({
             where,
@@ -44,17 +35,11 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { name, description, category } = body;
 
-        // Use user's organization or return error
-        if (!auth.user.organizationId) {
-            return NextResponse.json({ error: "User must be associated with an organization" }, { status: 400 });
-        }
-
         const component = await prisma.component.create({
             data: {
                 name,
                 description,
                 category: category || "Operational",
-                organizationId: auth.user.organizationId,
             },
         });
 

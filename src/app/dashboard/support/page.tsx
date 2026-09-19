@@ -38,7 +38,6 @@ interface Ticket {
     createdAt: string
     updatedAt: string
     user?: { fullName: string }
-    organization?: { name: string }
     hasNewReply?: boolean
     _count?: { messages: number }
 }
@@ -210,7 +209,7 @@ export default function SupportPage() {
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-sm font-bold text-slate-900">{ticket.user?.fullName}</p>
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[120px]">{ticket.organization?.name}</p>
+                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[120px]">AeroSys Aviation</p>
                                                         </div>
                                                     </div>
                                                 </td>

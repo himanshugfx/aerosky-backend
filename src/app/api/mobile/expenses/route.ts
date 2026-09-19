@@ -16,10 +16,7 @@ export async function GET(request: NextRequest) {
 
         const where: any = {};
 
-        // Scope to organization for non-super admins
-        if (auth.user.role !== 'SUPER_ADMIN' && auth.user.organizationId) {
-            where.organizationId = auth.user.organizationId;
-        }
+
 
         if (category) where.category = category;
         if (status) where.status = status;
@@ -61,10 +58,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        if (!auth.user.organizationId) {
-            return NextResponse.json({ error: "User must be associated with an organization" }, { status: 400 });
-        }
-
         const expense = await prisma.expense.create({
             data: {
                 description,
@@ -75,7 +68,6 @@ export async function POST(request: NextRequest) {
                 // @ts-ignore - Exists in schema but TS server hasn't updated
                 paymentStatus: paymentStatus || 'unpaid',
                 attachment: attachment || null,
-                organizationId: auth.user.organizationId,
             }
         });
 
