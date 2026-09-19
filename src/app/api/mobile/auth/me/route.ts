@@ -1,49 +1,28 @@
 // Mobile Authentication API - Get current user endpoint
-import { getTokenFromHeader, verifyToken } from '@/lib/jwt';
+import { authenticateRequest } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
     try {
-        // Get token from Authorization header
-        const authHeader = request.headers.get('Authorization');
-        const token = getTokenFromHeader(authHeader);
+        const auth = await authenticateRequest(request);
 
-        if (!token) {
-            return NextResponse.json(
-                { error: 'No token provided' },
-                { status: 401 }
-            );
-        }
-
-        // Verify token
-        const payload = verifyToken(token);
-
-        if (!payload) {
+        if (!auth) {
             return NextResponse.json(
                 { error: 'Invalid or expired token' },
                 { status: 401 }
             );
         }
 
-        // Get user from database
         const user = await prisma.user.findUnique({
-            where: { id: payload.userId }
+            where: { id: auth.user.id }
         });
 
-        if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            );
-        }
-
-        // Return user data with CORS headers
         return NextResponse.json({
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName || user.username,
-            role: user.role,
+            id: auth.user.id,
+            email: auth.user.email || user?.email,
+            fullName: user?.fullName || auth.user.username,
+            role: auth.user.role,
         }, {
             headers: {
                 'Access-Control-Allow-Origin': '*',

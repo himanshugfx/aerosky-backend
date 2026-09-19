@@ -45,7 +45,8 @@ model User {
   email          String?       @unique
   fullName       String?       @map("full_name")
   phone          String?
-  passwordHash   String        @map("password_hash")
+  passwordHash   String?       @map("password_hash")
+  supabaseId     String?       @unique @map("supabase_id")
   role           Role          @default(VIEWER)
   isActive       Boolean       @default(true) @map("is_active")
   teamMemberId   String?       @unique @map("team_member_id")

@@ -1,6 +1,7 @@
 // Profile update and password change API
 import { authenticateRequest } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -119,7 +120,7 @@ export async function PATCH(request: NextRequest) {
         // Get user with password hash
         const user = await prisma.user.findUnique({
             where: { id: auth.user.id },
-            select: { passwordHash: true }
+            select: { passwordHash: true, supabaseId: true }
         });
 
         if (!user) {
@@ -127,7 +128,22 @@ export async function PATCH(request: NextRequest) {
         }
 
         // Verify current password
-        const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+        let isValid = false;
+        if (user.passwordHash) {
+            isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+        }
+        if (!isValid && auth.user.email) {
+            try {
+                const { data: sbData } = await supabase.auth.signInWithPassword({
+                    email: auth.user.email,
+                    password: currentPassword,
+                });
+                if (sbData?.user) isValid = true;
+            } catch (sbErr) {
+                console.warn('Supabase profile password check warning:', sbErr);
+            }
+        }
+
         if (!isValid) {
             return NextResponse.json({ error: 'Current password is incorrect' }, { status: 401 });
         }
@@ -154,6 +170,14 @@ export async function PATCH(request: NextRequest) {
                 where: { email: auth.user.email! },
             });
         });
+
+        if (user.supabaseId && supabaseAdmin) {
+            try {
+                await supabaseAdmin.auth.admin.updateUserById(user.supabaseId, { password: newPassword });
+            } catch (sbErr) {
+                console.warn('Supabase admin password sync notice:', sbErr);
+            }
+        }
 
         return NextResponse.json({ success: true, message: 'Password changed successfully' });
     } catch (error: any) {

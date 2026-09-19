@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendWelcomeEmail } from '@/lib/email';
 import { createTeamMemberSchema, validateRequest } from '@/lib/schemas';
 import { handleError, errors } from '@/lib/error-handler';
+import { supabaseAdmin } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 
 // Generate sequential access ID (AS001, AS002, etc.)
@@ -90,12 +91,34 @@ export async function POST(request: NextRequest) {
             });
 
             if (!existingUser) {
+                let supabaseId: string | undefined;
+
+                if (supabaseAdmin) {
+                    try {
+                        const { data: sbUser } = await supabaseAdmin.auth.admin.createUser({
+                            email: validated.email,
+                            password: validated.phone,
+                            email_confirm: true,
+                            user_metadata: {
+                                full_name: validated.name,
+                                role: validated.role || 'ADMINISTRATION',
+                            }
+                        });
+                        if (sbUser?.user) {
+                            supabaseId = sbUser.user.id;
+                        }
+                    } catch (sbErr) {
+                        console.warn('Supabase user creation notice:', sbErr);
+                    }
+                }
+
                 await prisma.user.create({
                     data: {
                         username: validated.email,
                         email: validated.email,
                         fullName: validated.name,
                         passwordHash,
+                        supabaseId,
                         role: validated.role || 'ADMINISTRATION',
                         teamMemberId: teamMember.id,
                     }

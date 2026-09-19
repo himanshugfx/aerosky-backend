@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { getTokenFromHeader, verifyToken } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { Role } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest } from 'next/server';
@@ -20,54 +21,69 @@ export interface AuthResult {
 
 export async function authenticateRequest(request: NextRequest): Promise<AuthResult | null> {
     try {
-        // 1. Try session first (web)
-        const session = await getServerSession(authOptions);
-        if (session?.user) {
-            // Try to find user by id (stored in token), then by email, then by name
-            let user = null;
-
-            // First try by id if available in session
-            if ((session.user as any).id) {
-                user = await prisma.user.findUnique({
-                    where: { id: (session.user as any).id },
-                    select: { id: true, username: true, email: true, role: true }
-                });
-            }
-
-            // Fallback to email
-            if (!user && session.user.email) {
-                user = await prisma.user.findUnique({
-                    where: { email: session.user.email },
-                    select: { id: true, username: true, email: true, role: true }
-                });
-            }
-
-            // Fallback to username (name field)
-            if (!user && session.user.name) {
-                user = await prisma.user.findUnique({
-                    where: { username: session.user.name },
-                    select: { id: true, username: true, email: true, role: true }
-                });
-            }
-
-            if (user) {
-                return {
-                    user: {
-                        id: user.id,
-                        username: user.username,
-                        email: user.email || undefined,
-                        role: user.role,
-                    },
-                    type: 'session'
-                };
-            }
-        }
-
-        // 2. Try JWT (mobile)
+        // 1. Try Bearer Token (Mobile or API client with Supabase / JWT)
         const authHeader = request.headers.get('Authorization');
         const token = getTokenFromHeader(authHeader);
 
         if (token) {
+            // A. Try Supabase Auth Token verification
+            try {
+                const { data: supabaseData, error: supabaseError } = await supabase.auth.getUser(token);
+                if (supabaseData?.user) {
+                    const sbUser = supabaseData.user;
+                    let user = await prisma.user.findFirst({
+                        where: {
+                            OR: [
+                                { supabaseId: sbUser.id },
+                                { email: { equals: sbUser.email, mode: 'insensitive' } },
+                            ]
+                        },
+                        select: { id: true, username: true, email: true, role: true, supabaseId: true }
+                    });
+
+                    if (user) {
+                        if (!user.supabaseId) {
+                            await prisma.user.update({
+                                where: { id: user.id },
+                                data: { supabaseId: sbUser.id }
+                            });
+                        }
+                        return {
+                            user: {
+                                id: user.id,
+                                username: user.username,
+                                email: user.email || undefined,
+                                role: user.role,
+                            },
+                            type: 'jwt'
+                        };
+                    } else if (sbUser.email) {
+                        // Provision Prisma user for new Supabase user
+                        const newUser = await prisma.user.create({
+                            data: {
+                                username: sbUser.email.split('@')[0],
+                                email: sbUser.email,
+                                fullName: sbUser.user_metadata?.full_name || sbUser.email.split('@')[0],
+                                supabaseId: sbUser.id,
+                                role: 'SUPER_ADMIN',
+                            }
+                        });
+                        return {
+                            user: {
+                                id: newUser.id,
+                                username: newUser.username,
+                                email: newUser.email || undefined,
+                                role: newUser.role,
+                            },
+                            type: 'jwt'
+                        };
+                    }
+                }
+            } catch (sbErr) {
+                console.warn('Supabase token verification check error:', sbErr);
+            }
+
+            // B. Fallback to legacy JWT verification
             const decoded = verifyToken(token) as { userId?: string; id?: string; username?: string; sub?: string } | null;
 
             if (decoded) {
@@ -99,6 +115,45 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthRes
                         type: 'jwt'
                     };
                 }
+            }
+        }
+
+        // 2. Try session (Web dashboard)
+        const session = await getServerSession(authOptions);
+        if (session?.user) {
+            let user = null;
+
+            if ((session.user as any).id) {
+                user = await prisma.user.findUnique({
+                    where: { id: (session.user as any).id },
+                    select: { id: true, username: true, email: true, role: true }
+                });
+            }
+
+            if (!user && session.user.email) {
+                user = await prisma.user.findUnique({
+                    where: { email: session.user.email },
+                    select: { id: true, username: true, email: true, role: true }
+                });
+            }
+
+            if (!user && session.user.name) {
+                user = await prisma.user.findUnique({
+                    where: { username: session.user.name },
+                    select: { id: true, username: true, email: true, role: true }
+                });
+            }
+
+            if (user) {
+                return {
+                    user: {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email || undefined,
+                        role: user.role,
+                    },
+                    type: 'session'
+                };
             }
         }
     } catch (error) {

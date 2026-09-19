@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -92,6 +93,15 @@ export async function POST(request: NextRequest) {
                 where: { id: user.id },
                 data: { passwordHash },
             });
+
+            // If Supabase user exists and admin client is available, update Supabase password
+            if (user.supabaseId && supabaseAdmin) {
+                try {
+                    await supabaseAdmin.auth.admin.updateUserById(user.supabaseId, { password: newPassword });
+                } catch (sbErr) {
+                    console.warn('Supabase admin password sync notice:', sbErr);
+                }
+            }
 
             // Delete all OTP records for this email
             await tx.otpVerification.deleteMany({

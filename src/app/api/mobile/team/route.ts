@@ -2,6 +2,7 @@ import { authenticateRequest } from "@/lib/api-auth";
 import { checkResourceAccess } from "@/lib/authorize";
 import { sendWelcomeEmail } from '@/lib/email';
 import { prisma } from "@/lib/prisma";
+import { supabaseAdmin } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -59,12 +60,34 @@ export async function POST(request: NextRequest) {
             });
 
             if (!existingUser) {
+                let supabaseId: string | undefined;
+
+                if (supabaseAdmin) {
+                    try {
+                        const { data: sbUser } = await supabaseAdmin.auth.admin.createUser({
+                            email,
+                            password: phone,
+                            email_confirm: true,
+                            user_metadata: {
+                                full_name: name,
+                                role: role || 'SOFTWARE',
+                            }
+                        });
+                        if (sbUser?.user) {
+                            supabaseId = sbUser.user.id;
+                        }
+                    } catch (sbErr) {
+                        console.warn('Supabase mobile user creation notice:', sbErr);
+                    }
+                }
+
                 await prisma.user.create({
                     data: {
                         username: email,
                         email,
                         fullName: name,
                         passwordHash,
+                        supabaseId,
                         role: role || 'SOFTWARE', // Default to SOFTWARE or something safe
                         teamMemberId: teamMember.id,
                     }

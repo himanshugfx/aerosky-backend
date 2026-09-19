@@ -1,6 +1,7 @@
 import { User, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import { signToken, verifyToken as verifyTokenUtil } from '@/lib/jwt';
 
 export interface AuthenticatedUser {
@@ -12,13 +13,74 @@ export interface AuthenticatedUser {
 }
 
 export class AuthService {
-  // Authenticate with credentials
+  // Authenticate with credentials via Supabase Auth (with DB bcrypt fallback)
   async authenticateWithCredentials(
     username: string,
     password: string
   ): Promise<AuthenticatedUser | null> {
-    const user = await prisma.user.findUnique({
-      where: { username },
+    const rawUser = username.trim();
+    let emailToAuth = rawUser;
+
+    if (!rawUser.includes('@')) {
+      const dbUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { username: { equals: rawUser, mode: 'insensitive' } },
+            { email: { equals: rawUser, mode: 'insensitive' } }
+          ]
+        }
+      });
+      if (dbUser?.email) {
+        emailToAuth = dbUser.email;
+      }
+    }
+
+    // 1. Try Supabase Auth
+    try {
+      const { data: authData } = await supabase.auth.signInWithPassword({
+        email: emailToAuth,
+        password,
+      });
+
+      if (authData?.user) {
+        let user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { supabaseId: authData.user.id },
+              { email: { equals: authData.user.email, mode: 'insensitive' } },
+              { username: { equals: rawUser, mode: 'insensitive' } }
+            ]
+          }
+        });
+
+        if (user) {
+          if (!user.supabaseId) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { supabaseId: authData.user.id }
+            });
+          }
+          return {
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName || undefined,
+            email: user.email || undefined,
+            role: user.role,
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('AuthService Supabase Auth error:', err);
+    }
+
+    // 2. Legacy fallback
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: { equals: rawUser, mode: 'insensitive' } },
+          { email: { equals: emailToAuth, mode: 'insensitive' } }
+        ]
+      },
       select: {
         id: true,
         username: true,
@@ -29,7 +91,7 @@ export class AuthService {
       },
     });
 
-    if (!user) return null;
+    if (!user || !user.passwordHash) return null;
 
     const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatch) return null;
@@ -43,7 +105,7 @@ export class AuthService {
     };
   }
 
-  // Authenticate with token (JWT or session)
+  // Authenticate with token (Supabase JWT, legacy JWT, or session)
   async authenticateWithToken(
     token: string,
     isJwt: boolean = false
@@ -58,6 +120,29 @@ export class AuthService {
   // JWT helpers
   private async verifyJwt(token: string): Promise<AuthenticatedUser | null> {
     try {
+      // 1. Try Supabase token
+      const { data: sbData } = await supabase.auth.getUser(token);
+      if (sbData?.user) {
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { supabaseId: sbData.user.id },
+              { email: { equals: sbData.user.email, mode: 'insensitive' } }
+            ]
+          }
+        });
+        if (user) {
+          return {
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName || undefined,
+            email: user.email || undefined,
+            role: user.role,
+          };
+        }
+      }
+
+      // 2. Legacy JWT
       const decoded = verifyTokenUtil(token) as any;
       if (!decoded) return null;
       
