@@ -73,36 +73,8 @@ export class AuthService {
       console.warn('AuthService Supabase Auth error:', err);
     }
 
-    // 2. Legacy fallback
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { username: { equals: rawUser, mode: 'insensitive' } },
-          { email: { equals: emailToAuth, mode: 'insensitive' } }
-        ]
-      },
-      select: {
-        id: true,
-        username: true,
-        fullName: true,
-        email: true,
-        role: true,
-        passwordHash: true,
-      },
-    });
-
-    if (!user || !user.passwordHash) return null;
-
-    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!passwordMatch) return null;
-
-    return {
-      id: user.id,
-      username: user.username,
-      fullName: user.fullName || undefined,
-      email: user.email || undefined,
-      role: user.role,
-    };
+    // Credentials failed Supabase Auth
+    return null;
   }
 
   // Authenticate with token (Supabase JWT, legacy JWT, or session)

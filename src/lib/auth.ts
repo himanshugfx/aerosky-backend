@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { supabase } from "@/lib/supabase";
-import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -39,64 +38,26 @@ export const authOptions = {
                 let authUser: any = null;
                 let supabaseSession: any = null;
 
-                // 2. Authenticate against Supabase Auth
+                // 2. Authenticate strictly against Supabase Auth
                 try {
                     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                         email: emailToAuth,
                         password: rawPass,
                     });
 
-                    if (authData?.user) {
-                        authUser = authData.user;
-                        supabaseSession = authData.session;
+                    if (authError || !authData?.user) {
+                        console.warn("Supabase Auth rejected credentials:", authError?.message);
+                        return null;
                     }
+
+                    authUser = authData.user;
+                    supabaseSession = authData.session;
                 } catch (err) {
                     console.error("Supabase Auth error during signIn:", err);
+                    return null;
                 }
 
-                // 3. Backward compatibility / seamless migration fallback:
-                // If Supabase Auth failed, check legacy Prisma bcrypt password
                 if (!authUser) {
-                    const dbUser = await prisma.user.findFirst({
-                        where: {
-                            OR: [
-                                { username: { equals: rawUser, mode: 'insensitive' } },
-                                { email: { equals: emailToAuth, mode: 'insensitive' } }
-                            ]
-                        }
-                    });
-
-                    if (dbUser?.passwordHash && await bcrypt.compare(rawPass, dbUser.passwordHash)) {
-                        // Seamlessly try to provision user in Supabase Auth
-                        try {
-                            const { data: signUpData } = await supabase.auth.signUp({
-                                email: dbUser.email || `${dbUser.username}@aerosysaviation.in`,
-                                password: rawPass,
-                                options: {
-                                    data: {
-                                        full_name: dbUser.fullName || dbUser.username,
-                                        role: dbUser.role
-                                    }
-                                }
-                            });
-                            if (signUpData?.user && !dbUser.supabaseId) {
-                                await prisma.user.update({
-                                    where: { id: dbUser.id },
-                                    data: { supabaseId: signUpData.user.id }
-                                });
-                            }
-                        } catch (e) {
-                            console.warn("Supabase auto-provisioning notice:", e);
-                        }
-
-                        return {
-                            id: dbUser.id,
-                            name: dbUser.fullName || dbUser.username,
-                            email: dbUser.email || dbUser.username,
-                            role: dbUser.role,
-                        };
-                    }
-
                     return null;
                 }
 

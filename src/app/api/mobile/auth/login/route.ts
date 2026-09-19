@@ -4,7 +4,6 @@ import { localLoginLimiter } from '@/lib/rate-limiter';
 import { handleError, errors } from '@/lib/error-handler';
 import { prisma } from '@/lib/prisma';
 import { supabase } from '@/lib/supabase';
-import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -52,84 +51,27 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // 2. Try Supabase Auth
+        // 2. Authenticate strictly with Supabase Auth
         let authUser: any = null;
         let supabaseSession: any = null;
 
         try {
-            const { data: authData } = await supabase.auth.signInWithPassword({
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                 email: emailToAuth,
                 password,
             });
-            if (authData?.user && authData?.session) {
-                authUser = authData.user;
-                supabaseSession = authData.session;
+            if (authError || !authData?.user || !authData?.session) {
+                return NextResponse.json(
+                    { error: authError?.message || 'Invalid credentials' },
+                    { status: 401 }
+                );
             }
-        } catch (err) {
-            console.warn('Supabase mobile signin attempt error:', err);
-        }
-
-        // 3. Fallback for legacy DB bcrypt credentials:
-        if (!authUser) {
-            const legacyUser = await prisma.user.findFirst({
-                where: {
-                    OR: [
-                        { username: { equals: loginId, mode: 'insensitive' } },
-                        { email: { equals: emailToAuth, mode: 'insensitive' } }
-                    ]
-                }
-            });
-
-            if (legacyUser?.passwordHash && await bcrypt.compare(password, legacyUser.passwordHash)) {
-                // Auto-provision into Supabase Auth if possible
-                try {
-                    const { data: signUpData } = await supabase.auth.signUp({
-                        email: legacyUser.email || `${legacyUser.username}@aerosysaviation.in`,
-                        password,
-                        options: {
-                            data: {
-                                full_name: legacyUser.fullName || legacyUser.username,
-                                role: legacyUser.role
-                            }
-                        }
-                    });
-                    if (signUpData?.user && !legacyUser.supabaseId) {
-                        await prisma.user.update({
-                            where: { id: legacyUser.id },
-                            data: { supabaseId: signUpData.user.id }
-                        });
-                    }
-                    if (signUpData?.session) {
-                        return NextResponse.json({
-                            token: signUpData.session.access_token,
-                            refreshToken: signUpData.session.refresh_token,
-                            user: {
-                                id: legacyUser.id,
-                                email: legacyUser.email || legacyUser.username,
-                                fullName: legacyUser.fullName || legacyUser.username,
-                                role: legacyUser.role,
-                            }
-                        });
-                    }
-                } catch (e) {
-                    console.warn('Supabase auto-signup warning:', e);
-                }
-
-                // If Supabase session isn't available immediately (e.g. email confirmation), issue token
-                const token = authService.generateJwt(legacyUser as any);
-                return NextResponse.json({
-                    token,
-                    user: {
-                        id: legacyUser.id,
-                        email: legacyUser.email || legacyUser.username,
-                        fullName: legacyUser.fullName || legacyUser.username,
-                        role: legacyUser.role,
-                    }
-                });
-            }
-
+            authUser = authData.user;
+            supabaseSession = authData.session;
+        } catch (err: any) {
+            console.error('Supabase mobile signin error:', err);
             return NextResponse.json(
-                { error: 'Invalid credentials' },
+                { error: err?.message || 'Authentication failed' },
                 { status: 401 }
             );
         }
