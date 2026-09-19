@@ -1,7 +1,7 @@
 # 🔍 COMPREHENSIVE CODE REVIEW - AeroSky Aviation Backend
 
 **Project**: Aerosys Aviation India Backend  
-**Tech Stack**: Next.js 14, TypeScript, Prisma, NextAuth, PostgreSQL (Neon)  
+**Tech Stack**: Next.js 14, TypeScript, Prisma, NextAuth, PostgreSQL (Supabase)  
 **API Routes**: 53 endpoints  
 **LOC**: ~4,748 lines in API routes alone  
 **Date**: April 7, 2026  
@@ -42,8 +42,8 @@
 **Location**: `.env`  
 **Issue**: Database credentials, API keys, SMTP passwords in version control
 ```
-DATABASE_URL="postgresql://neondb_owner:EXPOSED_PASSWORD@..."
-SMTP_PASS="Golu,4184"
+DATABASE_URL="postgresql://postgres.xxx:EXPOSED_PASSWORD@..."
+SMTP_PASS="REDACTED_PASSWORD"
 ```
 **Impact**: Complete database compromise, email hijacking  
 **Fix**:
@@ -58,7 +58,7 @@ echo ".env" >> .gitignore
 
 #### 2. **SMTP Password in Plaintext**
 **Location**: `.env` - `SMTP_PASS`  
-**Issue**: `Golu,4184` exposed in plaintext  
+**Issue**: Password exposed in plaintext  
 **Impact**: Email spoofing, unauthorized emails  
 **Fix**: Use `.env.local` (not versioned) or secrets manager (AWS Secrets, Vault)
 

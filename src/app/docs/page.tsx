@@ -85,9 +85,9 @@ export default function DocsPage() {
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │   Next.js    │    │   FastAPI    │    │    Neon      │  │
+│  │   Next.js    │    │   FastAPI    │    │   Supabase   │  │
 │  │   Frontend   │◄──►│   Backend    │◄──►│  PostgreSQL  │  │
-│  │   (React)    │    │   (Python)   │    │  (TimescaleDB)│  │
+│  │   (React)    │    │   (Python)   │    │              │  │
 │  └──────────────┘    └──────────────┘    └──────────────┘  │
 │         │                   │                    │          │
 │         │                   │                    │          │
@@ -108,7 +108,7 @@ export default function DocsPage() {
                             <div className="mt-6 grid md:grid-cols-3 gap-4">
                                 <TechCard title="Frontend" tech="Next.js 14, React 18, TypeScript, Tailwind CSS, React Query" />
                                 <TechCard title="Backend" tech="Python 3.11, FastAPI, SQLAlchemy, Pydantic, JWT Auth" />
-                                <TechCard title="Database" tech="PostgreSQL 15, TimescaleDB, PostGIS, Neon Serverless" />
+                                <TechCard title="Database" tech="PostgreSQL 15, TimescaleDB, PostGIS, Supabase" />
                             </div>
                         </Section>
 
@@ -118,7 +118,7 @@ export default function DocsPage() {
                             <ul className="list-disc list-inside text-gray-600 mb-6 space-y-1">
                                 <li>Python 3.11 or higher</li>
                                 <li>Node.js 18 or higher</li>
-                                <li>PostgreSQL 15 (or Neon account)</li>
+                                <li>PostgreSQL 15 (or Supabase account)</li>
                                 <li>Git</li>
                             </ul>
 
@@ -155,8 +155,8 @@ echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
 npm run dev`} />
 
                             <h3 className="text-lg font-semibold mt-8 mb-4">Database Setup</h3>
-                            <CodeBlock code={`# Option 1: Neon (Recommended)
-# Create account at neon.tech and get connection string
+                            <CodeBlock code={`# Option 1: Supabase (Recommended)
+# Create project at supabase.com and get connection string
 
 # Option 2: Local PostgreSQL
 createdb aerosys_aviation

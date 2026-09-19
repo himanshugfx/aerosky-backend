@@ -18,7 +18,7 @@
 - [ ] Remove `.env` from Git history: `git filter-branch --tree-filter 'rm -f .env'`
 - [ ] Create `.env.example`
 - [ ] Update `.gitignore` to exclude `.env`
-- [ ] Rotate database password in Neon
+- [ ] Rotate database password in Supabase
 - [ ] Audit access logs for unauthorized access
 - [ ] Update secrets in Railway/Vercel dashboard
 
