@@ -15,8 +15,10 @@ import {
     Receipt,
     Wallet,
     ShieldCheck,
-    Filter
+    Filter,
+    Eye
 } from 'lucide-react'
+import { ReceiptModal } from '@/components/ReceiptModal'
 import * as XLSX from 'xlsx'
 
 interface Reimbursement {
@@ -42,6 +44,7 @@ export default function AdminReimbursementsPage() {
     const [loading, setLoading] = useState(true)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
+    const [selectedReceipt, setSelectedReceipt] = useState<Reimbursement | null>(null)
 
     const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMINISTRATION'
 
@@ -233,19 +236,11 @@ export default function AdminReimbursementsPage() {
                                         
                                         {item.billData && (
                                             <button
-                                                onClick={() => {
-                                                    const win = window.open()
-                                                    win?.document.write(`
-                                                        <body style="margin:0; background:#0f172a; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;">
-                                                            <div style="position:fixed; top:20px; left:20px; color:white; background:rgba(255,255,255,0.1); padding:10px 20px; border-radius:10px; font-size:12px; font-weight:bold; letter-spacing:1px;">DOCUMENT PREVIEW: ${item.name.toUpperCase()}</div>
-                                                            <iframe src="${item.billData}" frameborder="0" style="width:90%; height:85%; border-radius:1.5rem; background:white; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);" allowfullscreen></iframe>
-                                                        </body>
-                                                    `)
-                                                }}
-                                                className="w-12 h-12 bg-white border border-slate-200 text-slate-400 hover:text-slate-900 hover:border-slate-300 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-90"
+                                                onClick={() => setSelectedReceipt(item)}
+                                                className="w-12 h-12 bg-white border border-slate-200 text-slate-500 hover:text-orange-600 hover:border-orange-200 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-90"
                                                 title="View Document"
                                             >
-                                                <ImageIcon className="w-6 h-6" />
+                                                <Eye className="w-5 h-5" />
                                             </button>
                                         )}
                                     </div>
@@ -258,25 +253,22 @@ export default function AdminReimbursementsPage() {
                 {/* Financial Insights Sidebar */}
                 <div className="space-y-8">
                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 text-white">
-                        <h3 className="text-base font-bold tracking-tight mb-4">Enterprise Audit</h3>
-
+                        <h3 className="text-base font-bold text-white tracking-tight mb-4">Disbursement Velocity</h3>
                         <div className="space-y-3">
-                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
-                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Pending Disbursement</p>
-                                <div className="flex items-baseline gap-2">
+                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                                <span className="text-xs font-semibold text-slate-400">Total In Audit</span>
+                                <div className="flex items-baseline gap-2 text-slate-200">
                                     <span className="text-xl font-bold">₹{reimbursements.filter(r => r.status === 'Pending').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
-                                    <TrendingUp className="w-4 h-4 text-orange-400" />
                                 </div>
                             </div>
-                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
-                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Approved Total</p>
-                                <div className="flex items-baseline gap-2 text-emerald-400">
+                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                                <span className="text-xs font-semibold text-slate-400">Approved Reserve</span>
+                                <div className="flex items-baseline gap-2 text-slate-200">
                                     <span className="text-xl font-bold">₹{reimbursements.filter(r => r.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
-                                    <CheckCircle className="w-4 h-4" />
                                 </div>
                             </div>
-                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60">
-                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Completed (Paid)</p>
+                            <div className="p-3.5 bg-slate-800/80 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                                <span className="text-xs font-semibold text-slate-400">Disbursed Total</span>
                                 <div className="flex items-baseline gap-2 text-slate-200">
                                     <span className="text-xl font-bold">₹{reimbursements.filter(r => r.status === 'Completed').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString('en-IN')}</span>
                                 </div>
@@ -293,6 +285,20 @@ export default function AdminReimbursementsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Receipt Modal */}
+            {selectedReceipt && (
+                <ReceiptModal
+                    isOpen={!!selectedReceipt}
+                    onClose={() => setSelectedReceipt(null)}
+                    title={selectedReceipt.name}
+                    billData={selectedReceipt.billData}
+                    amount={selectedReceipt.amount}
+                    date={selectedReceipt.date}
+                    category={selectedReceipt.category}
+                    status={selectedReceipt.status}
+                />
+            )}
         </div>
     )
 }

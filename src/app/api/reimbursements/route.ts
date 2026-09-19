@@ -2,6 +2,8 @@ import { authenticateRequest } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 // GET Fetch reimbursements
 export async function GET(request: NextRequest) {
     const auth = await authenticateRequest(request);
@@ -13,9 +15,10 @@ export async function GET(request: NextRequest) {
 
         const where: any = {};
 
-        // Filtering for regular users (only their own)
-        // Only ADMINISTRATION can see all reimbursements
-        if (auth.user.role !== 'ADMINISTRATION') {
+        // Filtering: privileged roles (SUPER_ADMIN, ADMIN, ADMINISTRATION) can see all
+        // Regular users can only see their own
+        const isPrivileged = auth.user.role === 'ADMINISTRATION' || auth.user.role === 'SUPER_ADMIN' || auth.user.role === 'ADMIN';
+        if (!isPrivileged) {
             where.userId = auth.user.id;
         }
 
@@ -56,14 +59,19 @@ export async function POST(request: NextRequest) {
         const { name, category, amount, date, billData } = body;
 
         if (!name || !amount || !date || !billData) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+            return NextResponse.json({ error: "Missing required fields: description, amount, date, and receipt" }, { status: 400 });
+        }
+
+        const parsedAmount = parseFloat(amount);
+        if (isNaN(parsedAmount) || parsedAmount <= 0) {
+            return NextResponse.json({ error: "Amount must be a valid positive number" }, { status: 400 });
         }
 
         const reimbursement = await prisma.reimbursement.create({
             data: {
-                name,
+                name: name.trim(),
                 category: category || "Other",
-                amount: parseFloat(amount),
+                amount: parsedAmount,
                 date: new Date(date),
                 billData,
                 userId: auth.user.id,
@@ -85,9 +93,10 @@ export async function PATCH(request: NextRequest) {
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Only ADMINISTRATION can change status
-    if (auth.user.role !== 'ADMINISTRATION') {
-        return NextResponse.json({ error: 'Forbidden: Administration access required' }, { status: 403 });
+    // Privilege check
+    const isPrivileged = auth.user.role === 'ADMINISTRATION' || auth.user.role === 'SUPER_ADMIN' || auth.user.role === 'ADMIN';
+    if (!isPrivileged) {
+        return NextResponse.json({ error: 'Forbidden: Administration or Admin access required' }, { status: 403 });
     }
 
     try {

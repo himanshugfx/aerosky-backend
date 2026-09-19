@@ -23,9 +23,11 @@ import {
     Wallet,
     ArrowUpRight,
     ArrowDownRight,
-    ShieldCheck
+    ShieldCheck,
+    Eye
 } from 'lucide-react'
 import { FileUploader } from '@/components/FileUploader'
+import { ReceiptModal } from '@/components/ReceiptModal'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
@@ -54,6 +56,7 @@ export default function AccountsPage() {
     const [showForm, setShowForm] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
+    const [selectedReceipt, setSelectedReceipt] = useState<Reimbursement | null>(null)
     const [formData, setFormData] = useState({
         name: '',
         category: 'Travel',
@@ -124,9 +127,7 @@ export default function AccountsPage() {
     }
 
     const handleFileUpload = (files: string[]) => {
-        if (files.length > 0) {
-            setFormData(prev => ({ ...prev, billData: files[0] }))
-        }
+        setFormData(prev => ({ ...prev, billData: files[0] || '' }))
     }
 
 
@@ -277,13 +278,14 @@ export default function AccountsPage() {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Evidentiary Documentation (Bill/Receipt)</label>
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pl-1">Evidentiary Documentation (Bill/Receipt) *</label>
                             <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
                                 <FileUploader
                                     onUpload={handleFileUpload}
+                                    existingFiles={formData.billData ? [formData.billData] : []}
                                     accept="image/*,application/pdf"
                                     multiple={false}
-                                    label="Drop technical dossier or receipt here"
+                                    label="Drop receipt or invoice here"
                                 />
                             </div>
                         </div>
@@ -335,7 +337,8 @@ export default function AccountsPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {reimbursements
                                     .filter(item => {
-                                        return String(item.userId) === String(session?.user?.id)
+                                        if (isAdmin) return true;
+                                        return !session?.user?.id || String(item.userId) === String(session?.user?.id);
                                     })
                                     .map((item) => (
                                         <div key={item.id} className="premium-card p-6 flex flex-col group hover:-translate-y-1 transition-all duration-300">
@@ -369,18 +372,11 @@ export default function AccountsPage() {
                                                 <div className="flex items-center gap-2">
                                                     {item.billData && (
                                                         <button
-                                                            onClick={() => {
-                                                                const win = window.open()
-                                                                win?.document.write(`
-                                                                    <body style="margin:0; background:#f8fafc; display:flex; justify-center; align-items:center; height:100vh;">
-                                                                        <iframe src="${item.billData}" frameborder="0" style="width:90%; height:90%; border-radius:2rem; box-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);" allowfullscreen></iframe>
-                                                                    </body>
-                                                                `)
-                                                            }}
-                                                            className="w-10 h-10 bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-300 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-90"
-                                                            title="Inspect Resource"
+                                                            onClick={() => setSelectedReceipt(item)}
+                                                            className="w-10 h-10 bg-white border border-slate-200 text-slate-500 hover:text-orange-600 hover:border-orange-200 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-90"
+                                                            title="Inspect Receipt"
                                                         >
-                                                            <ImageIcon className="w-5 h-5" />
+                                                            <Eye className="w-5 h-5" />
                                                         </button>
                                                     )}
                                                 </div>
@@ -424,6 +420,20 @@ export default function AccountsPage() {
 
                     </div>
                 </div>
+            )}
+
+            {/* Receipt Inspection Modal */}
+            {selectedReceipt && (
+                <ReceiptModal
+                    isOpen={!!selectedReceipt}
+                    onClose={() => setSelectedReceipt(null)}
+                    title={selectedReceipt.name}
+                    billData={selectedReceipt.billData}
+                    amount={selectedReceipt.amount}
+                    date={selectedReceipt.date}
+                    category={selectedReceipt.category}
+                    status={selectedReceipt.status}
+                />
             )}
         </div>
     )
