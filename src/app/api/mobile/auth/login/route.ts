@@ -137,9 +137,6 @@ export async function POST(request: NextRequest) {
         if (user.passwordHash) {
             isValid = await bcrypt.compare(password, user.passwordHash);
         }
-        if (!isValid && password === 'admin' && (user.username.toLowerCase() === 'admin' || user.email?.toLowerCase().includes('admin'))) {
-            isValid = true;
-        }
 
         if (!isValid) {
             return NextResponse.json(
