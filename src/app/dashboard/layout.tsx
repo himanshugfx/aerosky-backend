@@ -24,7 +24,8 @@ import {
     CreditCard,
     Wallet,
     ShieldCheck,
-    Receipt
+    Receipt,
+    FileText
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -53,6 +54,7 @@ const navigationItems = [
     { name: 'Staff Details', href: '/dashboard/team', icon: Users, category: 'Administration' as Category },
     { name: 'Expense Tracker', href: '/dashboard/admin/expenses', icon: CreditCard, category: 'Administration' as Category },
     { name: 'Reimbursements', href: '/dashboard/admin/reimbursements', icon: Receipt, category: 'Administration' as Category },
+    { name: 'Reports', href: '/dashboard/admin/reports', icon: FileText, category: 'Administration' as Category },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

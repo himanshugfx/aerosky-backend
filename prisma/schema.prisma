@@ -60,6 +60,7 @@ model User {
   assistantInstructions  AssistantInstruction[]
   inventoryTransactions InventoryTransaction[]
   reimbursements Reimbursement[]
+  reports        Report[]
 
   @@map("users")
 }
@@ -530,3 +531,26 @@ model AssistantInstruction {
   @@index([userId])
   @@map("assistant_instructions")
 }
+
+model Report {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  category    String   // Financial, Operations, Drone Fleet, Team & HR, Safety & Compliance, General
+  status      String   @default("published") // published, draft, archived
+  period      String?  // e.g. "Q3 2026", "September 2026"
+  attachment  String?  @db.Text // Base64 or URL
+  fileName    String?  @map("file_name")
+  fileSize    String?  @map("file_size")
+  tags        String?  // Comma-separated tags
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reports")
+}
+
