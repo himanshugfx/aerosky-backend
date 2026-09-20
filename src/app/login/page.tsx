@@ -32,6 +32,8 @@ function LoginForm() {
                 setError("Google sign in was cancelled or failed. Please try again.");
             } else if (oauthError === "OAuthAccountNotLinked") {
                 setError("An account with this email already exists under another sign-in method.");
+            } else if (oauthError === "AccessDenied") {
+                setError("Access Denied: No registered account found for this Google email. Please contact an administrator.");
             } else {
                 setError(`Authentication notice: ${oauthError}`);
             }

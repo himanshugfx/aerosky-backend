@@ -12,8 +12,8 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { currentPassword, newPassword } = body;
 
-        if (!currentPassword || !newPassword) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        if (!newPassword) {
+            return NextResponse.json({ error: "New password is required" }, { status: 400 });
         }
 
         if (newPassword.length < 8) {
@@ -29,27 +29,30 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        // Verify current password
-        let isValid = false;
+        // If user already has a password, verify current password
         if (user.passwordHash) {
-            isValid = await bcrypt.compare(currentPassword, user.passwordHash);
-        }
-        if (!isValid && user.email) {
-            try {
-                const { data: sbData } = await supabase.auth.signInWithPassword({
-                    email: user.email,
-                    password: currentPassword,
-                });
-                if (sbData?.user) {
-                    isValid = true;
-                }
-            } catch (sbErr) {
-                console.warn("Supabase password verification check error:", sbErr);
+            if (!currentPassword) {
+                return NextResponse.json({ error: "Current password is required" }, { status: 400 });
             }
-        }
 
-        if (!isValid) {
-            return NextResponse.json({ error: "Incorrect current password" }, { status: 400 });
+            let isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+            if (!isValid && user.email) {
+                try {
+                    const { data: sbData } = await supabase.auth.signInWithPassword({
+                        email: user.email,
+                        password: currentPassword,
+                    });
+                    if (sbData?.user) {
+                        isValid = true;
+                    }
+                } catch (sbErr) {
+                    console.warn("Supabase password verification check error:", sbErr);
+                }
+            }
+
+            if (!isValid) {
+                return NextResponse.json({ error: "Incorrect current password" }, { status: 400 });
+            }
         }
 
         // Hash new password

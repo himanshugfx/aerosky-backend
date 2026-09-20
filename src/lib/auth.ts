@@ -49,55 +49,61 @@ export const authOptions: NextAuthOptions = {
     providers,
     pages: {
         signIn: "/login",
+        error: "/login",
     },
     callbacks: {
         async signIn({ user, account, profile }: any) {
             if (account?.provider === "google") {
-                const email = user.email || profile?.email;
+                const email = (user.email || profile?.email)?.toLowerCase().trim();
                 if (!email) return false;
 
                 try {
                     // Check if user exists in database
                     let dbUser = await prisma.user.findFirst({
-                        where: { email: { equals: email, mode: 'insensitive' } }
+                        where: {
+                            OR: [
+                                { email: { equals: email, mode: 'insensitive' } },
+                                { username: { equals: email, mode: 'insensitive' } }
+                            ]
+                        }
                     });
 
-                    if (dbUser) {
-                        // Update name if missing
-                        if (!dbUser.fullName && user.name) {
-                            await prisma.user.update({
-                                where: { id: dbUser.id },
-                                data: { fullName: user.name }
-                            });
-                        }
-                    } else {
-                        // Check if a team member exists with this email
+                    if (!dbUser) {
+                        // Check if a team member exists with this email who hasn't had their user account initialized yet
                         const teamMember = await prisma.teamMember.findFirst({
                             where: { email: { equals: email, mode: 'insensitive' } }
                         });
 
-                        // If database is empty or email exactly matches the primary admin email, grant SUPER_ADMIN
-                        const totalUsers = await prisma.user.count();
-                        const primaryAdminEmail = (process.env.PRIMARY_ADMIN_EMAIL || 'himanshu@aerosysaviation.in').toLowerCase();
-                        const isPrimaryAdmin = totalUsers === 0 || email.toLowerCase() === primaryAdminEmail;
-                        const assignedRole = isPrimaryAdmin ? 'SUPER_ADMIN' : 'VIEWER';
-
-                        // Create new User record in database
-                        let username = email.split('@')[0];
-                        const existingWithUsername = await prisma.user.findUnique({ where: { username } });
-                        if (existingWithUsername) {
-                            username = `${username}-${Math.random().toString(36).substring(2, 6)}`;
+                        if (teamMember) {
+                            // Link/initialize account for authorized team member
+                            dbUser = await prisma.user.create({
+                                data: {
+                                    username: email,
+                                    email: email,
+                                    fullName: user.name || teamMember.name,
+                                    role: 'VIEWER',
+                                    teamMemberId: teamMember.id,
+                                    isActive: true,
+                                }
+                            });
+                        } else {
+                            // Email does not exist in the system - deny access
+                            console.warn(`[Google Auth] Access denied: No registered account found for email ${email}`);
+                            return false;
                         }
+                    }
 
-                        dbUser = await prisma.user.create({
-                            data: {
-                                username,
-                                email,
-                                fullName: user.name || teamMember?.name || username,
-                                role: assignedRole,
-                                teamMemberId: teamMember ? teamMember.id : undefined,
-                                isActive: true,
-                            }
+                    // Check if user account is active
+                    if (dbUser.isActive === false) {
+                        console.warn(`[Google Auth] Access denied: Account for email ${email} is inactive/disabled.`);
+                        return false;
+                    }
+
+                    // Update name if missing
+                    if (!dbUser.fullName && user.name) {
+                        await prisma.user.update({
+                            where: { id: dbUser.id },
+                            data: { fullName: user.name }
                         });
                     }
 
@@ -113,21 +119,42 @@ export const authOptions: NextAuthOptions = {
             }
             return true;
         },
-        async jwt({ token, user, account }: any) {
+        async jwt({ token, user, account, trigger, session }: any) {
             if (user) {
                 token.role = user.role;
                 token.id = user.id;
+                token.name = user.name;
                 token.supabaseId = user.supabaseId;
                 token.accessToken = user.accessToken;
+            }
+            if (trigger === "update") {
+                if (session?.name) {
+                    token.name = session.name;
+                }
+                if (token.id) {
+                    const dbUser = await prisma.user.findUnique({
+                        where: { id: token.id },
+                        select: { fullName: true, username: true }
+                    });
+                    if (dbUser) {
+                        token.name = dbUser.fullName || dbUser.username;
+                    }
+                }
             }
             // If signing in via Google, ensure we attach database user ID and role
             if (account?.provider === "google" && (!token.role || !token.id)) {
                 const dbUser = await prisma.user.findFirst({
-                    where: { email: { equals: token.email, mode: 'insensitive' } }
+                    where: {
+                        OR: [
+                            { email: { equals: token.email, mode: 'insensitive' } },
+                            { username: { equals: token.email, mode: 'insensitive' } }
+                        ]
+                    }
                 });
                 if (dbUser) {
                     token.id = dbUser.id;
                     token.role = dbUser.role;
+                    token.name = dbUser.fullName || dbUser.username;
                 }
             }
             return token;
@@ -136,6 +163,9 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 session.user.role = token.role;
                 session.user.id = token.id;
+                if (token.name) {
+                    session.user.name = token.name;
+                }
                 session.user.supabaseId = token.supabaseId;
                 (session as any).accessToken = token.accessToken;
             }
