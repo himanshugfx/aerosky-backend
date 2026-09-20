@@ -2,6 +2,8 @@ import { authenticateRequest } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'];
 
 export async function GET(

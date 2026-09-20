@@ -2,6 +2,8 @@ import { authenticateRequest } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'];
 
 export async function GET(request: NextRequest) {
@@ -103,7 +105,7 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
         console.error("Error fetching administrative reports:", error);
         return NextResponse.json(
-            { error: "Failed to fetch reports. Please try again later." },
+            { error: error?.message || "Failed to fetch reports. Please try again later." },
             { status: 500 }
         );
     }
@@ -144,17 +146,27 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Report description or summary is required." }, { status: 400 });
         }
 
+        // Verify author user exists in DB to prevent foreign key errors
+        const userExists = await prisma.user.findUnique({
+            where: { id: auth.user.id },
+            select: { id: true }
+        });
+
+        if (!userExists) {
+            return NextResponse.json({ error: "Author account not found in database." }, { status: 404 });
+        }
+
         const newReport = await prisma.report.create({
             data: {
                 title: title.trim(),
                 description: description.trim(),
                 category: category.trim(),
-                status: status.trim().toLowerCase(),
-                period: period ? period.trim() : undefined,
-                attachment: attachment || undefined,
-                fileName: fileName || undefined,
-                fileSize: fileSize || undefined,
-                tags: tags ? tags.trim() : undefined,
+                status: status ? status.trim().toLowerCase() : "published",
+                period: period && period.trim() ? period.trim() : null,
+                attachment: attachment && attachment.trim() ? attachment.trim() : null,
+                fileName: fileName && fileName.trim() ? fileName.trim() : null,
+                fileSize: fileSize && fileSize.trim() ? fileSize.trim() : null,
+                tags: tags && tags.trim() ? tags.trim() : null,
                 userId: auth.user.id,
             },
             include: {
@@ -178,7 +190,10 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         console.error("Error creating administrative report:", error);
         return NextResponse.json(
-            { error: "Failed to create report. Please try again." },
+            { 
+                error: error?.message || "Failed to create report. Please try again.",
+                details: error?.stack
+            },
             { status: 500 }
         );
     }

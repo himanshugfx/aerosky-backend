@@ -157,8 +157,8 @@ export default function ReportsPage() {
         const file = e.target.files?.[0]
         if (!file) return
 
-        if (file.size > 15 * 1024 * 1024) {
-            setActionError('File size exceeds the 15MB limit.')
+        if (file.size > 3.5 * 1024 * 1024) {
+            setActionError('File size exceeds 3.5MB. Please upload a file smaller than 3.5MB.')
             return
         }
 
@@ -205,7 +205,15 @@ export default function ReportsPage() {
                 body: JSON.stringify(formData)
             })
 
-            const data = await res.json()
+            let data: any = {}
+            const contentType = res.headers.get('content-type') || ''
+            if (contentType.includes('application/json')) {
+                data = await res.json()
+            } else {
+                const text = await res.text()
+                console.warn('Non-JSON server response:', res.status, text)
+                data = { error: text || `Server error (HTTP ${res.status})` }
+            }
 
             if (res.ok) {
                 setActionSuccess('Report successfully compiled and saved.')
@@ -224,10 +232,11 @@ export default function ReportsPage() {
                 })
                 fetchReports()
             } else {
-                setActionError(data.error || 'Failed to create report.')
+                setActionError(data?.error || data?.message || `Failed to create report (HTTP ${res.status})`)
             }
-        } catch (error) {
-            setActionError('Internal server error. Could not create report.')
+        } catch (error: any) {
+            console.error('Report submission network error:', error)
+            setActionError(error?.message || 'Network error occurred while submitting report.')
         } finally {
             setActionLoading(false)
         }
@@ -704,7 +713,7 @@ export default function ReportsPage() {
 
                             {/* File Upload / Attachment */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest pl-1">Attach File / Document (PDF, Image, Spreadsheet up to 15MB)</label>
+                                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest pl-1">Attach File / Document (PDF, Image, Spreadsheet up to 3.5MB)</label>
                                 {formData.attachment ? (
                                     <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                                         <div className="flex items-center gap-3">
@@ -729,7 +738,7 @@ export default function ReportsPage() {
                                     >
                                         <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
                                         <p className="text-xs font-bold text-slate-800">Click to upload document attachment</p>
-                                        <p className="text-[10px] text-slate-400 mt-1">PDF, Excel, Word, PNG, JPG (Max 15MB)</p>
+                                        <p className="text-[10px] text-slate-400 mt-1">PDF, Excel, Word, PNG, JPG (Max 3.5MB)</p>
                                         <input
                                             ref={fileInputRef}
                                             type="file"
