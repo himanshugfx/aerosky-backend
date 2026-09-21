@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import { formatDate } from '@/lib/date'
 
 interface Subcontractor {
     id: string
@@ -191,7 +192,7 @@ export default function SubcontractorsPage() {
                             <div className="flex items-center gap-2 text-slate-400">
                                 <Calendar className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                                 <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-xs">
-                                    {sub.agreementDate ? `${new Date(sub.agreementDate).toLocaleDateString()}` : 'Date Pending'}
+                                    {sub.agreementDate ? formatDate(sub.agreementDate) : 'Date Pending'}
                                 </span>
                             </div>
                             <button className="p-2 lg:p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all shadow-sm">

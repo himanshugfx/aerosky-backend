@@ -23,6 +23,7 @@ import {
     RefreshCw
 } from 'lucide-react'
 import { ReceiptModal } from '@/components/ReceiptModal'
+import { formatDate, formatDateTime } from '@/lib/date'
 import * as XLSX from 'xlsx'
 
 interface Reimbursement {
@@ -83,9 +84,9 @@ export default function AdminReimbursementsPage() {
             'Role': r.user?.role || 'N/A',
             'Category': r.category || 'General',
             'Amount (INR)': r.amount,
-            'Expense Date': new Date(r.date).toLocaleDateString(),
+            'Expense Date': formatDate(r.date),
             'Status': r.status,
-            'Submitted At': new Date(r.createdAt).toLocaleString(),
+            'Submitted At': formatDateTime(r.createdAt),
             'Has Receipt': r.billData ? 'Yes' : 'No'
         }))
 
@@ -412,12 +413,12 @@ export default function AdminReimbursementsPage() {
 
                                                 <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
                                                     <Calendar className="w-3.5 h-3.5" />
-                                                    <span>Expense: {new Date(item.date).toLocaleDateString()}</span>
+                                                    <span>Expense: {formatDate(item.date)}</span>
                                                 </div>
 
                                                 <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
                                                     <Clock className="w-3.5 h-3.5" />
-                                                    <span>Filed: {new Date(item.createdAt).toLocaleDateString()}</span>
+                                                    <span>Filed: {formatDate(item.createdAt)}</span>
                                                 </div>
                                             </div>
                                         </div>

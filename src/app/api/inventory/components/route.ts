@@ -16,7 +16,10 @@ export async function GET(request: NextRequest) {
         if (permCheck !== true) throw errors.forbidden('Insufficient permissions to view components');
 
         const { searchParams } = new URL(request.url);
-        const { page, limit } = getPaginationParams(searchParams);
+        const limitParam = searchParams.get('limit');
+        const limit = limitParam ? Math.min(1000, Math.max(1, parseInt(limitParam) || 100)) : 100;
+        const pageParam = searchParams.get('page');
+        const page = pageParam ? Math.max(1, parseInt(pageParam) || 1) : 1;
 
         const where: any = {};
 
@@ -30,8 +33,17 @@ export async function GET(request: NextRequest) {
             prisma.component.count({ where }),
         ]);
 
-        const response = createPaginatedResponse(components, total, { page, limit });
-        return NextResponse.json(response);
+        return NextResponse.json({
+            data: components,
+            components,
+            pagination: {
+                page,
+                limit,
+                total,
+                pages: Math.ceil(total / limit),
+                hasNext: page < Math.ceil(total / limit),
+            }
+        });
     } catch (error) {
         return handleError(error);
     }

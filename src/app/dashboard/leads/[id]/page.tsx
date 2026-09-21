@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { formatDate } from '@/lib/date'
 import {
     ChevronLeft,
     Mail,
@@ -190,7 +191,7 @@ export default function LeadDetailsPage() {
                             <div className="space-y-6">
                                 <div className="flex justify-between items-center pb-4 border-b border-slate-50">
                                     <span className="text-sm font-bold text-slate-400">Registry Date</span>
-                                    <span className="text-sm font-black text-slate-900">{new Date(lead.createdAt).toLocaleDateString()}</span>
+                                    <span className="text-sm font-black text-slate-900">{formatDate(lead.createdAt)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm font-bold text-slate-400">Account ID</span>

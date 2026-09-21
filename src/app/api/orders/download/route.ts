@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { PDFDocument } from 'pdf-lib';
 import * as XLSX from 'xlsx';
+import { formatDate } from '@/lib/date';
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
@@ -90,7 +91,7 @@ export async function GET(request: Request) {
 
                 const coreInfo = [
                     ['Client Name', order.clientName, 'Client Segment', order.clientSegment],
-                    ['Order Date', new Date(order.orderDate).toLocaleDateString(), 'Est. Completion', order.estimatedCompletionDate ? new Date(order.estimatedCompletionDate).toLocaleDateString() : 'TBD'],
+                    ['Order Date', formatDate(order.orderDate), 'Est. Completion', order.estimatedCompletionDate ? formatDate(order.estimatedCompletionDate) : 'TBD'],
                     ['Contract Value', `${order.currency} ${order.contractValue.toLocaleString()}`, 'Revenue Status', order.revenueRecognitionStatus],
                 ];
 
@@ -254,8 +255,8 @@ export async function GET(request: Request) {
             'Contract Number': order.contractNumber,
             'Client Name': order.clientName,
             'Client Segment': order.clientSegment,
-            'Order Date': order.orderDate ? new Date(order.orderDate).toLocaleDateString() : '',
-            'Est. Completion Date': order.estimatedCompletionDate ? new Date(order.estimatedCompletionDate).toLocaleDateString() : '',
+            'Order Date': order.orderDate ? formatDate(order.orderDate) : '',
+            'Est. Completion Date': order.estimatedCompletionDate ? formatDate(order.estimatedCompletionDate) : '',
             'Contract Value': order.contractValue,
             'Currency': order.currency,
             'Revenue Status': order.revenueRecognitionStatus,
@@ -273,7 +274,7 @@ export async function GET(request: Request) {
             'Manufacturing Stage': order.manufacturingStage,
             'Calibration Logs': order.calibrationTestLogs || '',
             'After-Sales/AMC': order.afterSalesAmc || '',
-            'Created At': order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '',
+            'Created At': order.createdAt ? formatDate(order.createdAt) : '',
         }));
 
         const workbook = XLSX.utils.book_new();

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
+import { formatDate } from '@/lib/date';
 
 // Input validation schema
 const assistantRequestSchema = z.object({
@@ -310,7 +311,7 @@ async function getContextData(userId?: string, userRole?: string) {
       recentOrders: recentOrders.map(o => ({
         ...o,
         contractValue: isPrivileged ? o.contractValue.toString() : 'Confidential',
-        createdAt: o.createdAt.toLocaleDateString('en-IN'),
+        createdAt: formatDate(o.createdAt),
       })),
       criticalOrders,
       lowStockItems: lowStockComponents,
@@ -488,7 +489,7 @@ ${leadActivities.length > 0
 ### Upcoming Calendar Events & Follow-ups
 ${calendarEvents.length > 0 
   ? calendarEvents.slice(0, 8).map((e: any) => 
-      `- **${e.title}** with ${e.lead?.name || 'TBD'}: ${new Date(e.scheduledAt).toLocaleDateString('en-IN')} (${e.status})`
+      `- **${e.title}** with ${e.lead?.name || 'TBD'}: ${formatDate(e.scheduledAt)} (${e.status})`
     ).join('\n')
   : '- No upcoming events scheduled'}
 
@@ -721,7 +722,7 @@ export async function POST(request: NextRequest) {
         
         if (pendingFollowUps.length > 0) {
           const upcomingText = pendingFollowUps.map((fu: any) => {
-            const scheduledDate = fu.scheduledAt ? new Date(fu.scheduledAt).toLocaleDateString('en-IN') : 'Not scheduled';
+            const scheduledDate = fu.scheduledAt ? formatDate(fu.scheduledAt) : 'Not scheduled';
             return `- **${fu.lead.name}** (${fu.lead.email}): ${fu.title || 'Follow-up scheduled'} - ${scheduledDate}`;
           }).join('\n');
           

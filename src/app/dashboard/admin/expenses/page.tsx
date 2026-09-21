@@ -33,6 +33,7 @@ import {
 } from 'lucide-react'
 import { FileUploader } from '@/components/FileUploader'
 import * as XLSX from 'xlsx'
+import { formatDate } from '@/lib/date'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 
@@ -416,7 +417,7 @@ export default function ExpensesPage() {
                                             </span>
                                         </td>
                                         <td className="px-8 py-6 text-sm text-slate-600 font-medium">
-                                            {new Date(expense.date).toLocaleDateString('en-GB')}
+                                            {formatDate(expense.date)}
                                         </td>
                                         <td className="px-8 py-6">
                                             <span className={`status-badge ${

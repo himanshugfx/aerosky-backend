@@ -1,6 +1,7 @@
 'use client'
 
 import { dronesApi, pilotsApi } from '@/lib/api'
+import { formatDate } from '@/lib/date'
 import { useQuery } from '@tanstack/react-query'
 import {
     Activity,
@@ -101,7 +102,7 @@ export default function CompliancePage() {
                     <div className="flex flex-col sm:flex-row items-center gap-6 w-full xl:w-auto">
                         <div className="text-center sm:text-right">
                             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Last Audit</p>
-                            <p className="text-sm font-semibold text-white">{new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                            <p className="text-sm font-semibold text-white">{formatDate(new Date())}</p>
                         </div>
                     </div>
                 </div>

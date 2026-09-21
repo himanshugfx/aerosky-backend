@@ -1,6 +1,7 @@
 'use client'
 
 import { pilotsApi } from '@/lib/api'
+import { formatDate } from '@/lib/date'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -241,7 +242,7 @@ export default function PilotsPage() {
                                         <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-slate-900 rounded-2xl shadow-xl shadow-slate-900/10">
                                             <Calendar className="w-4 h-4 text-white/40" />
                                             <span className="text-[11px] font-black text-white italic tracking-widest uppercase">
-                                                {pilot.expiry_date ? new Date(pilot.expiry_date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) : 'NON-EXPIRING'}
+                                                {pilot.expiry_date ? formatDate(pilot.expiry_date) : 'NON-EXPIRING'}
                                             </span>
                                         </div>
                                     </td>

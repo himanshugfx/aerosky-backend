@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import { formatDate } from '@/lib/date'
 
 interface Component {
     id: string; name: string; description: string | null; quantity: number; category: string;
@@ -75,8 +76,10 @@ export default function InventoryPage() {
             ])
             if (cRes.ok) {
                 const cData = await cRes.json()
-                // Handle paginated response
-                setComponents(cData.data || (Array.isArray(cData) ? cData : []))
+                const list = Array.isArray(cData) ? cData : (cData.data || cData.components || [])
+                setComponents(list)
+            } else {
+                console.error("Failed to load components:", cRes.status)
             }
             if (tRes.ok) {
                 const tData = await tRes.json()
@@ -356,7 +359,7 @@ export default function InventoryPage() {
                                         </div>
                                     </td>
                                     <td className="px-10 py-7 text-right">
-                                        <p className="text-sm font-black text-slate-900 tracking-tight">{new Date(t.date).toLocaleDateString()}</p>
+                                        <p className="text-sm font-black text-slate-900 tracking-tight">{formatDate(t.date)}</p>
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{new Date(t.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </td>
                                 </tr>

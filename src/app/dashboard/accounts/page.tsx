@@ -31,6 +31,7 @@ import { ReceiptModal } from '@/components/ReceiptModal'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
+import { formatDate } from '@/lib/date'
 
 interface Reimbursement {
     id: string
@@ -136,7 +137,7 @@ export default function AccountsPage() {
         const dataToExport = reimbursements.map(r => ({
             'Logistics Order': r.name,
             'Valuation (INR)': r.amount,
-            'Date': new Date(r.date).toLocaleDateString(),
+            'Date': formatDate(r.date),
             'Status': r.status,
             'Agent': r.user?.fullName || r.user?.username
         }))
@@ -352,7 +353,7 @@ export default function AccountsPage() {
                                                         <div className="flex items-center gap-2 mt-0.5">
                                                             <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                                                                 <Calendar className="w-3 h-3 child" />
-                                                                {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                                {formatDate(item.date)}
                                                             </div>
                                                             <div className="w-1 h-1 rounded-full bg-slate-200" />
                                                             <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">{item.category || 'Other'}</span>

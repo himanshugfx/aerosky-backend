@@ -25,6 +25,7 @@ import {
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { formatDate } from '@/lib/date'
 
 interface DashboardStats {
     drones: number
@@ -105,7 +106,7 @@ export default function DashboardPage() {
                 <div>
                     <div className="flex items-center gap-3 mb-2">
                         <span className="status-badge status-badge-info !px-2 !py-0.5 text-[8px]">System Online</span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{formatDate(new Date())}</span>
                     </div>
                     <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">
                         Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, <span className="bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">{session?.user?.name?.split(' ')[0]}</span>

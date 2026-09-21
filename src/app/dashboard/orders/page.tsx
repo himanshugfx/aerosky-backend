@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import { formatDate } from '@/lib/date'
 
 interface OrderUpload {
     id: string
@@ -332,7 +333,7 @@ export default function OrdersPage() {
                             <div className="px-10 py-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between group-hover:bg-white transition-colors">
                                 <div className="flex gap-5">
                                     <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase">
-                                        <Calendar className="w-3.5 h-3.5" /> {new Date(order.orderDate).toLocaleDateString()}
+                                        <Calendar className="w-3.5 h-3.5" /> {formatDate(order.orderDate)}
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px] font-black text-emerald-500 uppercase">
                                         <Paperclip className="w-3.5 h-3.5" /> {order.uploads?.length || 0} Assets

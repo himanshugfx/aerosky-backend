@@ -30,6 +30,7 @@ import {
     ExternalLink
 } from 'lucide-react'
 import Link from 'next/link'
+import { formatDate } from '@/lib/date'
 
 interface Report {
     id: string
@@ -498,11 +499,7 @@ export default function ReportsPage() {
                         const authorName = report.user?.fullName || report.user?.username || 'Executive Officer'
                         const initial = authorName.charAt(0).toUpperCase()
                         const hasFile = Boolean(report.attachment)
-                        const dateStr = new Date(report.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                        })
+                        const dateStr = formatDate(report.createdAt)
 
                         return (
                             <div
@@ -827,11 +824,7 @@ export default function ReportsPage() {
                             <div className="text-right">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compiled On</p>
                                 <p className="text-xs font-bold text-slate-700">
-                                    {new Date(viewingReport.createdAt).toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        year: 'numeric'
-                                    })}
+                                    {formatDate(viewingReport.createdAt)}
                                 </p>
                             </div>
                         </div>

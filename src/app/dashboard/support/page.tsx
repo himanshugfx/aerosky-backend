@@ -29,6 +29,7 @@ import {
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { formatDate } from '@/lib/date'
 
 interface Ticket {
     id: string
@@ -234,7 +235,7 @@ export default function SupportPage() {
                                             </td>
                                             <td className="px-8 py-6 text-right">
                                                 <div className="space-y-0.5">
-                                                    <p className="text-sm font-bold text-slate-900">{new Date(ticket.updatedAt).toLocaleDateString()}</p>
+                                                    <p className="text-sm font-bold text-slate-900">{formatDate(ticket.updatedAt)}</p>
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Signal Sync</p>
                                                 </div>
                                             </td>

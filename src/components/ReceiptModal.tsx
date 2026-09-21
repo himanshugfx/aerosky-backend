@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Download, ExternalLink, ZoomIn, ZoomOut, RotateCcw, FileText, Image as ImageIcon } from "lucide-react";
+import { formatDate } from "@/lib/date";
 
 interface ReceiptModalProps {
     isOpen: boolean;
@@ -114,7 +115,7 @@ export function ReceiptModal({
                                 {date && (
                                     <>
                                         <span>•</span>
-                                        <span>{new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                        <span>{formatDate(date)}</span>
                                     </>
                                 )}
                                 {status && (

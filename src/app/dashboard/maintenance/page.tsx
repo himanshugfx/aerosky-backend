@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { maintenanceApi, dronesApi } from '@/lib/api'
+import { formatDate } from '@/lib/date'
 import {
     Wrench,
     CheckCircle,
@@ -212,7 +213,7 @@ export default function MaintenancePage() {
                                     <td className="px-10 py-8 text-sm font-medium text-slate-600">
                                         <div className="flex items-center gap-2">
                                             <Calendar className="w-4 h-4 text-slate-300" />
-                                            {new Date(log.maintenance_date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            {formatDate(log.maintenance_date)}
                                         </div>
                                     </td>
                                     <td className="px-10 py-8 text-right">
