@@ -63,7 +63,8 @@ export default function InventoryPage() {
         time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
     })
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
-    const [compForm, setCompForm] = useState({ name: '', description: '', category: 'Operational' })
+    const [compForm, setCompForm] = useState({ name: '', description: '', category: 'Manufacturing', quantity: 0, unitPrice: '' })
+    const [compError, setCompError] = useState<string | null>(null)
 
     const fetchData = async () => {
         try {
@@ -109,7 +110,12 @@ export default function InventoryPage() {
                 setSearchComponentIn('')
                 setSearchComponentOut('')
                 fetchData()
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.message || data.error?.message || data.error || 'Failed to record transaction');
             }
+        } catch (err: any) {
+            alert(err.message || 'Network error occurred');
         } finally { setSubmitting(false) }
     }
 
@@ -137,8 +143,8 @@ export default function InventoryPage() {
                     <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tightest">Inventory <span className="text-slate-400">Logistics</span></h1>
                 </div>
                 <div className="flex flex-col sm:flex-row flex-wrap gap-3 lg:gap-4 w-full md:w-auto">
-                    <button onClick={() => setModals({ ...modals, add: true })} className="w-full sm:w-auto btn-premium-ghost border border-slate-200 !py-3.5 px-6 text-[11px] font-black uppercase tracking-widest order-3 sm:order-1">
-                        <Plus className="w-4 h-4" /> New Category
+                    <button onClick={() => { setModals({ ...modals, add: true }); setCompError(null); }} className="w-full sm:w-auto btn-premium-ghost border border-slate-200 !py-3.5 px-6 text-[11px] font-black uppercase tracking-widest order-3 sm:order-1">
+                        <Plus className="w-4 h-4" /> New Component
                     </button>
                     <button onClick={() => setModals({ ...modals, in: true })} className="w-full sm:w-auto btn-premium-accent bg-emerald-600 hover:bg-emerald-700 !py-3.5 shadow-xl shadow-emerald-500/10 group order-1 sm:order-2">
                         <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -362,12 +368,116 @@ export default function InventoryPage() {
 
             {/* Premium Modals Implementation */}
             {modals.add && (
-                <Modal title="Register Component" subtitle="Define a new inventory resource" onClose={() => setModals({ ...modals, add: false })}>
-                    <form onSubmit={async (e) => { e.preventDefault(); setSubmitting(true); await fetch('/api/inventory/components', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(compForm) }); setModals({ ...modals, add: false }); fetchData(); setSubmitting(false) }} className="space-y-8">
-                        <div className="space-y-2"><label className="label-style">Unique Component Name</label><input type="text" value={compForm.name} onChange={e => setCompForm({ ...compForm, name: e.target.value })} className="input-modern" required /></div>
-                        <div className="space-y-2"><label className="label-style">Logistics Category</label><select value={compForm.category} onChange={e => setCompForm({ ...compForm, category: e.target.value })} className="input-modern !appearance-none"><option>Operational</option><option>Manufacturing</option><option>Marketing</option></select></div>
-                        <div className="space-y-2"><label className="label-style">Technical Dossier / Description</label><textarea value={compForm.description || ''} onChange={e => setCompForm({ ...compForm, description: e.target.value })} className="input-modern h-32 resize-none" /></div>
-                        <div className="flex gap-4"><button type="button" onClick={() => setModals({ ...modals, add: false })} className="btn-premium-ghost flex-1 font-black text-xs uppercase tracking-widest">Cancel</button><button type="submit" disabled={submitting} className="btn-premium-accent flex-[2] font-black text-xs uppercase tracking-widest">{submitting ? 'Processing...' : 'Register Asset Type'}</button></div>
+                <Modal title="Register Component" subtitle="Define a new inventory resource" onClose={() => { setModals({ ...modals, add: false }); setCompError(null); }}>
+                    <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        setSubmitting(true);
+                        setCompError(null);
+                        try {
+                            const res = await fetch('/api/inventory/components', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    name: compForm.name,
+                                    category: compForm.category,
+                                    description: compForm.description || null,
+                                    quantity: Number(compForm.quantity) || 0,
+                                    unitPrice: compForm.unitPrice !== '' ? Number(compForm.unitPrice) : null,
+                                })
+                            });
+                            const data = await res.json().catch(() => ({}));
+                            if (!res.ok) {
+                                setCompError(data.message || data.error?.message || data.error || 'Failed to register component');
+                                return;
+                            }
+                            setModals({ ...modals, add: false });
+                            setCompForm({ name: '', description: '', category: 'Manufacturing', quantity: 0, unitPrice: '' });
+                            fetchData();
+                        } catch (err: any) {
+                            setCompError(err.message || 'An unexpected error occurred');
+                        } finally {
+                            setSubmitting(false);
+                        }
+                    }} className="space-y-6">
+                        {compError && (
+                            <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-600 text-xs font-bold">
+                                <AlertCircle className="w-4 h-4 shrink-0" />
+                                <span>{compError}</span>
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            <label className="label-style">Unique Component Name</label>
+                            <input
+                                type="text"
+                                placeholder="e.g. XT 90 (Male + Female)"
+                                value={compForm.name}
+                                onChange={e => setCompForm({ ...compForm, name: e.target.value })}
+                                className="input-modern"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="label-style">Logistics Category</label>
+                            <select
+                                value={compForm.category}
+                                onChange={e => setCompForm({ ...compForm, category: e.target.value })}
+                                className="input-modern !appearance-none"
+                            >
+                                <option>Manufacturing</option>
+                                <option>Operational</option>
+                                <option>Marketing</option>
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="label-style">Initial Quantity</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    placeholder="0"
+                                    value={compForm.quantity}
+                                    onChange={e => setCompForm({ ...compForm, quantity: Math.max(0, parseInt(e.target.value) || 0) })}
+                                    className="input-modern"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="label-style">Unit Price (Optional)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="e.g. 150"
+                                    value={compForm.unitPrice}
+                                    onChange={e => setCompForm({ ...compForm, unitPrice: e.target.value })}
+                                    className="input-modern"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="label-style">Technical Dossier / Description</label>
+                            <textarea
+                                placeholder="Specifications, pinout, or component details..."
+                                value={compForm.description || ''}
+                                onChange={e => setCompForm({ ...compForm, description: e.target.value })}
+                                className="input-modern h-24 resize-none"
+                            />
+                        </div>
+                        <div className="flex gap-4 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => { setModals({ ...modals, add: false }); setCompError(null); }}
+                                className="btn-premium-ghost flex-1 font-black text-xs uppercase tracking-widest"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={submitting || !compForm.name.trim()}
+                                className="btn-premium-accent flex-[2] font-black text-xs uppercase tracking-widest"
+                            >
+                                {submitting ? 'Processing...' : 'Register Asset Type'}
+                            </button>
+                        </div>
                     </form>
                 </Modal>
             )}

@@ -37,11 +37,11 @@ export const createDroneSchema = z.object({
 });
 
 export const createComponentSchema = z.object({
-  name: z.string().min(1).max(200),
-  description: z.string().max(1000).optional(),
-  category: z.string().max(100).optional(),
-  quantity: z.number().int().min(0),
-  unitPrice: z.number().min(0).optional(),
+  name: z.string().min(1, 'Component name is required').max(200),
+  description: z.string().max(1000).optional().nullable(),
+  category: z.string().max(100).optional().default('Operational'),
+  quantity: z.coerce.number().int().min(0).default(0),
+  unitPrice: z.coerce.number().min(0).optional().nullable(),
 });
 
 export const createOrderSchema = z.object({

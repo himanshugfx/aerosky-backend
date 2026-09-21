@@ -56,13 +56,26 @@ export async function POST(request: NextRequest) {
 
         const { data: validated } = validation;
 
+        // Check if component already exists
+        const existing = await prisma.component.findFirst({
+            where: {
+                name: {
+                    equals: validated.name,
+                    mode: 'insensitive'
+                }
+            }
+        });
+        if (existing) {
+            throw errors.conflict(`A component with the name "${validated.name}" already exists.`);
+        }
+
         const component = await prisma.component.create({
             data: {
-                name: validated.name,
-                description: validated.description,
+                name: validated.name.trim(),
+                description: validated.description || null,
                 category: validated.category || "Operational",
-                quantity: validated.quantity,
-                unitPrice: validated.unitPrice,
+                quantity: validated.quantity ?? 0,
+                unitPrice: validated.unitPrice ?? null,
             },
         });
 
