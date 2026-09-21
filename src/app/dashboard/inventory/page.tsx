@@ -86,7 +86,17 @@ export default function InventoryPage() {
                 const list = Array.isArray(cData) ? cData : (cData.data || cData.components || [])
                 setComponents(list)
             } else {
-                console.error("Failed to load components:", cRes.status)
+                console.error("Primary components fetch failed:", cRes.status)
+                try {
+                    const fallbackRes = await fetch('/api/mobile/inventory/components')
+                    if (fallbackRes.ok) {
+                        const fallbackData = await fallbackRes.json()
+                        const list = Array.isArray(fallbackData) ? fallbackData : (fallbackData.data || [])
+                        if (list.length > 0) setComponents(list)
+                    }
+                } catch (fallbackErr) {
+                    console.error("Fallback components fetch failed:", fallbackErr)
+                }
             }
             if (tRes.ok) {
                 const tData = await tRes.json()

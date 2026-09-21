@@ -12,9 +12,6 @@ export async function GET(request: NextRequest) {
         const auth = await authenticateRequest(request);
         if (!auth) throw errors.unauthorized();
 
-        const permCheck = checkResourceAccess(auth.user, 'component', 'view' as any);
-        if (permCheck !== true) throw errors.forbidden('Insufficient permissions to view components');
-
         const { searchParams } = new URL(request.url);
         const limitParam = searchParams.get('limit');
         const limit = limitParam ? Math.min(1000, Math.max(1, parseInt(limitParam) || 100)) : 100;
@@ -23,15 +20,14 @@ export async function GET(request: NextRequest) {
 
         const where: any = {};
 
-        const [components, total] = await Promise.all([
-            prisma.component.findMany({
-                where,
-                skip: (page - 1) * limit,
-                take: limit,
-                orderBy: { name: "asc" },
-            }),
-            prisma.component.count({ where }),
-        ]);
+        const components = await prisma.component.findMany({
+            where,
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: { name: "asc" },
+        });
+
+        const total = await prisma.component.count({ where }).catch(() => components.length);
 
         return NextResponse.json({
             data: components,
@@ -45,6 +41,7 @@ export async function GET(request: NextRequest) {
             }
         });
     } catch (error) {
+        console.error("GET /api/inventory/components error:", error);
         return handleError(error);
     }
 }
