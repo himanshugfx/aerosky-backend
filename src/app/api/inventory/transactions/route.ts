@@ -84,7 +84,11 @@ export async function POST(request: NextRequest) {
                     subcontractorId: subcontractorId || null,
                     userId: auth.user.id,
                     takenOutFor: takenOutFor || null,
-                    date: date ? new Date(date) : new Date(),
+                    date: (() => {
+                        if (!date) return new Date();
+                        const parsed = new Date(date);
+                        return isNaN(parsed.getTime()) ? new Date() : parsed;
+                    })(),
                 }
             });
 

@@ -33,7 +33,7 @@ interface Component {
 }
 
 interface Transaction {
-    id: string; type: 'IN' | 'OUT'; quantity: number; date: string;
+    id: string; type: 'IN' | 'OUT'; quantity: number; date: string; createdAt?: string;
     subcontractor?: { companyName: string }; user?: { fullName: string; username: string };
     takenOutFor?: string; component: { name: string };
 }
@@ -58,10 +58,17 @@ export default function InventoryPage() {
     const [bucketFilter, setBucketFilter] = useState<'all' | 'in_stock' | 'out_of_stock'>('all')
     const [modals, setModals] = useState({ in: false, out: false, add: false })
     const [submitting, setSubmitting] = useState(false)
+    const getLocalTodayDate = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const [formData, setFormData] = useState({
         componentId: '', quantity: 1, subcontractorId: '', takenOutFor: '', otherSupplierName: '',
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+        date: getLocalTodayDate()
     })
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
     const [compForm, setCompForm] = useState({ name: '', description: '', category: 'Manufacturing', quantity: 0, unitPrice: '' })
@@ -95,6 +102,16 @@ export default function InventoryPage() {
     const handleTransaction = async (type: 'IN' | 'OUT') => {
         setSubmitting(true)
         try {
+            let transactionDate: Date;
+            if (formData.date) {
+                const [year, month, day] = formData.date.split('-').map(Number);
+                const now = new Date();
+                // Construct Date using local year/month/day and current local time
+                transactionDate = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds());
+            } else {
+                transactionDate = new Date();
+            }
+
             const res = await fetch('/api/inventory/transactions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -104,12 +121,12 @@ export default function InventoryPage() {
                     quantity: Number(formData.quantity),
                     subcontractorId: type === 'IN' ? (formData.subcontractorId === 'other' ? null : formData.subcontractorId || null) : null,
                     takenOutFor: type === 'OUT' ? (formData.takenOutFor || null) : (type === 'IN' && formData.subcontractorId === 'other' ? (formData.otherSupplierName || null) : null),
-                    date: `${formData.date}T${formData.time}:00`
+                    date: transactionDate.toISOString()
                 })
             })
             if (res.ok) {
                 setModals({ ...modals, in: false, out: false })
-                setFormData({ ...formData, componentId: '', quantity: 1, otherSupplierName: '', subcontractorId: '', takenOutFor: '' })
+                setFormData({ ...formData, componentId: '', quantity: 1, otherSupplierName: '', subcontractorId: '', takenOutFor: '', date: getLocalTodayDate() })
                 setSearchComponentIn('')
                 setSearchComponentOut('')
                 fetchData()
@@ -359,8 +376,8 @@ export default function InventoryPage() {
                                         </div>
                                     </td>
                                     <td className="px-10 py-7 text-right">
-                                        <p className="text-sm font-black text-slate-900 tracking-tight">{formatDate(t.date)}</p>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{new Date(t.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                        <p className="text-sm font-black text-slate-900 tracking-tight">{formatDate(t.date || t.createdAt)}</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{new Date(t.date || t.createdAt || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </td>
                                 </tr>
                             ))}
