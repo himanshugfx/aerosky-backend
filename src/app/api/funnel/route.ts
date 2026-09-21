@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authenticateRequest } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,9 +25,9 @@ async function ensureStagesExist() {
     }
 }
 
-export async function GET() {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+export async function GET(request: NextRequest) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/api-auth";
 
-export async function GET() {
-    const session = await getServerSession(authOptions);
-    if (!session) {
+export async function GET(request: NextRequest) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
-        const whereClause = {};
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
 
         // 1. Fetch Recent Flight Logs (Last 3)
         const recentFlights = await prisma.flightLog.findMany({
-            where: whereClause,
             take: 3,
             orderBy: { createdAt: 'desc' },
             include: { drone: true }
@@ -23,8 +21,8 @@ export async function GET() {
         // 2. Fetch Support Tickets with New Replies
         const supportUpdates = await prisma.supportTicket.findMany({
             where: {
-                ...whereClause,
-                hasNewReply: true
+                hasNewReply: true,
+                ...(isPrivileged ? {} : { userId: auth.user.id })
             },
             take: 2,
             orderBy: { updatedAt: 'desc' }
@@ -32,7 +30,6 @@ export async function GET() {
 
         // 3. Fetch Recent Order Stage Updates (Last 2)
         const recentOrders = await prisma.order.findMany({
-            where: whereClause,
             take: 2,
             orderBy: { updatedAt: 'desc' }
         });

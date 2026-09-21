@@ -22,8 +22,10 @@ export async function GET(
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
+
         // Check authorization
-        if (auth.user.role !== 'SUPER_ADMIN' && ticket.userId !== auth.user.id) {
+        if (!isPrivileged && ticket.userId !== auth.user.id) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
@@ -61,8 +63,10 @@ export async function POST(
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
+
         // Check authorization
-        if (auth.user.role !== 'SUPER_ADMIN' && ticket.userId !== auth.user.id) {
+        if (!isPrivileged && ticket.userId !== auth.user.id) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
@@ -73,7 +77,7 @@ export async function POST(
             return NextResponse.json({ error: 'Message is required' }, { status: 400 });
         }
 
-        // Create message and update ticket status if super admin replies
+        // Create message and update ticket status if admin replies
         const result = await prisma.$transaction(async (tx) => {
             const newMessage = await tx.supportMessage.create({
                 data: {
@@ -86,13 +90,13 @@ export async function POST(
             // Update ticket status and timestamp
             const updateData: any = { updatedAt: new Date() };
 
-            // If super admin replies to an OPEN ticket, mark it as IN_PROGRESS
-            if (auth.user.role === 'SUPER_ADMIN' && ticket.status === 'OPEN') {
+            // If privileged admin replies to an OPEN ticket, mark it as IN_PROGRESS
+            if (isPrivileged && ticket.status === 'OPEN') {
                 updateData.status = 'IN_PROGRESS';
             }
 
             // Set hasNewReply flag
-            if (auth.user.role === 'SUPER_ADMIN') {
+            if (isPrivileged) {
                 updateData.hasNewReply = true;
             } else if (ticket.userId === auth.user.id) {
                 // User replying means they've read previous replies

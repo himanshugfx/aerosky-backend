@@ -12,60 +12,33 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Only admins can view support tickets
-        if (auth.user.role !== 'ADMIN' && auth.user.role !== 'SUPER_ADMIN') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-        }
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
 
-        let tickets;
-
-        if (auth.user.role === 'SUPER_ADMIN') {
-            // Super admin sees all tickets
-            tickets = await prisma.supportTicket.findMany({
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            fullName: true,
-                            email: true,
-                            role: true
-                        }
-                    },
-                    messages: {
-                        take: 1,
-                        orderBy: { createdAt: 'desc' }
-                    },
-                    _count: {
-                        select: { messages: true }
+        const tickets = await prisma.supportTicket.findMany({
+            where: isPrivileged ? {} : { userId: auth.user.id },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        email: true,
+                        role: true
                     }
                 },
-                orderBy: [
-                    { status: 'asc' },
-                    { priority: 'desc' },
-                    { updatedAt: 'desc' }
-                ]
-            });
-        } else {
-            // Admin sees only their tickets
-            tickets = await prisma.supportTicket.findMany({
-                where: {
-                    userId: auth.user.id
+                messages: {
+                    take: 1,
+                    orderBy: { createdAt: 'desc' }
                 },
-                include: {
-                    messages: {
-                        take: 1,
-                        orderBy: { createdAt: 'desc' }
-                    },
-                    _count: {
-                        select: { messages: true }
-                    }
-                },
-                orderBy: [
-                    { status: 'asc' },
-                    { updatedAt: 'desc' }
-                ]
-            });
-        }
+                _count: {
+                    select: { messages: true }
+                }
+            },
+            orderBy: [
+                { status: 'asc' },
+                { priority: 'desc' },
+                { updatedAt: 'desc' }
+            ]
+        });
 
         return NextResponse.json(tickets);
     } catch (error: any) {

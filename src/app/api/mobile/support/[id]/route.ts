@@ -35,13 +35,15 @@ export async function GET(
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
+
         // Check authorization
-        if (auth.user.role !== 'SUPER_ADMIN' && ticket.userId !== auth.user.id) {
+        if (!isPrivileged && ticket.userId !== auth.user.id) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         // Reset hasNewReply if the owner is viewing it
-        if (auth.user.role !== 'SUPER_ADMIN' && ticket.userId === auth.user.id && ticket.hasNewReply) {
+        if (!isPrivileged && ticket.userId === auth.user.id && ticket.hasNewReply) {
             await prisma.supportTicket.update({
                 where: { id: params.id },
                 data: { hasNewReply: false }
@@ -70,8 +72,10 @@ export async function PUT(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Only SUPER_ADMIN can update ticket status
-        if (auth.user.role !== 'SUPER_ADMIN') {
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
+
+        // Only privileged admins can update ticket status
+        if (!isPrivileged) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
@@ -107,8 +111,10 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Only SUPER_ADMIN can delete tickets
-        if (auth.user.role !== 'SUPER_ADMIN') {
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
+
+        // Only privileged admins can delete tickets
+        if (!isPrivileged) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 

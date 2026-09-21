@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     try {
         const where: any = {};
 
+        const isPrivileged = ['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION'].includes(auth.user.role);
+
         // 1. Fetch Recent Flight Logs (Last 3)
         const recentFlights = await prisma.flightLog.findMany({
             where,
@@ -24,8 +26,8 @@ export async function GET(request: NextRequest) {
         // 2. Fetch Support Tickets with New Replies
         const supportUpdates = await prisma.supportTicket.findMany({
             where: {
-                ...where,
-                hasNewReply: true
+                hasNewReply: true,
+                ...(isPrivileged ? {} : { userId: auth.user.id })
             },
             take: 2,
             orderBy: { updatedAt: 'desc' }

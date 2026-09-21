@@ -1,20 +1,19 @@
-import { authOptions } from '@/lib/auth';
+import { authenticateRequest } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { getServerSession } from 'next-auth';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument } from 'pdf-lib';
 import * as XLSX from 'xlsx';
 import { formatDate } from '@/lib/date';
 
-export async function GET(request: Request) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+export async function GET(request: NextRequest) {
+    const auth = await authenticateRequest(request);
+    if (!auth?.user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userRole = (session.user as any).role;
+    const userRole = auth.user.role;
     if (!['SUPER_ADMIN', 'ADMIN', 'ADMINISTRATION', 'SALES', 'OPERATIONS_MANAGER'].includes(userRole)) {
         return NextResponse.json({ error: 'Forbidden: Insufficient permissions to export orders' }, { status: 403 });
     }
